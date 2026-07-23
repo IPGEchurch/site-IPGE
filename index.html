@@ -901,7 +901,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
           <article class="campaign-card">
             <div class="campaign-image">
               <!-- Substitua campanha.jpg pela foto da nova campanha -->
-              <img src="/foto01.png" alt="Foto da campanha profética">
+              <img src="foto01.png" alt="Foto da campanha profética">
             </div>
             <h2>Campanha</h2>
             <p><strong>Base bíblica:</strong><br>Digite aqui o livro, capítulo e versículos que fundamentam esta campanha.</p>
@@ -913,7 +913,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
           <article class="campaign-card">
             <div class="campaign-image">
               <!-- Substitua campanha.jpg pela foto da nova campanha -->
-              <img src="/foto01.jpeg" alt="Foto da campanha profética">
+              <img src="foto01.png" alt="Foto da campanha profética">
             </div>
             <h2>Campanha</h2>
             <p><strong>Base bíblica:</strong><br>Digite aqui o livro, capítulo e versículos que fundamentam esta campanha.</p>
@@ -1245,29 +1245,6 @@ const QUIZ_QUESTIONS = [
   {level:"Difícil", q:"Quem escreveu a maior parte das cartas do Novo Testamento?", options:["Pedro","Paulo","João","Tiago"], correct:1}
 ];
 
-/* AI mock knowledge base — keyword based, always grounded in scripture */
-function aiRespond(question){
-  const q = question.toLowerCase();
-  if(q.includes("joão 3:16") || q.includes("joao 3:16") || (q.includes("joão") && q.includes("3") && q.includes("16"))){
-    return "<b>João 3:16</b> resume o coração do evangelho: Deus amou o mundo a ponto de entregar seu próprio Filho, para que todo aquele que crê nele tenha vida eterna. Três verdades centrais:<br><br>1️⃣ A <b>iniciativa</b> é de Deus — o amor parte dEle, não do nosso esforço.<br>2️⃣ O <b>alvo</b> é universal — \"o mundo\", não apenas um povo.<br>3️⃣ A <b>resposta</b> pedida é a fé, não méritos.<br><br>É o versículo mais citado como síntese da graça de Deus revelada em Cristo.";
-  }
-  if(q.includes("romanos 8")){
-    return "<b>Romanos 8</b> é um dos capítulos mais ricos da Bíblia sobre a vida no Espírito. Ele mostra que:<br><br>• Não há mais <b>condenação</b> para quem está em Cristo (v.1).<br>• O <b>Espírito Santo</b> habita no crente e o liberta da lei do pecado (v.2-4).<br>• Todas as coisas cooperam para o <b>bem</b> de quem ama a Deus (v.28).<br>• <b>Nada</b> pode nos separar do amor de Deus em Cristo Jesus (v.38-39).<br><br>É um capítulo de segurança espiritual e esperança para quem enfrenta sofrimento.";
-  }
-  if(q.includes("ansied")){
-    return "Aqui estão passagens que tratam diretamente da ansiedade e da paz de Deus:<br><br>📖 <b>Filipenses 4:6-7</b> — não estejais ansiosos por coisa alguma, mas em oração apresentem seus pedidos a Deus.<br>📖 <b>Mateus 6:34</b> — não vos inquieteis pelo dia de amanhã.<br>📖 <b>1 Pedro 5:7</b> — lançai sobre ele toda a vossa ansiedade, porque ele tem cuidado de vós.<br>📖 <b>Salmos 55:22</b> — entrega ao Senhor a tua carga.<br><br>Quer que eu monte um pequeno devocional de 3 dias sobre esse tema?";
-  }
-  if(q.includes("resumo") && q.includes("tiago")){
-    return "<b>Resumo do livro de Tiago:</b><br><br>Tiago escreve uma carta prática sobre como a fé genuína se manifesta em ações. Temas centrais:<br>• Provações produzem perseverança (cap. 1)<br>• Fé sem obras é morta (cap. 2)<br>• Domínio da língua (cap. 3)<br>• Humildade diante de Deus (cap. 4)<br>• Paciência e oração (cap. 5)<br><br>É conhecido como o livro mais \"prático\" do Novo Testamento — a ética cristã em ação.";
-  }
-  if(q.includes("devocional") && q.includes("fé")){
-    return "<b>Devocional — Fé que caminha sem ver tudo</b><br><br><i>\"Ora, a fé é o firme fundamento das coisas que se esperam, e a prova das coisas que se não veem.\" — Hebreus 11:1</i><br><br>Fé não é ausência de dúvida, mas confiança que age mesmo sem enxergar o caminho todo. Abraão saiu sem saber para onde ia; Pedro andou sobre as águas enquanto olhava para Jesus.<br><br><b>Aplicação:</b> hoje, dê um passo de obediência mesmo sem ter todas as respostas.<br><b>Oração:</b> Senhor, aumenta a minha fé e ajuda-me a confiar nos teus tempos. Amém.";
-  }
-  if(q.includes("oi") || q.includes("olá") || q.includes("ola")){
-    return "Olá! Que bom ter você aqui. 🙏 Posso explicar um versículo, resumir um livro da Bíblia, sugerir passagens sobre um tema ou montar um devocional rápido. O que você gostaria de explorar hoje?";
-  }
-  return "Ótima pergunta. Embora eu ainda não tenha uma resposta específica preparada para isso nesta versão de demonstração, recomendo explorar a seção <b>Bíblia</b> ou <b>Estudos bíblicos</b> para aprofundar o tema — ou tente perguntar sobre João 3:16, Romanos 8, ansiedade, o livro de Tiago, ou peça um devocional sobre fé.";
-}
 
 /* =========================================================
    HELPERS
@@ -1516,31 +1493,141 @@ renderReader();
 loadFullBible();
 
 /* =========================================================
-   AI CHAT
+   🔑 CHAVE DA API — OpenRouter (gratuito)
+   1. Acesse: https://openrouter.ai e crie uma conta
+   2. Vá em: https://openrouter.ai/settings/keys
+   3. Clique em "Create Key", copie e cole abaixo
    ========================================================= */
+const OPENROUTER_API_KEY = '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';
+
+const SYSTEM_PROMPT = `IDIOMA OBRIGATÓRIO: Responda SEMPRE e EXCLUSIVAMENTE em português do Brasil, independentemente do idioma da pergunta do usuário. Nunca responda em inglês ou em qualquer outro idioma, em nenhuma hipótese.
+
+Você é o assistente espiritual da IPGE Church, chamado Shlomo. Você responde sempre em português do Brasil, com gentileza, calor pastoral e embasamento nas Escrituras. Suas respostas devem:
+- Explicar versículos bíblicos com profundidade e aplicação prática
+- Citar referências bíblicas relevantes ao tema perguntado
+- Criar devocionais estruturados (versículo, reflexão, aplicação, oração) quando solicitado
+- Sugerir passagens sobre temas como fé, ansiedade, esperança, perdão, etc.
+- Usar emojis moderadamente para tornar a conversa mais acolhedora (🙏📖✝️)
+- Manter um tom pastoral, amoroso e edificante
+- Formatar as respostas usando **negrito** e linhas em branco para facilitar a leitura
+- Nunca inventar versículos — apenas citar os que realmente existem
+Você está inserido no aplicativo de estudos bíblicos IPGE Church e representa a palavra de Deus com fidelidade e amor.
+
+LEMBRETE FINAL: toda a sua resposta, do início ao fim, deve estar 100% em português do Brasil, sem nenhuma palavra em outro idioma.`;
+
+/* =========================================================
+   AI CHAT — OpenRouter
+   Lista de modelos gratuitos, em ordem de preferência. Se o
+   primeiro falhar ou estiver indisponível, tenta o próximo
+   automaticamente — evita que o app quebre quando um modelo
+   sai do catálogo :free da OpenRouter (isso muda com frequência).
+   ========================================================= */
+const MODELS_FALLBACK = [
+  'meta-llama/llama-3.3-70b-instruct:free',
+  'qwen/qwen3-235b-a22b:free',
+  'google/gemma-3-27b-it:free',
+  'openrouter/free'
+];
+
 const chatBody = document.getElementById('chat-body');
-function addMsg(text, who){
+const chatHistory = [];
+
+function addMsg(html, who){
   const m = document.createElement('div');
   m.className = 'msg ' + who;
-  m.innerHTML = text;
+  m.innerHTML = html;
   chatBody.appendChild(m);
   chatBody.scrollTop = chatBody.scrollHeight;
   return m;
 }
-addMsg('Que a paz esteja com você! Sou o assistente Logos. Pergunte-me sobre um versículo, peça um resumo de um livro ou solicite um devocional. 🙏', 'ai');
 
-function sendChat(text){
-  if(!text.trim()) return;
-  addMsg(text, 'user');
-  document.getElementById('chat-input').value = '';
-  const typing = addMsg('<span class="typing-dots"><span></span><span></span><span></span></span>', 'ai');
-  setTimeout(()=>{
-    typing.innerHTML = aiRespond(text);
-  }, 700 + Math.random()*500);
+function formatText(text){
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+    .replace(/\n/g, '<br>');
 }
+
+addMsg('Que a paz esteja com você! Sou o assistente da IPGE, movido por inteligência artificial. Posso explicar versículos, resumir livros da Bíblia, sugerir passagens por tema, criar devocionais e muito mais — tudo fundamentado nas Escrituras. 🙏', 'ai');
+
+async function sendChat(text){
+  if(!text.trim()) return;
+  const inputEl = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('chat-send');
+
+  if(!OPENROUTER_API_KEY || OPENROUTER_API_KEY === 'COLOQUE_SUA_CHAVE_AQUI'){
+    addMsg('⚠️ <b>Chave não configurada.</b><br>Abra o index.html e substitua <code>COLOQUE_SUA_CHAVE_AQUI</code> pela sua chave do OpenRouter.<br><small>Obtenha gratuitamente em: <a href="https://openrouter.ai/settings/keys" target="_blank">openrouter.ai/settings/keys</a></small>', 'ai');
+    return;
+  }
+
+  addMsg(text, 'user');
+  inputEl.value = '';
+  inputEl.disabled = true;
+  sendBtn.disabled = true;
+
+  chatHistory.push({ role: 'user', content: text });
+
+  const typing = addMsg('<span class="typing-dots"><span></span><span></span><span></span></span>', 'ai');
+
+  let lastError = null;
+
+  for(let i = 0; i < MODELS_FALLBACK.length; i++){
+    const model = MODELS_FALLBACK[i];
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+          'HTTP-Referer': 'https://ipgechurch.local',
+          'X-Title': 'IPGE Church'
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: [
+            { role: 'system', content: SYSTEM_PROMPT },
+            ...chatHistory
+          ],
+          max_tokens: 1000
+        })
+      });
+
+      const data = await response.json();
+
+      if(data.error){
+        throw new Error(data.error.message || JSON.stringify(data.error));
+      }
+
+      const rawText = data.choices?.[0]?.message?.content || 'Sem resposta.';
+      const aiText  = formatText(rawText);
+
+      typing.innerHTML = aiText;
+      chatHistory.push({ role: 'assistant', content: rawText });
+      lastError = null;
+      break; // sucesso — não tenta os próximos modelos
+
+    } catch(err) {
+      lastError = err.message || String(err);
+      console.warn('Modelo indisponível (' + model + '):', lastError);
+      // tenta o próximo modelo da lista automaticamente
+    }
+  }
+
+  if(lastError){
+    console.error('Erro OpenRouter (todos os modelos falharam):', lastError);
+    typing.innerHTML = '⚠️ <b>Erro:</b> ' + lastError + '<br><small>Todos os modelos gratuitos tentados estão indisponíveis no momento. Tente novamente em instantes.</small>';
+    chatHistory.pop();
+  }
+
+  inputEl.disabled = false;
+  sendBtn.disabled = false;
+  inputEl.focus();
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+
 document.getElementById('chat-send').addEventListener('click', ()=>sendChat(document.getElementById('chat-input').value));
 document.getElementById('chat-input').addEventListener('keydown', e=>{ if(e.key==='Enter') sendChat(e.target.value); });
 document.querySelectorAll('.sugg').forEach(s=>s.addEventListener('click', ()=>sendChat(s.dataset.ask)));
+
 
 /* =========================================================
    DEVOTIONAL
