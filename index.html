@@ -748,10 +748,9 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
            C72 83 64 80 58 76"
         fill="white"/>
 
-</svg>
-</div>
+</svg></div>
             <div>
-              <div style="font-weight:600;color:var(--ink);font-size:.92rem;">Assistente IPGE </div>
+              <div style="font-weight:600;color:var(--ink);font-size:.92rem;">Assistente IPGE Church</div>
               <div class="muted" style="font-size:.76rem;">Respostas baseadas na Palavra</div>
             </div>
           </div>
@@ -902,7 +901,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
           <article class="campaign-card">
             <div class="campaign-image">
               <!-- Substitua campanha.jpg pela foto da nova campanha -->
-              <img src="foto01.png" alt="Foto da campanha profética">
+              <img src="/foto01.png" alt="Foto da campanha profética">
             </div>
             <h2>Campanha</h2>
             <p><strong>Base bíblica:</strong><br>Digite aqui o livro, capítulo e versículos que fundamentam esta campanha.</p>
@@ -914,7 +913,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
           <article class="campaign-card">
             <div class="campaign-image">
               <!-- Substitua campanha.jpg pela foto da nova campanha -->
-              <img src="foto01.png" alt="Foto da campanha profética">
+              <img src="/foto01.jpeg" alt="Foto da campanha profética">
             </div>
             <h2>Campanha</h2>
             <p><strong>Base bíblica:</strong><br>Digite aqui o livro, capítulo e versículos que fundamentam esta campanha.</p>
@@ -1399,9 +1398,12 @@ function renderBookList(){
       // Em smartphones e tablets, após escolher o livro,
       // leva automaticamente o usuário até os versículos.
       setTimeout(()=>{
-        const reader = document.querySelector('.reader-card');
-        if(reader && window.innerWidth <= 900){
-          reader.scrollIntoView({behavior:'smooth', block:'start'});
+        const tituloBiblia = document.querySelector('#reader-book-title');
+        if(tituloBiblia && window.innerWidth <= 900){
+          window.scrollTo({
+            top: tituloBiblia.offsetTop - 20,
+            behavior:'smooth'
+          });
         }
       }, 120);
     });
