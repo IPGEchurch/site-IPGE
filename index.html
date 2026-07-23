@@ -714,9 +714,44 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
 
         <div class="chat-wrap" style="margin-top:22px;">
           <div class="chat-head">
-            <div class="chat-avatar">✨</div>
+            <div class="chat-avatar"><svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- Círculo/globo -->
+  <circle cx="60" cy="60" r="42" fill="#D8F3FF"/>
+
+  <!-- Cruz vertical -->
+  <path d="M55 18V102" 
+        stroke="#1A2540" 
+        stroke-width="10" 
+        stroke-linecap="square"/>
+
+  <!-- Cruz horizontal -->
+  <path d="M20 55H100" 
+        stroke="#1A2540" 
+        stroke-width="10"
+        stroke-linecap="square"/>
+
+  <!-- Detalhe dourado -->
+  <path d="M65 25V95" 
+        stroke="#D6A52C" 
+        stroke-width="6"/>
+
+  <!-- Pomba -->
+  <path d="M42 65
+           C52 48 72 45 84 55
+           C74 54 68 61 62 72
+           C57 81 48 82 40 76"
+        fill="white"/>
+
+  <path d="M62 72
+           C70 70 78 74 82 82
+           C72 83 64 80 58 76"
+        fill="white"/>
+
+</svg>
+</div>
             <div>
-              <div style="font-weight:600;color:var(--ink);font-size:.92rem;">Assistente Logos</div>
+              <div style="font-weight:600;color:var(--ink);font-size:.92rem;">Assistente IPGE </div>
               <div class="muted" style="font-size:.76rem;">Respostas baseadas na Palavra</div>
             </div>
           </div>
@@ -870,8 +905,8 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
               <img src="foto01.png" alt="Foto da campanha profética">
             </div>
             <h2>Campanha</h2>
-            <p><strong>Base bíblica:</strong><br>Digite aqui o livro, capítulo e versículos da campanha.</p>
-            <p><strong>Propósito:</strong><br>Escreva a explicação da campanha.</p>
+            <p><strong>Base bíblica:</strong><br>Digite aqui o livro, capítulo e versículos que fundamentam esta campanha.</p>
+            <p><strong>Propósito:</strong><br>Escreva a explicação da campanha, direção espiritual e objetivo para a igreja.</p>
           </article>
         </div>
 
@@ -882,8 +917,8 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
               <img src="foto01.png" alt="Foto da campanha profética">
             </div>
             <h2>Campanha</h2>
-            <p><strong>Base bíblica:</strong><br>Digite aqui o livro, capítulo e versículos da campanha.</p>
-            <p><strong>Propósito:</strong><br>Escreva a explicação da campanha.</p>
+            <p><strong>Base bíblica:</strong><br>Digite aqui o livro, capítulo e versículos que fundamentam esta campanha.</p>
+            <p><strong>Propósito:</strong><br>Escreva a explicação da campanha, direção espiritual e objetivo para a igreja.</p>
           </article>
         </div>
 
@@ -1360,6 +1395,15 @@ function renderBookList(){
       state.currentChapter = parseInt(chapNums[0]);
       renderBookList();
       renderReader();
+
+      // Em smartphones e tablets, após escolher o livro,
+      // leva automaticamente o usuário até os versículos.
+      setTimeout(()=>{
+        const reader = document.querySelector('.reader-card');
+        if(reader && window.innerWidth <= 900){
+          reader.scrollIntoView({behavior:'smooth', block:'start'});
+        }
+      }, 120);
     });
     listEl.appendChild(div);
   });
