@@ -443,8 +443,57 @@ textarea.notes-area:focus{border-color:var(--gold);}
 .custom-preview{display:flex;gap:8px;flex-wrap:wrap;}
 
 /* Studies */
-.study-card{cursor:pointer;}
+.study-card{cursor:pointer;display:flex;flex-direction:column;}
 .study-tag{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:20px;background:var(--sage-soft);color:var(--sage);margin-bottom:10px;}
+.study-card .btn{margin-top:16px;align-self:flex-start;}
+
+/* Study detail (lesson screen) */
+.study-hero{
+  position:relative;overflow:hidden;padding:32px 34px;
+  background:
+    radial-gradient(520px 300px at 88% -10%, var(--gold-soft) 0%, transparent 60%),
+    linear-gradient(180deg, var(--ink) 0%, var(--ink-soft) 100%);
+  color:var(--parchment);
+}
+.study-hero .eyebrow{color:var(--gold-soft);}
+.study-hero .page-title{color:var(--parchment);}
+.study-hero-ref{margin-top:10px;font-size:.84rem;letter-spacing:.04em;font-family:var(--font-mono);opacity:.8;}
+.study-hero-summary{margin-top:16px;max-width:70ch;line-height:1.8;opacity:.92;font-size:.98rem;}
+.study-section{margin-top:20px;}
+.study-section h2{font-size:1.15rem;font-weight:600;display:flex;align-items:center;gap:9px;margin-bottom:14px;}
+.study-section h2 .num{
+  width:28px;height:28px;border-radius:9px;background:var(--sage-soft);color:var(--sage);
+  display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.78rem;flex-shrink:0;
+}
+.study-body-text{line-height:1.9;font-size:.96rem;color:var(--text);}
+.study-body-text + .study-body-text{margin-top:14px;}
+.character-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+@media(max-width:720px){.character-grid{grid-template-columns:1fr;}}
+.character-card{border:1px solid var(--line);border-radius:var(--radius-md);padding:16px 18px;background:var(--parchment-dim);}
+.character-card .char-name{font-family:var(--font-display);font-weight:600;font-size:1rem;color:var(--ink);}
+.character-card .char-role{font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--gold);margin:4px 0 8px;}
+.character-card .char-desc{font-size:.86rem;color:var(--text-dim);line-height:1.7;}
+.teaching-list{display:flex;flex-direction:column;gap:10px;}
+.teaching-item{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:11px;background:var(--parchment-dim);font-size:.92rem;line-height:1.65;}
+.teaching-item .tick{flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--sage);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.7rem;margin-top:1px;}
+.reflection-list{display:flex;flex-direction:column;gap:12px;}
+.reflection-item{
+  border-left:3px solid var(--gold);padding:10px 16px;border-radius:0 10px 10px 0;
+  background:var(--gold-soft);font-family:var(--font-display);font-style:italic;font-size:.98rem;line-height:1.7;color:var(--ink);
+}
+[data-theme="dark"] .reflection-item{color:var(--ink);}
+.verse-pills{display:flex;flex-wrap:wrap;gap:9px;}
+.verse-pill{font-size:.8rem;font-family:var(--font-mono);padding:7px 13px;border-radius:20px;background:var(--sage-soft);color:var(--sage);font-weight:600;}
+.study-complete-card{text-align:center;padding:30px 24px;}
+.study-complete-card.done{background:var(--sage-soft);}
+.next-study-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;}
+.next-study-card{
+  flex:1;min-width:220px;border:1px solid var(--line);border-radius:var(--radius-md);
+  padding:14px 16px;cursor:pointer;transition:all .18s ease;background:var(--paper);
+}
+.next-study-card:hover{border-color:var(--gold);transform:translateY(-2px);}
+.next-study-card .study-tag{margin-bottom:8px;}
+.next-study-card .nx-title{font-weight:600;font-size:.9rem;color:var(--ink);}
 
 /* Quiz */
 .quiz-option{
@@ -925,6 +974,12 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
         <div class="grid grid-3" id="studies-grid" style="margin-top:16px;"></div>
       </section>
 
+      <!-- ============ STUDY DETAIL ============ -->
+      <section class="view" id="view-study-detail">
+        <button class="btn btn-ghost btn-sm plan-back-btn" id="study-detail-back">← Voltar aos estudos</button>
+        <div id="study-detail-content"></div>
+      </section>
+
       <!-- ============ NOTES ============ -->
       <section class="view" id="view-notes">
         <div class="eyebrow">Minha jornada</div>
@@ -1065,7 +1120,10 @@ const state = {
   quizAnswered: false,
   planProgress: {},   // { [planKey]: Set(dayIndex) }
   currentPlanKey: null,
-  lastCustomPlanKey: null
+  lastCustomPlanKey: null,
+  completedStudies: new Set(), // títulos dos estudos marcados como concluídos
+  currentStudyIdx: null,
+  studyFilter: 'Todos'
 };
 
 /* =========================================================
@@ -1506,15 +1564,263 @@ const PLANS = [
 ];
 
 const STUDIES = [
-  {tag:"Personagem", title:"Davi: o pastor que se tornou rei", summary:"Da adolescência entre ovelhas ao trono de Israel, a jornada de um coração segundo Deus.", app:"Deus usa o que parece pequeno para propósitos grandiosos."},
-  {tag:"Parábola", title:"O filho pródigo", summary:"Uma história de rebeldia, retorno e um pai que corre ao encontro do filho.", app:"A graça de Deus corre ao nosso encontro antes mesmo de merecermos."},
-  {tag:"Livro", title:"Panorama de Romanos", summary:"O evangelho explicado sistematicamente: pecado, graça, justificação e vida no Espírito.", app:"Entender a doutrina fortalece a fé prática do dia a dia."},
-  {tag:"Milagre", title:"A multiplicação dos pães", summary:"Cinco pães, dois peixes e mais de cinco mil pessoas alimentadas.", app:"O pouco entregue nas mãos de Deus se torna suficiente."},
-  {tag:"Profecia", title:"As profecias messiânicas em Isaías", summary:"Como Isaías 53 antecipa o sofrimento e a missão do Messias.", app:"As Escrituras se conectam como uma só história, do início ao fim."},
-  {tag:"Mapa", title:"A jornada do êxodo", summary:"O trajeto do povo de Israel do Egito até a terra prometida.", app:"Deus guia mesmo quando o caminho parece um deserto."},
-  {tag:"Linha do tempo", title:"Do Éden ao Apocalipse", summary:"Uma visão geral da narrativa bíblica em grandes períodos.", app:"Conhecer o todo ajuda a interpretar cada parte."},
-  {tag:"Genealogia", title:"A linhagem de Jesus", summary:"Como Mateus e Lucas traçam a ascendência de Cristo.", app:"A fidelidade de Deus atravessa gerações."},
-  {tag:"Contexto histórico", title:"O mundo no tempo de Jesus", summary:"Cultura, política e religião na Judeia do primeiro século.", app:"Compreender o contexto ilumina o significado do texto."}
+  {tag:"Personagem", title:"Davi: o pastor que se tornou rei", ref:"1 Samuel 16 – 1 Reis 2", summary:"Da adolescência entre ovelhas ao trono de Israel, a jornada de um coração segundo Deus.", app:"Deus usa o que parece pequeno para propósitos grandiosos.",
+    intro:"Davi é uma das figuras mais completas da Bíblia: pastor, músico, guerreiro, poeta e rei. Sua trajetória mistura fé corajosa, quedas profundas e um arrependimento sincero, o que faz dele um espelho realista da experiência humana diante de Deus.",
+    story:[
+      "Enquanto seus irmãos mais velhos pareciam os candidatos naturais ao trono, Davi cuidava das ovelhas da família em Belém. Foi ali, no campo, que Deus disse a Samuel que olhasse para o coração, e não para a aparência — e Davi foi ungido em segredo como o próximo rei de Israel.",
+      "Pouco tempo depois, ainda jovem, Davi enfrentou o gigante filisteu Golias com uma funda e cinco pedras, confiando não em sua própria força, mas no Deus que já o havia sustentado diante de leões e ursos no campo.",
+      "A popularidade de Davi despertou o ciúme do rei Saul, e ele passou anos fugindo pelo deserto, recusando por diversas vezes a chance de matar Saul mesmo quando poderia fazê-lo, por respeito ao ungido do Senhor.",
+      "Coroado rei, Davi unificou as tribos de Israel, conquistou Jerusalém e trouxe estabilidade à nação — mas também cometeu um pecado grave com Bate-Seba, encobrindo-o com a morte de Urias. O profeta Natã o confrontou, e Davi respondeu com um arrependimento profundo, registrado no Salmo 51."
+    ],
+    characters:[
+      {name:"Davi", role:"Protagonista", desc:"Pastor de Belém ungido rei; conhecido por sua fé, coragem e também por suas falhas e arrependimento sincero."},
+      {name:"Samuel", role:"Profeta", desc:"Enviado por Deus para ungir Davi, ensinando que o Senhor olha o coração, não a aparência."},
+      {name:"Saul", role:"Rei anterior", desc:"Perseguiu Davi por anos, dominado pelo ciúme e pelo medo de perder o trono."},
+      {name:"Natã", role:"Profeta", desc:"Confrontou Davi com coragem após seu pecado, levando-o ao arrependimento."}
+    ],
+    context:"Davi viveu por volta do século XI–X a.C., no período de transição entre os juízes e a monarquia em Israel. A região vivia sob constante ameaça dos filisteus, um povo guerreiro estabelecido na costa. Belém era uma pequena cidade agrícola, e o pastoreio de ovelhas era tarefa comum entre os mais jovens da família. O reinado de Davi consolidou Jerusalém como centro político e espiritual da nação.",
+    teachings:[
+      "Deus vê o coração e pode escolher quem o mundo despreza.",
+      "A coragem de fé não depende do tamanho do desafio, mas da confiança em Deus.",
+      "É possível honrar a Deus mesmo em meio à injustiça e à perseguição.",
+      "O verdadeiro arrependimento não esconde o pecado, mas se rende diante de Deus.",
+      "Liderança espiritual exige humildade para ser corrigido."
+    ],
+    reflection:[
+      "Existe alguma área da sua vida em que você se sente 'pequeno demais' para o chamado de Deus?",
+      "Como você reage quando é injustiçado — com amargura ou confiando no tempo de Deus?",
+      "Há algum pecado que você tem encoberto e precisa levar diante de Deus como Davi fez no Salmo 51?"
+    ],
+    verses:["1 Samuel 16:7 — Deus olha o coração","1 Samuel 17:45 — a confiança de Davi diante de Golias","Salmo 51 — a oração de arrependimento de Davi","2 Samuel 7:16 — a promessa do trono eterno"]
+  },
+  {tag:"Parábola", title:"O filho pródigo", ref:"Lucas 15:11-32", summary:"Uma história de rebeldia, retorno e um pai que corre ao encontro do filho.", app:"A graça de Deus corre ao nosso encontro antes mesmo de merecermos.",
+    intro:"Contada por Jesus, essa é talvez a mais conhecida das parábolas — uma ilustração comovente sobre arrependimento, graça e o coração de um pai que nunca deixa de amar, esteja o filho perto ou longe.",
+    story:[
+      "Um pai tinha dois filhos. O mais novo pediu sua parte da herança antecipadamente — um pedido que, na cultura da época, equivalia a desejar a morte do pai — e partiu para uma terra distante, onde desperdiçou tudo em uma vida de excessos.",
+      "Quando uma grande fome assolou a região, o filho se viu sem nada, trabalhando para cuidar de porcos — a tarefa mais degradante possível para um judeu — e desejando comer até a comida dos animais.",
+      "'Caindo em si', ele decidiu voltar para casa, preparando um discurso de arrependimento, disposto a ser recebido apenas como um servo contratado, sem esperar ser tratado novamente como filho.",
+      "Mas o pai o viu ainda de longe e correu ao seu encontro — algo incomum para um homem idoso e respeitado naquela cultura — e, antes que o filho terminasse de se explicar, já ordenava uma festa, restaurando-o em sua posição de filho amado."
+    ],
+    characters:[
+      {name:"O pai", role:"Figura central", desc:"Representa o coração de Deus: espera, observa ao longe e corre com alegria ao encontro de quem volta."},
+      {name:"O filho mais novo", role:"O pródigo", desc:"Desperdiça sua herança em uma vida de excessos, mas encontra restauração ao voltar arrependido."},
+      {name:"O filho mais velho", role:"O irmão ressentido", desc:"Fica indignado com a festa, revelando um coração que obedece por dever, mas não compreende a graça."}
+    ],
+    context:"Na cultura do Oriente Médio antigo, pedir a herança em vida era um gesto de grande desonra. Cuidar de porcos era considerado impuro e humilhante para um judeu, já que esses animais eram proibidos pela Lei. O ato do pai de correr também quebrava normas sociais de dignidade — homens de posição não corriam em público. Jesus usa cada detalhe para mostrar o quanto o amor de Deus ultrapassa convenções.",
+    teachings:[
+      "Nenhum erro é grande o suficiente para estar fora do alcance da graça de Deus.",
+      "O arrependimento verdadeiro nos leva de volta à casa do Pai.",
+      "Deus corre ao nosso encontro — a graça não espera merecimento.",
+      "É possível estar fisicamente 'em casa' e ainda assim ter o coração distante, como o irmão mais velho.",
+      "A alegria do céu é genuína quando alguém volta para Deus."
+    ],
+    reflection:[
+      "Você se identifica mais com o filho mais novo, o mais velho, ou já viveu os dois papéis em momentos diferentes?",
+      "Existe alguma 'terra distante' da qual Deus está te chamando para voltar hoje?",
+      "Como você tem recebido pessoas que voltam para a fé depois de um tempo de afastamento?"
+    ],
+    verses:["Lucas 15:20 — o pai corre ao encontro do filho","Lucas 15:24 — 'estava morto e voltou à vida'","Salmo 103:12 — Deus afasta de nós as transgressões","1 João 1:9 — a fidelidade de Deus em perdoar"]
+  },
+  {tag:"Livro", title:"Panorama de Romanos", ref:"Romanos 1–16", summary:"O evangelho explicado sistematicamente: pecado, graça, justificação e vida no Espírito.", app:"Entender a doutrina fortalece a fé prática do dia a dia.",
+    intro:"Romanos é a exposição mais completa e ordenada do evangelho escrita pelo apóstolo Paulo. É uma carta teológica que caminha, passo a passo, da condição humana até a vida transformada pelo Espírito.",
+    story:[
+      "Paulo escreveu aos cristãos de Roma — uma igreja que ele ainda não havia visitado — provavelmente a partir de Corinto, por volta do ano 57 d.C., enquanto planejava levar uma oferta a Jerusalém e depois seguir viagem até a Espanha.",
+      "Os capítulos iniciais (1–3) mostram que toda a humanidade, judeus e gentios, está debaixo do pecado e precisa da justiça de Deus, que não vem por méritos, mas pela fé.",
+      "Nos capítulos 4–8, Paulo explica a justificação pela fé usando o exemplo de Abraão, a nova vida em Cristo que liberta do domínio do pecado, e a vida guiada pelo Espírito Santo, culminando no capítulo 8 com a certeza de que nada pode nos separar do amor de Deus.",
+      "Os capítulos 9–11 tratam do lugar de Israel no plano de Deus, e os capítulos 12–16 são intensamente práticos: como viver o evangelho na igreja, na sociedade e nos relacionamentos do dia a dia."
+    ],
+    characters:[
+      {name:"Paulo", role:"Autor", desc:"Apóstolo aos gentios, escreve com profundidade teológica e cuidado pastoral para uma igreja que ainda não conhecia pessoalmente."},
+      {name:"Febe", role:"Portadora da carta", desc:"Diaconisa da igreja de Cencreia, provavelmente responsável por levar a carta até Roma."},
+      {name:"A igreja de Roma", role:"Destinatária", desc:"Comunidade formada por judeus e gentios convertidos, vivendo no coração do Império Romano."}
+    ],
+    context:"Roma, no século I, era a capital de um império vasto e multicultural. A igreja local reunia judeus, que haviam sido expulsos e depois retornado à cidade, e gentios convertidos — o que gerava tensões sobre lei, tradição e identidade. Paulo escreve para unir essas duas realidades sob o mesmo evangelho, mostrando que a salvação é oferecida igualmente a todos pela fé.",
+    teachings:[
+      "Todos precisam da graça de Deus — não há distinção entre judeus e gentios.",
+      "A justificação é pela fé, não pelas obras da Lei.",
+      "A vida no Espírito traz liberdade real sobre o poder do pecado.",
+      "Nada na criação pode nos separar do amor de Deus em Cristo.",
+      "O evangelho transforma também a vida prática: relacionamentos, autoridade e comunidade."
+    ],
+    reflection:[
+      "Você vive mais preso à tentativa de merecer a salvação, ou descansa na justificação pela fé?",
+      "O que o capítulo 8 de Romanos muda na forma como você enfrenta os medos e inseguranças da vida?",
+      "Como a doutrina de Romanos deveria mudar sua forma prática de viver essa semana?"
+    ],
+    verses:["Romanos 1:16 — o evangelho é poder de Deus para a salvação","Romanos 3:23-24 — todos pecaram, mas são justificados gratuitamente","Romanos 8:1 — nenhuma condenação para os que estão em Cristo","Romanos 8:38-39 — nada nos separa do amor de Deus","Romanos 12:1-2 — a transformação pela renovação da mente"]
+  },
+  {tag:"Milagre", title:"A multiplicação dos pães", ref:"João 6:1-14 (paralelo em Mateus, Marcos e Lucas)", summary:"Cinco pães, dois peixes e mais de cinco mil pessoas alimentadas.", app:"O pouco entregue nas mãos de Deus se torna suficiente.",
+    intro:"É um dos poucos milagres de Jesus registrado nos quatro Evangelhos — sinal de sua importância. Mostra o poder de Jesus sobre a criação e seu cuidado prático com as necessidades reais das pessoas.",
+    story:[
+      "Uma grande multidão seguia Jesus para ouvi-lo e ver os sinais que ele realizava nos enfermos. Ao cair da tarde, em um lugar deserto perto do Mar da Galileia, os discípulos sugeriram dispensar a multidão para que buscasse comida nos povoados vizinhos.",
+      "Jesus, porém, testou a fé de Filipe perguntando onde comprariam pão para alimentar tanta gente. André então trouxe um menino que tinha apenas cinco pães de cevada e dois peixes — quantia irrisória diante de mais de cinco mil homens, sem contar mulheres e crianças.",
+      "Jesus mandou que todos se assentassem, tomou os pães, deu graças e começou a distribuí-los. A comida se multiplicava nas mãos dos discípulos enquanto era servida, até que toda a multidão comeu e ficou satisfeita.",
+      "Ao final, ainda recolheram doze cestos cheios de sobras — um sinal de fartura e cuidado, não de escassez. A multidão, impressionada, quis proclamar Jesus rei à força, mas ele se retirou para orar sozinho."
+    ],
+    characters:[
+      {name:"Jesus", role:"Autor do milagre", desc:"Demonstra compaixão pela multidão e poder sobre a criação ao multiplicar o alimento."},
+      {name:"O menino", role:"Doador do pouco que tinha", desc:"Oferece os cinco pães e dois peixes que possuía, tornando-se instrumento de um milagre gigantesco."},
+      {name:"André", role:"Discípulo", desc:"Identifica o menino e apresenta o pouco alimento disponível a Jesus, mesmo duvidando que fosse suficiente."},
+      {name:"Filipe", role:"Discípulo", desc:"É testado por Jesus quanto à sua fé diante de um problema humanamente impossível de resolver."}
+    ],
+    context:"A região da Galileia no século I era majoritariamente rural, e o pão de cevada era alimento comum entre os mais pobres — o trigo era mais caro. Peixe salgado ou seco era um complemento típico junto ao Mar da Galileia. Alimentar milhares de pessoas de forma repentina, em local deserto e sem infraestrutura, era humanamente inviável, o que reforça o impacto do milagre para quem testemunhou.",
+    teachings:[
+      "Deus pode multiplicar o pouco que colocamos em suas mãos.",
+      "A compaixão de Jesus se traduz em ação prática diante das necessidades reais.",
+      "Fé genuína entrega o que tem, mesmo parecendo insuficiente.",
+      "Deus provê com fartura, não apenas o necessário — sobraram doze cestos.",
+      "Jesus recusa reconhecimento vazio (ser feito rei à força) e busca antes a comunhão com o Pai."
+    ],
+    reflection:[
+      "O que você tem em mãos hoje que parece 'pouco demais' para ser útil, mas que pode ser entregue a Deus?",
+      "Como você reage diante de necessidades que parecem impossíveis de resolver com seus próprios recursos?",
+      "De que forma esse milagre desafia sua confiança na provisão de Deus?"
+    ],
+    verses:["João 6:9 — os cinco pães e dois peixes do menino","João 6:11 — Jesus deu graças antes de distribuir","João 6:12 — 'recolham os pedaços, para que nada se perca'","Filipenses 4:19 — Deus supre todas as nossas necessidades"]
+  },
+  {tag:"Profecia", title:"As profecias messiânicas em Isaías", ref:"Isaías 53 (e Isaías 7, 9, 11, 42, 61)", summary:"Como Isaías 53 antecipa o sofrimento e a missão do Messias.", app:"As Escrituras se conectam como uma só história, do início ao fim.",
+    intro:"Escrito cerca de 700 anos antes de Cristo, o livro de Isaías contém algumas das profecias messiânicas mais detalhadas de todo o Antigo Testamento, apontando com precisão surpreendente para a vida, o sofrimento e a missão de Jesus.",
+    story:[
+      "Isaías profetizou em Judá durante um período de grande instabilidade política, quando o reino estava ameaçado por potências estrangeiras. Em meio a essas circunstâncias, ele anunciou também esperança: um Messias que traria libertação espiritual duradoura.",
+      "Isaías 7 e 9 falam de um filho que nasceria de uma virgem e seria chamado 'Deus Forte, Príncipe da Paz'. Isaías 11 descreve um rebento da linhagem de Davi que governaria com justiça e sabedoria do Espírito de Deus.",
+      "O ponto alto está em Isaías 53, o retrato do 'Servo Sofredor': alguém desprezado e rejeitado, que levaria sobre si as dores e transgressões do povo, ferido por nossas iniquidades, silencioso diante do sofrimento como um cordeiro levado ao matadouro.",
+      "Essa profecia, escrita séculos antes da crucificação, encontra ressonância direta nos relatos dos Evangelhos sobre a paixão de Jesus — reforçando, para os cristãos, que ele é o cumprimento dessas antigas promessas."
+    ],
+    characters:[
+      {name:"Isaías", role:"Profeta", desc:"Ministrou em Judá anunciando tanto o juízo pelo pecado quanto a esperança messiânica futura."},
+      {name:"O Servo Sofredor", role:"Figura profética", desc:"Descrito em Isaías 53 como alguém que sofre e morre pelos pecados de outros, interpretado como aponta para Jesus."}
+    ],
+    context:"Isaías viveu em Judá durante os reinados de Uzias, Jotão, Acaz e Ezequias, período marcado pela ameaça da Assíria e, mais tarde, o exílio babilônico anunciado como juízo. As profecias messiânicas ofereciam esperança em meio ao caos: um libertador que viria não apenas para restaurar politicamente a nação, mas para tratar a raiz espiritual do problema humano, o pecado.",
+    teachings:[
+      "As Escrituras formam uma narrativa unificada, com o Antigo Testamento apontando para Cristo.",
+      "O plano de Deus inclui sofrimento com propósito redentor.",
+      "A profecia cumprida fortalece a confiança na fidelidade de Deus.",
+      "O Messias esperado veio não como conquistador político, mas como servo sofredor.",
+      "Deus cumpre suas promessas mesmo quando o caminho parece contraditório às expectativas humanas."
+    ],
+    reflection:[
+      "Como a existência de profecias cumpridas séculos depois fortalece sua confiança na Palavra de Deus?",
+      "O que significa para você que o Messias escolheu o caminho do sofrimento em seu lugar?",
+      "Há alguma área da sua vida em que você espera que Deus aja 'à sua maneira' e precisa confiar no modo dele agir?"
+    ],
+    verses:["Isaías 53:5 — 'pelas suas pisaduras fomos sarados'","Isaías 9:6 — o Príncipe da Paz","Isaías 7:14 — o sinal do Emanuel","Mateus 8:17 — Mateus cita o cumprimento da profecia em Jesus"]
+  },
+  {tag:"Mapa", title:"A jornada do êxodo", ref:"Êxodo 12–40; Números; Deuteronômio", summary:"O trajeto do povo de Israel do Egito até a terra prometida.", app:"Deus guia mesmo quando o caminho parece um deserto.",
+    intro:"O êxodo é o evento fundador da identidade de Israel como povo — a libertação da escravidão no Egito e a longa jornada pelo deserto até as portas da terra prometida, guiados diretamente por Deus.",
+    story:[
+      "Depois de dez pragas sobre o Egito, culminando na Páscoa, Faraó finalmente liberou o povo de Israel. Cerca de dois milhões de pessoas, segundo estimativas tradicionais, partiram rumo à liberdade — mas Faraó logo mudou de ideia e os perseguiu até o Mar Vermelho.",
+      "Deus abriu um caminho em meio ao mar, e o povo atravessou em segurança enquanto o exército egípcio, ao tentar segui-los, foi engolido pelas águas. Esse foi o momento decisivo que selou a fé de Israel na libertação divina.",
+      "No deserto, Deus proveu maná diariamente, água da rocha, e estabeleceu no Monte Sinai a aliança com o povo, entregando os Dez Mandamentos e as instruções para o tabernáculo — um santuário móvel que representava a presença de Deus no meio do acampamento.",
+      "Apesar da provisão constante, o povo duvidou e se rebelou repetidamente, o que resultou em quarenta anos vagando pelo deserto até que uma nova geração estivesse pronta para entrar na terra prometida sob a liderança de Josué."
+    ],
+    characters:[
+      {name:"Moisés", role:"Líder e legislador", desc:"Chamado por Deus na sarça ardente para tirar o povo do Egito e recebeu a Lei no Sinai."},
+      {name:"Arão", role:"Sacerdote", desc:"Irmão de Moisés, porta-voz diante de Faraó e primeiro sumo sacerdote de Israel."},
+      {name:"Miriã", role:"Profetisa", desc:"Irmã de Moisés, liderou o povo em louvor após a travessia do Mar Vermelho."},
+      {name:"Faraó", role:"Antagonista", desc:"Rei do Egito que resistiu repetidamente à ordem divina de libertar o povo."}
+    ],
+    context:"O êxodo é tradicionalmente datado entre os séculos XV e XIII a.C. O Egito era uma das grandes potências da época, e a escravidão de povos estrangeiros para trabalhos forçados era prática comum. A jornada pelo deserto do Sinai envolvia terrenos áridos e hostis, tornando a provisão diária de água e alimento um sinal claro da intervenção de Deus.",
+    teachings:[
+      "Deus ouve o clamor dos oprimidos e age para libertar.",
+      "A liberdade que Deus dá exige também confiança contínua, não apenas no momento da libertação.",
+      "A provisão diária (o maná) ensina a depender de Deus a cada dia, sem acumular por desconfiança.",
+      "A desobediência repetida tem consequências, mas não anula o propósito de Deus.",
+      "Deus deseja habitar no meio do seu povo — por isso o tabernáculo."
+    ],
+    reflection:[
+      "Existe alguma 'escravidão' — hábito, medo ou situação — da qual você sente que Deus está te libertando?",
+      "Como você lida com os 'desertos' da vida, os períodos de espera e provação?",
+      "Você tem confiado na provisão diária de Deus ou tenta controlar tudo por conta própria?"
+    ],
+    verses:["Êxodo 14:14 — 'o Senhor lutará por vocês'","Êxodo 16:4 — a provisão do maná","Êxodo 20 — os Dez Mandamentos","Deuteronômio 8:2-3 — o propósito do deserto"]
+  },
+  {tag:"Linha do tempo", title:"Do Éden ao Apocalipse", ref:"Gênesis 1 – Apocalipse 22", summary:"Uma visão geral da narrativa bíblica em grandes períodos.", app:"Conhecer o todo ajuda a interpretar cada parte.",
+    intro:"A Bíblia não é uma coleção de histórias soltas, mas uma única grande narrativa — da criação à nova criação — contando como Deus cria, o pecado quebra, e Deus redime e restaura tudo em Cristo.",
+    story:[
+      "Criação e queda (Gênesis 1–3): Deus cria um mundo bom e coloca o ser humano em comunhão com ele; o pecado de Adão e Eva rompe essa relação e introduz a morte e o sofrimento no mundo.",
+      "Patriarcas e nação (Gênesis 12 – Deuteronômio): Deus chama Abraão e promete formar dele uma grande nação, através da qual todas as famílias da terra seriam abençoadas — promessa que se desdobra em José, o êxodo do Egito e a formação de Israel.",
+      "Reis e profetas (Josué – Malaquias): Israel se estabelece na terra prometida, vive o período dos juízes, depois dos reis — com destaque para Davi e Salomão — e finalmente o exílio, sempre acompanhado por profetas que chamavam o povo de volta à aliança e anunciavam um Messias vindouro.",
+      "Cumprimento em Cristo (Evangelhos – Apocalipse): Jesus nasce, vive, morre e ressuscita, cumprindo as promessas do Antigo Testamento. A igreja nasce e se espalha (Atos e as cartas), e a narrativa termina em Apocalipse com a promessa de uma nova criação, onde Deus habitará definitivamente com seu povo."
+    ],
+    characters:[
+      {name:"Adão e Eva", role:"Primeiros seres humanos", desc:"Vivem em comunhão com Deus no Éden até que o pecado rompe essa relação."},
+      {name:"Abraão", role:"Pai da fé", desc:"Recebe a promessa de que através dele todas as nações seriam abençoadas."},
+      {name:"Davi", role:"Rei", desc:"Recebe a promessa de um trono e uma linhagem eterna, cumprida em Jesus."},
+      {name:"Jesus", role:"Centro da narrativa", desc:"Cumpre as promessas feitas a Abraão e a Davi, reconciliando Deus e humanidade."}
+    ],
+    context:"A narrativa bíblica se estende por milhares de anos e diversos impérios — Egito, Assíria, Babilônia, Pérsia, Grécia e Roma — mostrando como Deus conduz sua história de redenção através de diferentes épocas e culturas, sem que seu propósito seja interrompido pelas circunstâncias históricas.",
+    teachings:[
+      "A Bíblia conta uma única grande história de redenção, do princípio ao fim.",
+      "Cada livro e personagem se encaixa em um propósito maior de Deus.",
+      "A queda não foi o fim da história — Deus sempre teve um plano de restauração.",
+      "Jesus é o ponto central que une o Antigo e o Novo Testamento.",
+      "A história termina com esperança: uma nova criação onde Deus habita com seu povo."
+    ],
+    reflection:[
+      "Como enxergar a Bíblia como uma única história muda a forma como você lê passagens isoladas?",
+      "Em qual 'capítulo' dessa grande história você sente que sua própria vida se encontra hoje?",
+      "O que a promessa de uma nova criação em Apocalipse desperta em você?"
+    ],
+    verses:["Gênesis 1:1 — o princípio da história","Gênesis 12:3 — a promessa a Abraão","2 Samuel 7:16 — a promessa a Davi","Apocalipse 21:3-4 — Deus habitando com seu povo"]
+  },
+  {tag:"Genealogia", title:"A linhagem de Jesus", ref:"Mateus 1:1-17; Lucas 3:23-38", summary:"Como Mateus e Lucas traçam a ascendência de Cristo.", app:"A fidelidade de Deus atravessa gerações.",
+    intro:"As genealogias de Jesus em Mateus e Lucas, à primeira vista listas repetitivas de nomes, revelam propósitos teológicos profundos: elas comprovam seu direito legal ao trono de Davi e mostram a fidelidade de Deus através de gerações — inclusive por meio de pessoas inesperadas.",
+    story:[
+      "Mateus organiza sua genealogia a partir de Abraão até Jesus, dividida em três blocos de catorze gerações, destacando Jesus como 'filho de Davi, filho de Abraão' — ligando-o diretamente às promessas messiânicas feitas a esses dois patriarcas.",
+      "Curiosamente, Mateus inclui quatro mulheres na lista — Tamar, Raabe, Rute e a mulher de Urias (Bate-Seba) — todas com histórias marcadas por circunstâncias incomuns ou por serem estrangeiras, mostrando que a graça de Deus opera através de pessoas fora do padrão esperado.",
+      "Lucas, por outro lado, traça a linhagem de Jesus em ordem inversa, de Jesus até Adão, enfatizando não apenas seu papel como Messias de Israel, mas sua conexão com toda a humanidade — coerente com a ênfase do Evangelho de Lucas na salvação para todos os povos.",
+      "As duas genealogias, embora diferentes em estrutura (provavelmente uma seguindo a linha de José e outra a de Maria), convergem no mesmo ponto: Jesus é legitimamente da linhagem de Davi, cumprindo a promessa de um rei eterno."
+    ],
+    characters:[
+      {name:"Abraão", role:"Patriarca", desc:"Ponto de partida da genealogia em Mateus, através de quem viria a bênção para todas as nações."},
+      {name:"Davi", role:"Rei", desc:"Estabelece a linhagem real da qual o Messias prometido descenderia."},
+      {name:"Tamar e Rute", role:"Mulheres na linhagem", desc:"Estrangeiras ou em situações incomuns, incluídas na genealogia como sinal da graça inclusiva de Deus."},
+      {name:"Maria", role:"Mãe de Jesus", desc:"Através dela, o Messias nasceu de forma sobrenatural, cumprindo a profecia do Emanuel."}
+    ],
+    context:"Genealogias eram extremamente importantes na cultura judaica, servindo como prova legal de linhagem, direito à herança e, no caso de reis, legitimidade ao trono. Registrar mulheres — ainda mais mulheres com histórias incomuns — era incomum nesses documentos, o que torna a escolha de Mateus ainda mais significativa.",
+    teachings:[
+      "Deus é fiel às suas promessas através de gerações, mesmo quando o caminho parece incerto.",
+      "A graça de Deus inclui pessoas inesperadas — estrangeiras, marcadas por passados difíceis.",
+      "Jesus é, ao mesmo tempo, plenamente conectado à história de Israel e à humanidade inteira.",
+      "Nenhuma história pessoal está fora do alcance do propósito redentor de Deus.",
+      "As promessas antigas de Deus se cumprem com precisão, mesmo séculos depois."
+    ],
+    reflection:[
+      "O que significa para você saber que Deus inclui pessoas 'fora do padrão' em seu plano de redenção?",
+      "Como a fidelidade de Deus através de gerações na genealogia de Jesus fortalece sua fé na fidelidade dele com você?",
+      "Há alguma parte da sua própria história que você pensa estar 'fora' do que Deus pode usar?"
+    ],
+    verses:["Mateus 1:1 — 'livro da genealogia de Jesus Cristo, filho de Davi'","Mateus 1:16 — o nascimento de Jesus através de Maria","Lucas 3:38 — a linhagem até Adão, 'filho de Deus'","Rute 4:17 — Rute na linhagem de Davi"]
+  },
+  {tag:"Contexto histórico", title:"O mundo no tempo de Jesus", ref:"Evangelhos e Atos dos Apóstolos", summary:"Cultura, política e religião na Judeia do primeiro século.", app:"Compreender o contexto ilumina o significado do texto.",
+    intro:"Entender o cenário político, religioso e cultural da Palestina no século I ajuda a compreender melhor as escolhas, os conflitos e as mensagens de Jesus registradas nos Evangelhos.",
+    story:[
+      "Politicamente, a Judeia estava sob domínio do Império Romano, governada indiretamente por reis locais como Herodes e, mais tarde, por procuradores romanos como Pôncio Pilatos. Havia grande expectativa popular por um Messias que libertasse o povo do jugo estrangeiro.",
+      "Religiosamente, o judaísmo do período estava dividido em grupos: os fariseus, rigorosos guardiões da Lei e das tradições orais; os saduceus, ligados à aristocracia sacerdotal e ao templo, que não criam na ressurreição; e os essênios, um grupo separatista que buscava pureza espiritual afastado da sociedade.",
+      "O templo de Jerusalém, reconstruído e ampliado por Herodes, o Grande, era o centro da vida religiosa judaica — local de sacrifícios, festas e peregrinações. As sinagogas locais, por sua vez, eram centros de ensino e leitura das Escrituras nas comunidades.",
+      "Culturalmente, a região era marcada pela mistura entre tradição judaica e influência helenística (grega) trazida por séculos de dominação estrangeira anterior, além do peso da presença militar e administrativa romana no cotidiano do povo."
+    ],
+    characters:[
+      {name:"Fariseus", role:"Grupo religioso", desc:"Zelosos guardiões da Lei, frequentemente em debate direto com Jesus sobre tradição e prática religiosa."},
+      {name:"Saduceus", role:"Grupo religioso", desc:"Ligados ao templo e à elite sacerdotal, não acreditavam na ressurreição dos mortos."},
+      {name:"Herodes", role:"Governante local", desc:"Dinastia de reis vassalos de Roma que administravam partes da região sob supervisão imperial."},
+      {name:"Romanos", role:"Poder dominante", desc:"Governavam politicamente a região através de procuradores, mantendo ordem com força militar."}
+    ],
+    context:"O primeiro século foi um período de tensão constante entre a esperança messiânica judaica e a realidade da ocupação romana. Essa tensão explica tanto o entusiasmo das multidões ao seguir Jesus quanto a desconfiança das autoridades religiosas e políticas diante de alguém que reunia tanta gente e desafiava estruturas estabelecidas.",
+    teachings:[
+      "Conhecer o contexto histórico evita interpretações equivocadas dos textos bíblicos.",
+      "Jesus ministrou em meio a tensões reais — políticas, sociais e religiosas — e não em um vácuo espiritual.",
+      "A oposição que Jesus enfrentou tinha raízes em disputas teológicas e de poder concretas.",
+      "O evangelho se espalhou apesar de — e até por meio de — estruturas políticas complexas.",
+      "Entender a cultura da época enriquece a leitura e a aplicação das parábolas e ensinos de Jesus."
+    ],
+    reflection:[
+      "De que forma conhecer o pano de fundo histórico muda sua leitura de alguma passagem que você já conhecia?",
+      "Como Jesus se posicionou diante de conflitos religiosos e políticos do seu tempo — e o que isso ensina para hoje?",
+      "Em que áreas da sua própria cultura você precisa discernir entre tradição humana e verdade bíblica?"
+    ],
+    verses:["Mateus 22:21 — 'dai a César o que é de César'","Lucas 20:27-38 — o debate com os saduceus sobre a ressurreição","João 4:9 — a tensão entre judeus e samaritanos","Atos 17:26 — Deus determina tempos e lugares das nações"]
+  }
 ];
 
 const MEDIA = [
@@ -1567,6 +1873,7 @@ function switchView(view){
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('scrim').classList.remove('show');
   if(view==='dashboard') renderCharts();
+  if(view==='studies') renderStudies(state.studyFilter || 'Todos');
 }
 
 document.querySelectorAll('[data-view]').forEach(el=>{
@@ -2235,16 +2542,22 @@ updateCustomPreview();
 function renderStudies(filter){
   const grid = document.getElementById('studies-grid');
   grid.innerHTML = '';
-  STUDIES.filter(s=> !filter || filter==='Todos' || s.tag===filter).forEach(s=>{
+  STUDIES.forEach((s, idx)=>{
+    if(filter && filter!=='Todos' && s.tag!==filter) return;
     const card = document.createElement('div');
     card.className = 'card study-card';
+    const done = state.completedStudies.has(s.title);
     card.innerHTML = `
       <span class="study-tag">${s.tag}</span>
       <h3 style="font-size:1.05rem;">${s.title}</h3>
       <p class="muted" style="margin-top:8px;font-size:.86rem;line-height:1.6;">${s.summary}</p>
       <hr class="soft">
-      <div style="font-size:.8rem;color:var(--sage);font-weight:600;">✦ ${s.app}</div>`;
-    card.addEventListener('click', ()=> toast('Abrindo estudo: ' + s.title, '🕊️'));
+      <div style="font-size:.8rem;color:var(--sage);font-weight:600;">✦ ${s.app}</div>
+      <button class="btn btn-primary btn-sm study-open-btn">${done ? '✓ Estudo concluído — revisar' : 'Ir para o estudo →'}</button>`;
+    card.querySelector('.study-open-btn').addEventListener('click', (e)=>{
+      e.stopPropagation();
+      openStudyDetail(idx);
+    });
     grid.appendChild(card);
   });
 }
@@ -2258,12 +2571,141 @@ function renderStudies(filter){
     b.addEventListener('click', ()=>{
       wrap.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
       b.classList.add('active');
+      state.studyFilter = t;
       renderStudies(t);
     });
     wrap.appendChild(b);
   });
   renderStudies('Todos');
 })();
+
+/* =========================================================
+   STUDY DETAIL (tela de aula completa — mesmo modelo para
+   todo estudo: personagem, livro, milagre, parábola etc.)
+   ========================================================= */
+function openStudyDetail(idx){
+  state.currentStudyIdx = idx;
+  renderStudyDetail();
+  switchView('study-detail');
+}
+
+function renderStudyDetail(){
+  const idx = state.currentStudyIdx;
+  const s = STUDIES[idx];
+  if(!s) return;
+  const done = state.completedStudies.has(s.title);
+  const completedCount = state.completedStudies.size;
+  const totalCount = STUDIES.length;
+  const progressPercent = Math.round((completedCount/totalCount)*100);
+
+  const characterCards = s.characters.map(c=>`
+    <div class="character-card">
+      <div class="char-name">${c.name}</div>
+      <div class="char-role">${c.role}</div>
+      <div class="char-desc">${c.desc}</div>
+    </div>`).join('');
+
+  const storyParagraphs = s.story.map(p=>`<p class="study-body-text">${p}</p>`).join('');
+
+  const teachingItems = s.teachings.map(t=>`
+    <div class="teaching-item"><span class="tick">✓</span><span>${t}</span></div>`).join('');
+
+  const reflectionItems = s.reflection.map(q=>`<div class="reflection-item">${q}</div>`).join('');
+
+  const versePills = s.verses.map(v=>`<span class="verse-pill">📖 ${v}</span>`).join('');
+
+  const nextStudies = STUDIES
+    .map((st,i)=>({st,i}))
+    .filter(o=> o.i!==idx)
+    .slice(0,3).length < 3
+      ? STUDIES.map((st,i)=>({st,i})).filter(o=> o.i!==idx)
+      : (function(){
+          const others = STUDIES.map((st,i)=>({st,i})).filter(o=> o.i!==idx);
+          const start = idx % others.length;
+          return [...others.slice(start), ...others.slice(0,start)].slice(0,3);
+        })();
+  const nextCards = nextStudies.slice(0,3).map(o=>`
+    <div class="next-study-card" data-next-idx="${o.i}">
+      <span class="study-tag">${o.st.tag}</span>
+      <div class="nx-title">${o.st.title}</div>
+    </div>`).join('');
+
+  const container = document.getElementById('study-detail-content');
+  container.innerHTML = `
+    <div class="card study-hero">
+      <div class="eyebrow">${s.tag}</div>
+      <h1 class="page-title">${s.title}</h1>
+      <div class="study-hero-ref">📖 ${s.ref}</div>
+      <p class="study-hero-summary">${s.intro}</p>
+    </div>
+
+    <div class="card study-section">
+      <h2><span class="num">1</span>Introdução</h2>
+      <p class="study-body-text">${s.intro}</p>
+    </div>
+
+    <div class="card study-section">
+      <h2><span class="num">2</span>Conheça a história</h2>
+      ${storyParagraphs}
+    </div>
+
+    <div class="card study-section">
+      <h2><span class="num">3</span>Personagens principais</h2>
+      <div class="character-grid">${characterCards}</div>
+    </div>
+
+    <div class="card study-section">
+      <h2><span class="num">4</span>Contexto histórico</h2>
+      <p class="study-body-text">${s.context}</p>
+    </div>
+
+    <div class="card study-section">
+      <h2><span class="num">5</span>Principais ensinamentos</h2>
+      <div class="teaching-list">${teachingItems}</div>
+    </div>
+
+    <div class="card study-section">
+      <h2><span class="num">6</span>Reflexão pessoal</h2>
+      <div class="reflection-list">${reflectionItems}</div>
+    </div>
+
+    <div class="card study-section">
+      <h2><span class="num">7</span>Versículos relacionados</h2>
+      <div class="verse-pills">${versePills}</div>
+    </div>
+
+    <div class="card study-section study-complete-card ${done ? 'done' : ''}">
+      <div style="font-size:1.6rem;">${done ? '🎉' : '🕊️'}</div>
+      <h3 style="margin-top:8px;">${done ? 'Estudo concluído!' : 'Concluiu este estudo?'}</h3>
+      <p class="muted" style="margin-top:6px;">Você já concluiu ${completedCount} de ${totalCount} estudos (${progressPercent}%).</p>
+      <div class="plan-progress-track" style="margin:16px auto 18px;max-width:320px;"><div class="plan-progress-fill" style="width:${progressPercent}%"></div></div>
+      <button class="btn ${done ? 'btn-ghost' : 'btn-primary'} btn-sm" id="study-complete-btn">${done ? '↺ Marcar como não concluído' : '✓ Marcar estudo como concluído'}</button>
+    </div>
+
+    <div class="study-section">
+      <h2 style="font-size:1.05rem;">Sugestão de próximos estudos</h2>
+      <div class="next-study-row">${nextCards}</div>
+    </div>
+  `;
+
+  document.getElementById('study-complete-btn').addEventListener('click', ()=>{
+    if(state.completedStudies.has(s.title)){
+      state.completedStudies.delete(s.title);
+    } else {
+      state.completedStudies.add(s.title);
+      toast('Estudo concluído: ' + s.title, '🎉');
+    }
+    renderStudyDetail();
+  });
+
+  container.querySelectorAll('.next-study-card').forEach(el=>{
+    el.addEventListener('click', ()=> openStudyDetail(parseInt(el.dataset.nextIdx, 10)));
+  });
+}
+
+document.getElementById('study-detail-back').addEventListener('click', ()=>{
+  switchView('studies');
+});
 
 /* =========================================================
    NOTES
