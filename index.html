@@ -78,7 +78,7 @@
 }
 
 *{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
+html{scroll-behavior:smooth;overflow-anchor:none;}
 body{
   font-family:var(--font-body);
   background:var(--parchment);
@@ -86,6 +86,7 @@ body{
   min-height:100vh;
   transition:background .35s ease, color .35s ease;
   overflow-x:hidden;
+  overflow-anchor:none;
 }
 img{max-width:100%;display:block;}
 button{font-family:inherit;cursor:pointer;}
@@ -1871,6 +1872,12 @@ function switchView(view){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.view===view));
   document.getElementById('content').scrollTo({top:0, behavior:'auto'});
   window.scrollTo({top:0, left:0, behavior:'auto'});
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      document.getElementById('content').scrollTo({top:0, behavior:'auto'});
+      window.scrollTo({top:0, left:0, behavior:'auto'});
+    });
+  });
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('scrim').classList.remove('show');
   if(view==='dashboard') renderCharts();
