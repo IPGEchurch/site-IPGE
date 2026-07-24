@@ -397,6 +397,51 @@ textarea.notes-area:focus{border-color:var(--gold);}
 .plan-progress-fill{height:100%;background:linear-gradient(90deg,var(--sage),var(--gold));border-radius:20px;transition:width .5s ease;}
 .plan-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;}
 
+/* Plan detail page */
+.plan-back-btn{margin-bottom:18px;}
+.plan-hero{padding:26px 28px;}
+.plan-week{border:1px solid var(--line);border-radius:var(--radius-md);margin-bottom:10px;overflow:hidden;background:var(--paper);}
+.plan-week summary{
+  list-style:none;cursor:pointer;padding:13px 16px;display:flex;align-items:center;gap:10px;
+  font-weight:600;font-size:.88rem;color:var(--ink);background:var(--parchment-dim);
+}
+.plan-week summary::-webkit-details-marker{display:none;}
+.plan-week summary::before{content:'▸';font-size:.75rem;color:var(--gold);transition:transform .2s ease;}
+.plan-week[open] summary::before{transform:rotate(90deg);}
+.plan-week-body{padding:6px 10px;}
+.plan-day-row{
+  display:flex;align-items:center;gap:12px;padding:10px 8px;border-radius:9px;
+  font-size:.86rem;cursor:pointer;transition:background .15s ease;
+}
+.plan-day-row:hover{background:var(--parchment-dim);}
+.plan-day-row input[type="checkbox"]{width:17px;height:17px;accent-color:var(--sage);flex-shrink:0;cursor:pointer;}
+.plan-day-row .day-num{font-family:var(--font-mono);font-size:.74rem;color:var(--text-faint);flex-shrink:0;width:52px;}
+.plan-day-row .day-refs{color:var(--text-dim);}
+.plan-day-row.done .day-refs{color:var(--sage);text-decoration:line-through;text-decoration-color:var(--sage-soft);}
+.plan-day-row.done .day-num{color:var(--sage);}
+
+/* Custom plan builder */
+.field-label{display:block;font-size:.78rem;font-weight:600;color:var(--text-dim);margin-bottom:8px;}
+.field-input{
+  width:100%;border:1px solid var(--line);border-radius:var(--radius-sm);
+  background:var(--parchment);color:var(--text);padding:10px 14px;font-family:inherit;
+  font-size:.92rem;outline:none;
+}
+.field-input:focus{border-color:var(--gold);}
+.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:640px){.choice-grid{grid-template-columns:1fr;}}
+.choice-card{
+  display:flex;align-items:center;gap:11px;text-align:left;
+  border:1px solid var(--line);border-radius:var(--radius-md);
+  background:var(--paper);padding:11px 13px;transition:all .18s ease;
+}
+.choice-card:hover{border-color:var(--gold);}
+.choice-card.active{border-color:var(--sage);background:var(--sage-soft);}
+.choice-ic{font-size:1.15rem;flex-shrink:0;}
+.choice-label{font-size:.86rem;font-weight:600;color:var(--ink);}
+.choice-desc{font-size:.72rem;color:var(--text-dim);}
+.custom-preview{display:flex;gap:8px;flex-wrap:wrap;}
+
 /* Studies */
 .study-card{cursor:pointer;}
 .study-tag{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:20px;background:var(--sage-soft);color:var(--sage);margin-bottom:10px;}
@@ -815,6 +860,62 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
         <div class="grid grid-3" id="plans-grid" style="margin-top:22px;"></div>
       </section>
 
+      <!-- ============ PLAN DETAIL ============ -->
+      <section class="view" id="view-plan-detail">
+        <button class="btn btn-ghost btn-sm plan-back-btn" id="plan-detail-back">← Voltar aos planos</button>
+        <div id="plan-detail-content"></div>
+      </section>
+
+      <!-- ============ PLAN CUSTOM BUILDER ============ -->
+      <section class="view" id="view-plan-custom">
+        <button class="btn btn-ghost btn-sm plan-back-btn" id="plan-custom-back">← Voltar aos planos</button>
+        <div class="eyebrow">Sob medida</div>
+        <h1 class="page-title">Monte seu plano personalizado</h1>
+        <p class="page-sub">Escolha o que ler e o ritmo — organizamos o roteiro completo, dia a dia, para você.</p>
+
+        <div class="grid grid-2" style="margin-top:22px;align-items:start;">
+          <div class="card" style="display:flex;flex-direction:column;gap:22px;">
+            <div>
+              <label class="field-label">O que você quer ler?</label>
+              <div class="choice-grid" id="custom-scope-grid"></div>
+            </div>
+            <div>
+              <label class="field-label">Como quer definir o ritmo?</label>
+              <div class="testament-tabs" id="custom-mode-tabs">
+                <button type="button" class="tab-btn active" data-mode="days">Por total de dias</button>
+                <button type="button" class="tab-btn" data-mode="pace">Por capítulos/dia</button>
+              </div>
+              <div id="custom-days-field">
+                <label class="field-label">Em quantos dias?</label>
+                <input type="number" id="custom-days-input" class="field-input" min="1" max="400" value="30">
+              </div>
+              <div id="custom-pace-field" style="display:none;">
+                <label class="field-label">Capítulos por dia</label>
+                <input type="number" id="custom-pace-input" class="field-input" min="1" max="20" value="3">
+              </div>
+            </div>
+            <div>
+              <label class="field-label">Dê um nome ao seu plano (opcional)</label>
+              <input type="text" id="custom-name-input" class="field-input" placeholder="Ex.: Minha jornada de fé">
+            </div>
+            <div class="custom-preview" id="custom-preview"></div>
+            <button class="btn btn-primary" id="custom-generate-btn">✨ Gerar meu plano</button>
+          </div>
+          <div class="card">
+            <h3 style="font-size:1rem;margin-bottom:10px;">💡 Como funciona</h3>
+            <p class="muted" style="line-height:1.85;font-size:.88rem;">
+              Escolha um recorte da Bíblia — pode ser tudo, só um Testamento, os Evangelhos, as Cartas ou Salmos &amp; Provérbios.
+              Depois, decida se prefere informar quantos <b>dias</b> você tem disponíveis (calculamos os capítulos por dia)
+              ou quantos <b>capítulos por dia</b> você consegue ler (calculamos em quantos dias termina).
+            </p>
+            <p class="muted" style="line-height:1.85;font-size:.88rem;margin-top:12px;">
+              Ao gerar, você recebe um roteiro dia a dia — igual aos planos guiados — com checklist de progresso,
+              agrupado por semanas, para acompanhar exatamente o que ler a cada dia até bater sua meta.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <!-- ============ STUDIES ============ -->
       <section class="view" id="view-studies">
         <div class="eyebrow">Aprofunde-se</div>
@@ -961,7 +1062,9 @@ const state = {
   currentChapter: 1,
   testamentFilter: 'AT',
   quizIdx: 0,
-  quizAnswered: false
+  quizAnswered: false,
+  planProgress: {},   // { [planKey]: Set(dayIndex) }
+  currentPlanKey: null
 };
 
 /* =========================================================
@@ -1194,13 +1297,211 @@ const DEVOTIONALS = [
 ];
 const todayDevo = DEVOTIONALS[new Date().getDate() % DEVOTIONALS.length];
 
+/* =========================================================
+   BIBLE CANON — os 66 livros com quantidade de capítulos,
+   usados apenas para GERAR os roteiros de leitura (dia a dia)
+   dos planos. Não contém texto bíblico, só referências.
+   ========================================================= */
+const BIBLE_CANON = [
+  {book:"Gênesis", testament:"AT", cat:"Lei", chapters:50},
+  {book:"Êxodo", testament:"AT", cat:"Lei", chapters:40},
+  {book:"Levítico", testament:"AT", cat:"Lei", chapters:27},
+  {book:"Números", testament:"AT", cat:"Lei", chapters:36},
+  {book:"Deuteronômio", testament:"AT", cat:"Lei", chapters:34},
+  {book:"Josué", testament:"AT", cat:"Históricos", chapters:24},
+  {book:"Juízes", testament:"AT", cat:"Históricos", chapters:21},
+  {book:"Rute", testament:"AT", cat:"Históricos", chapters:4},
+  {book:"1 Samuel", testament:"AT", cat:"Históricos", chapters:31},
+  {book:"2 Samuel", testament:"AT", cat:"Históricos", chapters:24},
+  {book:"1 Reis", testament:"AT", cat:"Históricos", chapters:22},
+  {book:"2 Reis", testament:"AT", cat:"Históricos", chapters:25},
+  {book:"1 Crônicas", testament:"AT", cat:"Históricos", chapters:29},
+  {book:"2 Crônicas", testament:"AT", cat:"Históricos", chapters:36},
+  {book:"Esdras", testament:"AT", cat:"Históricos", chapters:10},
+  {book:"Neemias", testament:"AT", cat:"Históricos", chapters:13},
+  {book:"Ester", testament:"AT", cat:"Históricos", chapters:10},
+  {book:"Jó", testament:"AT", cat:"Poesia", chapters:42},
+  {book:"Salmos", testament:"AT", cat:"Poesia", chapters:150},
+  {book:"Provérbios", testament:"AT", cat:"Poesia", chapters:31},
+  {book:"Eclesiastes", testament:"AT", cat:"Poesia", chapters:12},
+  {book:"Cantares", testament:"AT", cat:"Poesia", chapters:8},
+  {book:"Isaías", testament:"AT", cat:"Profetas", chapters:66},
+  {book:"Jeremias", testament:"AT", cat:"Profetas", chapters:52},
+  {book:"Lamentações", testament:"AT", cat:"Profetas", chapters:5},
+  {book:"Ezequiel", testament:"AT", cat:"Profetas", chapters:48},
+  {book:"Daniel", testament:"AT", cat:"Profetas", chapters:12},
+  {book:"Oséias", testament:"AT", cat:"Profetas", chapters:14},
+  {book:"Joel", testament:"AT", cat:"Profetas", chapters:3},
+  {book:"Amós", testament:"AT", cat:"Profetas", chapters:9},
+  {book:"Obadias", testament:"AT", cat:"Profetas", chapters:1},
+  {book:"Jonas", testament:"AT", cat:"Profetas", chapters:4},
+  {book:"Miquéias", testament:"AT", cat:"Profetas", chapters:7},
+  {book:"Naum", testament:"AT", cat:"Profetas", chapters:3},
+  {book:"Habacuque", testament:"AT", cat:"Profetas", chapters:3},
+  {book:"Sofonias", testament:"AT", cat:"Profetas", chapters:3},
+  {book:"Ageu", testament:"AT", cat:"Profetas", chapters:2},
+  {book:"Zacarias", testament:"AT", cat:"Profetas", chapters:14},
+  {book:"Malaquias", testament:"AT", cat:"Profetas", chapters:4},
+  {book:"Mateus", testament:"NT", cat:"Evangelhos", chapters:28},
+  {book:"Marcos", testament:"NT", cat:"Evangelhos", chapters:16},
+  {book:"Lucas", testament:"NT", cat:"Evangelhos", chapters:24},
+  {book:"João", testament:"NT", cat:"Evangelhos", chapters:21},
+  {book:"Atos", testament:"NT", cat:"História", chapters:28},
+  {book:"Romanos", testament:"NT", cat:"Cartas", chapters:16},
+  {book:"1 Coríntios", testament:"NT", cat:"Cartas", chapters:16},
+  {book:"2 Coríntios", testament:"NT", cat:"Cartas", chapters:13},
+  {book:"Gálatas", testament:"NT", cat:"Cartas", chapters:6},
+  {book:"Efésios", testament:"NT", cat:"Cartas", chapters:6},
+  {book:"Filipenses", testament:"NT", cat:"Cartas", chapters:4},
+  {book:"Colossenses", testament:"NT", cat:"Cartas", chapters:4},
+  {book:"1 Tessalonicenses", testament:"NT", cat:"Cartas", chapters:5},
+  {book:"2 Tessalonicenses", testament:"NT", cat:"Cartas", chapters:3},
+  {book:"1 Timóteo", testament:"NT", cat:"Cartas", chapters:6},
+  {book:"2 Timóteo", testament:"NT", cat:"Cartas", chapters:4},
+  {book:"Tito", testament:"NT", cat:"Cartas", chapters:3},
+  {book:"Filemom", testament:"NT", cat:"Cartas", chapters:1},
+  {book:"Hebreus", testament:"NT", cat:"Cartas", chapters:13},
+  {book:"Tiago", testament:"NT", cat:"Cartas", chapters:5},
+  {book:"1 Pedro", testament:"NT", cat:"Cartas", chapters:5},
+  {book:"2 Pedro", testament:"NT", cat:"Cartas", chapters:3},
+  {book:"1 João", testament:"NT", cat:"Cartas", chapters:5},
+  {book:"2 João", testament:"NT", cat:"Cartas", chapters:1},
+  {book:"3 João", testament:"NT", cat:"Cartas", chapters:1},
+  {book:"Judas", testament:"NT", cat:"Cartas", chapters:1},
+  {book:"Apocalipse", testament:"NT", cat:"Profecia", chapters:22}
+];
+
+/* Expande os livros filtrados em uma lista plana {book, chapter} */
+function expandCanon(filterFn){
+  const out = [];
+  BIBLE_CANON.filter(filterFn).forEach(b=>{
+    for(let c=1; c<=b.chapters; c++) out.push({book:b.book, chapter:c});
+  });
+  return out;
+}
+
+/* Distribui uma lista de itens igualmente entre N dias (mesmo que a lista seja menor que N) */
+function distributeIntoDays(items, days){
+  const result = [];
+  for(let d=0; d<days; d++){
+    const start = Math.round(d*items.length/days);
+    const end = Math.round((d+1)*items.length/days);
+    result.push(items.slice(start, end));
+  }
+  return result;
+}
+
+/* Mescla várias "trilhas" (ex.: AT, Salmos, Provérbios, NT) num único roteiro de N dias */
+function mergeTracksIntoDays(tracks, days){
+  const perTrack = tracks.map(t => distributeIntoDays(t, days));
+  const merged = [];
+  for(let d=0; d<days; d++){
+    let dayItems = [];
+    perTrack.forEach(dist => { dayItems = dayItems.concat(dist[d]); });
+    merged.push(dayItems);
+  }
+  return merged;
+}
+
+/* Formata os itens de um dia agrupando capítulos consecutivos do mesmo livro: "Gênesis 1-3" */
+function formatDayRefs(dayItems){
+  if(!dayItems || dayItems.length===0) return 'Dia livre — aproveite para revisar a semana ✨';
+  const groups = [];
+  dayItems.forEach(it=>{
+    const last = groups[groups.length-1];
+    if(last && last.book===it.book && it.chapter===last.end+1){ last.end = it.chapter; }
+    else groups.push({book:it.book, start:it.chapter, end:it.chapter});
+  });
+  return groups.map(g => g.start===g.end ? `${g.book} ${g.start}` : `${g.book} ${g.start}-${g.end}`).join(' · ');
+}
+
+/* =========================================================
+   PLAN LIBRARY — definição de cada plano guiado: como ele
+   funciona, dicas, e a função build() que gera o roteiro
+   dia a dia a partir do BIBLE_CANON.
+   ========================================================= */
+const PLAN_LIBRARY = {
+  'biblia-1-ano': {
+    name:"Bíblia em 1 ano",
+    icon:"📖", color:"var(--gold-soft)",
+    tagline:"Leia a Bíblia inteira — Antigo e Novo Testamento — em 365 dias, com um ritmo leve e sustentável.",
+    how:"Todos os dias você recebe uma porção do Antigo Testamento combinada com um Salmo e, na maior parte dos dias, um capítulo do Novo Testamento e um trecho de Provérbios. Assim você acompanha a grande narrativa da Bíblia sem perder o contato diário com a poesia dos Salmos e a sabedoria de Provérbios.",
+    tips:["Reserve de 12 a 18 minutos por dia, de preferência sempre no mesmo horário.","Se perder um dia, não tente compensar tudo de uma vez — simplesmente continue de onde parou.","Guarde um versículo marcante por semana na aba de Anotações."],
+    days:365,
+    build(){
+      const at = expandCanon(b => b.testament==='AT' && b.book!=='Salmos' && b.book!=='Provérbios');
+      const salmos = expandCanon(b => b.book==='Salmos');
+      const proverbios = expandCanon(b => b.book==='Provérbios');
+      const nt = expandCanon(b => b.testament==='NT');
+      return mergeTracksIntoDays([at, salmos, proverbios, nt], 365);
+    }
+  },
+  'nt-90-dias': {
+    name:"Novo Testamento em 90 dias",
+    icon:"✝️", color:"var(--sage-soft)",
+    tagline:"Percorra todo o Novo Testamento — Evangelhos, Atos, Cartas e Apocalipse — em três meses.",
+    how:"A leitura segue a ordem canônica, do Evangelho de Mateus ao Apocalipse, dividida em partes iguais para uma média de cerca de 3 capítulos por dia.",
+    tips:["Comece pelos Evangelhos com calma: ali está o fundamento de tudo que vem depois.","Nas Cartas, repare toda vez que encontrar uma orientação prática — são fáceis de aplicar ainda hoje.","Se um dia tiver menos tempo, priorize terminar o capítulo em andamento em vez de pular para o próximo."],
+    days:90,
+    build(){
+      return mergeTracksIntoDays([expandCanon(b => b.testament==='NT')], 90);
+    }
+  },
+  'salmos-proverbios': {
+    name:"Salmos & Provérbios",
+    icon:"🎼", color:"var(--gold-soft)",
+    tagline:"Uma dose diária de poesia e sabedoria: os 150 Salmos e os 31 capítulos de Provérbios.",
+    how:"Todos os dias você lê um Salmo e, a cada quatro ou cinco dias, também um capítulo de Provérbios — assim os dois livros terminam juntos, em cerca de cinco meses.",
+    tips:["Muita gente gosta de ler o capítulo de Provérbios correspondente ao dia do mês — sinta-se livre para adaptar.","Leia os Salmos em voz alta quando puder: foram escritos para serem cantados e orados.","Guarde um versículo de sabedoria por semana como 'lema da semana'."],
+    days:150,
+    build(){
+      return mergeTracksIntoDays([expandCanon(b => b.book==='Salmos'), expandCanon(b => b.book==='Provérbios')], 150);
+    }
+  },
+  'evangelhos': {
+    name:"Evangelhos",
+    icon:"🕊️", color:"var(--sage-soft)",
+    tagline:"Conheça a vida, os ensinos e os milagres de Jesus em Mateus, Marcos, Lucas e João — em 30 dias.",
+    how:"A leitura segue os quatro Evangelhos em sequência, cerca de 3 capítulos por dia, permitindo perceber tanto os pontos em comum quanto o que cada evangelista quis destacar.",
+    tips:["Repare em como cada evangelista escreve para um público diferente — isso muda o tom de cada livro.","Ao final de cada Evangelho, escreva em uma frase o que mais marcou você.","É um ótimo plano para repetir mais de uma vez por ano."],
+    days:30,
+    build(){
+      return mergeTracksIntoDays([expandCanon(b => ['Mateus','Marcos','Lucas','João'].includes(b.book))], 30);
+    }
+  },
+  'fe-ansiosos': {
+    name:"Fé para ansiosos",
+    icon:"🌿", color:"var(--gold-soft)",
+    tagline:"14 dias de leituras curtas e temáticas sobre paz, confiança e o cuidado de Deus com quem está ansioso.",
+    how:"Diferente dos outros planos, este é temático: cada dia traz uma passagem específica (não um livro inteiro), escolhida por tratar diretamente de ansiedade, medo, descanso e confiança.",
+    tips:["Leia devagar — é mais importante meditar numa passagem curta do que avançar rápido.","Ao final de cada leitura, transforme o texto numa frase de oração.","Se um dia tocar fundo em você, sinta-se livre para repeti-lo antes de seguir adiante."],
+    days:14,
+    fixedSchedule:[
+      {theme:"Deus cuida de você", refs:"Salmos 23"},
+      {theme:"Não andeis ansiosos por nada", refs:"Mateus 6:25-34"},
+      {theme:"Lançai sobre ele a vossa ansiedade", refs:"1 Pedro 5:6-7"},
+      {theme:"A paz que excede todo entendimento", refs:"Filipenses 4:4-9"},
+      {theme:"Não temas, porque eu sou contigo", refs:"Isaías 41:10-13"},
+      {theme:"Vinde a mim, os cansados", refs:"Mateus 11:28-30"},
+      {theme:"O Senhor é a minha luz e a minha salvação", refs:"Salmos 27:1-6"},
+      {theme:"Descanso para a alma", refs:"Salmos 62:1-8"},
+      {theme:"Confiai no Senhor de todo o coração", refs:"Provérbios 3:5-8"},
+      {theme:"Nada nos separa do amor de Deus", refs:"Romanos 8:31-39"},
+      {theme:"A força se renova", refs:"Isaías 40:28-31"},
+      {theme:"Deus é o nosso refúgio e fortaleza", refs:"Salmos 46:1-7"},
+      {theme:"Alegrai-vos sempre, orai sem cessar", refs:"1 Tessalonicenses 5:16-18"},
+      {theme:"Aquietai-vos e sabei que eu sou Deus", refs:"Salmos 46:8-11"}
+    ]
+  }
+};
+
 const PLANS = [
-  {name:"Bíblia em 1 ano", desc:"Leitura completa do Antigo e Novo Testamento.", icon:"📖", color:"var(--gold-soft)", progress:22},
-  {name:"Novo Testamento em 90 dias", desc:"Evangelhos, cartas e Apocalipse em três meses.", icon:"✝️", color:"var(--sage-soft)", progress:34},
-  {name:"Salmos & Provérbios", desc:"Um capítulo de poesia e sabedoria por dia.", icon:"🎼", color:"var(--gold-soft)", progress:58},
-  {name:"Evangelhos", desc:"Mateus, Marcos, Lucas e João em 30 dias.", icon:"🕊️", color:"var(--sage-soft)", progress:10},
-  {name:"Fé para ansiosos", desc:"14 dias de leitura sobre paz e confiança.", icon:"🌿", color:"var(--gold-soft)", progress:71},
-  {name:"Plano personalizado", desc:"Monte seu próprio ritmo de leitura.", icon:"🛠️", color:"var(--sage-soft)", progress:0}
+  {name:"Bíblia em 1 ano", key:"biblia-1-ano", desc:"Leitura completa do Antigo e Novo Testamento.", icon:"📖", color:"var(--gold-soft)"},
+  {name:"Novo Testamento em 90 dias", key:"nt-90-dias", desc:"Evangelhos, cartas e Apocalipse em três meses.", icon:"✝️", color:"var(--sage-soft)"},
+  {name:"Salmos & Provérbios", key:"salmos-proverbios", desc:"Um capítulo de poesia e sabedoria por dia.", icon:"🎼", color:"var(--gold-soft)"},
+  {name:"Evangelhos", key:"evangelhos", desc:"Mateus, Marcos, Lucas e João em 30 dias.", icon:"🕊️", color:"var(--sage-soft)"},
+  {name:"Fé para ansiosos", key:"fe-ansiosos", desc:"14 dias de leitura sobre paz e confiança.", icon:"🌿", color:"var(--gold-soft)"},
+  {name:"Plano personalizado", key:"personalizado", desc:"Monte seu próprio ritmo de leitura.", icon:"🛠️", color:"var(--sage-soft)"}
 ];
 
 const STUDIES = [
@@ -1655,10 +1956,19 @@ document.getElementById('devo-save-note').addEventListener('click', ()=>{
 /* =========================================================
    PLANS
    ========================================================= */
+function planProgressPercent(key){
+  const def = PLAN_LIBRARY[key];
+  if(!def || !def.days) return 0;
+  const done = state.planProgress[key];
+  if(!done || done.size===0) return 0;
+  return Math.round((done.size/def.days)*100);
+}
+
 function renderPlans(){
   const grid = document.getElementById('plans-grid');
   grid.innerHTML = '';
   PLANS.forEach(p=>{
+    const progress = p.key==='personalizado' ? 0 : planProgressPercent(p.key);
     const card = document.createElement('div');
     card.className = 'card plan-card';
     card.innerHTML = `
@@ -1669,16 +1979,239 @@ function renderPlans(){
           <div class="muted" style="font-size:.8rem;">${p.desc}</div>
         </div>
       </div>
-      <div class="plan-progress-track"><div class="plan-progress-fill" style="width:${p.progress}%"></div></div>
+      <div class="plan-progress-track"><div class="plan-progress-fill" style="width:${progress}%"></div></div>
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <span class="muted" style="font-size:.78rem;">${p.progress}% concluído</span>
+        <span class="muted" style="font-size:.78rem;">${progress}% concluído</span>
         <button class="btn btn-ghost btn-sm">Continuar</button>
       </div>`;
-    card.querySelector('button').addEventListener('click', ()=>{ toast('Plano "' + p.name + '" iniciado', '📅'); switchView('bible'); });
+    card.querySelector('button').addEventListener('click', ()=>{
+      if(p.key === 'personalizado'){ switchView('plan-custom'); }
+      else { openPlanDetail(p.key); }
+    });
     grid.appendChild(card);
   });
 }
 renderPlans();
+
+/* =========================================================
+   PLAN DETAIL PAGE
+   ========================================================= */
+function openPlanDetail(key){
+  state.currentPlanKey = key;
+  if(!state.planProgress[key]) state.planProgress[key] = new Set();
+  renderPlanDetail();
+  switchView('plan-detail');
+}
+
+function renderPlanDetail(){
+  const key = state.currentPlanKey;
+  const def = PLAN_LIBRARY[key];
+  if(!def) return;
+  if(!state.planProgress[key]) state.planProgress[key] = new Set();
+  const done = state.planProgress[key];
+  const totalDays = def.days;
+
+  let schedule = null;
+  let totalReadings;
+  if(def.fixedSchedule){
+    totalReadings = def.fixedSchedule.length;
+  } else {
+    schedule = def.build();
+    totalReadings = schedule.reduce((s,d)=> s + d.length, 0);
+  }
+  const donePercent = totalDays ? Math.round((done.size/totalDays)*100) : 0;
+  const avgPace = (totalReadings/totalDays).toFixed(1);
+
+  const container = document.getElementById('plan-detail-content');
+  container.innerHTML = `
+    <div class="plan-hero card" style="background:${def.color};border:none;">
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <div class="plan-icon" style="background:var(--paper);font-size:1.7rem;width:56px;height:56px;">${def.icon}</div>
+        <div>
+          <div class="eyebrow" style="opacity:.75;">Plano de leitura</div>
+          <h1 class="page-title" style="margin-top:2px;">${def.name}</h1>
+        </div>
+      </div>
+      <p style="margin-top:14px;max-width:70ch;line-height:1.7;">${def.tagline}</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;">
+        <span class="pill pill-gold">${totalDays} dias</span>
+        <span class="pill pill-sage">${def.fixedSchedule ? '1 leitura por dia' : avgPace + ' capítulos/dia (média)'}</span>
+        <span class="pill pill-gold">${donePercent}% concluído</span>
+      </div>
+    </div>
+
+    <div class="grid grid-2" style="margin-top:20px;align-items:start;">
+      <div style="display:flex;flex-direction:column;gap:18px;">
+        <div class="card">
+          <h3 style="font-size:1rem;margin-bottom:10px;">📌 Como funciona</h3>
+          <p class="muted" style="line-height:1.8;font-size:.9rem;">${def.how}</p>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px;flex-wrap:wrap;">
+            <h3 style="font-size:1rem;">Roteiro dia a dia</h3>
+            <button class="btn btn-ghost btn-sm" id="plan-reset-btn">Reiniciar progresso</button>
+          </div>
+          <div class="plan-progress-track" style="margin-bottom:16px;"><div class="plan-progress-fill" style="width:${donePercent}%"></div></div>
+          <div id="plan-weeks"></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:18px;">
+        <div class="card stat-card">
+          <div class="stat-top"><div class="stat-ic" style="background:var(--gold-soft);">✅</div></div>
+          <div class="stat-num">${done.size}/${totalDays}</div>
+          <div class="stat-label">dias concluídos</div>
+        </div>
+        <div class="card">
+          <h3 style="font-size:.95rem;margin-bottom:10px;">💡 Dicas para não desistir</h3>
+          <ul style="padding-left:18px;line-height:1.9;font-size:.86rem;color:var(--text-dim);">
+            ${def.tips.map(t=>`<li>${t}</li>`).join('')}
+          </ul>
+        </div>
+        <button class="btn btn-primary" id="plan-mark-today-btn" style="width:100%;justify-content:center;">Marcar próximo dia como lido</button>
+      </div>
+    </div>
+  `;
+
+  const weeksWrap = document.getElementById('plan-weeks');
+  weeksWrap.innerHTML = '';
+  const chunkSize = 7;
+  for(let w=0; w*chunkSize < totalDays; w++){
+    const startDay = w*chunkSize;
+    const endDay = Math.min(startDay+chunkSize, totalDays);
+    const details = document.createElement('details');
+    details.className = 'plan-week';
+    if(w===0) details.open = true;
+    let doneInWeek = 0;
+    for(let d=startDay; d<endDay; d++){ if(done.has(d)) doneInWeek++; }
+    const summary = document.createElement('summary');
+    summary.innerHTML = `Semana ${w+1} <span class="muted" style="font-weight:400;">· dias ${startDay+1}–${endDay}</span> <span class="pill pill-sage" style="margin-left:auto;">${doneInWeek}/${endDay-startDay}</span>`;
+    details.appendChild(summary);
+    const rowsWrap = document.createElement('div');
+    rowsWrap.className = 'plan-week-body';
+    for(let d=startDay; d<endDay; d++){
+      const row = document.createElement('label');
+      row.className = 'plan-day-row' + (done.has(d) ? ' done' : '');
+      const label = def.fixedSchedule
+        ? `<b>${def.fixedSchedule[d].theme}</b> — ${def.fixedSchedule[d].refs}`
+        : formatDayRefs(schedule[d]);
+      row.innerHTML = `<input type="checkbox" ${done.has(d)?'checked':''}><span class="day-num">Dia ${d+1}</span><span class="day-refs">${label}</span>`;
+      row.querySelector('input').addEventListener('change', (e)=>{
+        if(e.target.checked) done.add(d); else done.delete(d);
+        renderPlanDetail();
+        renderPlans();
+      });
+      rowsWrap.appendChild(row);
+    }
+    details.appendChild(rowsWrap);
+    weeksWrap.appendChild(details);
+  }
+
+  document.getElementById('plan-reset-btn').addEventListener('click', ()=>{
+    state.planProgress[key] = new Set();
+    toast('Progresso reiniciado', '🔄');
+    renderPlanDetail();
+    renderPlans();
+  });
+  document.getElementById('plan-mark-today-btn').addEventListener('click', ()=>{
+    let next = 0;
+    while(done.has(next) && next < totalDays) next++;
+    if(next >= totalDays){ toast('Você já concluiu todo o plano! 🎉', '🏆'); return; }
+    done.add(next);
+    state.xp += 5;
+    const xpEl = document.getElementById('quiz-xp');
+    if(xpEl) xpEl.textContent = state.xp;
+    toast('Dia ' + (next+1) + ' marcado como lido (+5 XP)', '✅');
+    renderPlanDetail();
+    renderPlans();
+  });
+}
+
+document.getElementById('plan-detail-back').addEventListener('click', ()=>switchView('plans'));
+document.getElementById('plan-custom-back').addEventListener('click', ()=>switchView('plans'));
+
+/* =========================================================
+   CUSTOM PLAN BUILDER
+   ========================================================= */
+const CUSTOM_SCOPES = [
+  {key:"toda", label:"Bíblia completa", desc:"Antigo + Novo Testamento", icon:"📖", filter:b=>true},
+  {key:"at", label:"Antigo Testamento", desc:"Gênesis ao Malaquias", icon:"📜", filter:b=>b.testament==='AT'},
+  {key:"nt", label:"Novo Testamento", desc:"Mateus ao Apocalipse", icon:"✝️", filter:b=>b.testament==='NT'},
+  {key:"evangelhos", label:"Evangelhos", desc:"Mateus, Marcos, Lucas e João", icon:"🕊️", filter:b=>['Mateus','Marcos','Lucas','João'].includes(b.book)},
+  {key:"cartas", label:"Cartas", desc:"Romanos a Judas", icon:"✉️", filter:b=>b.cat==='Cartas'},
+  {key:"poesia", label:"Salmos & Provérbios", desc:"Poesia e sabedoria", icon:"🎼", filter:b=>b.book==='Salmos'||b.book==='Provérbios'}
+];
+const customState = { scope:'toda', mode:'days' };
+
+function scopeChapterCount(scopeKey){
+  return expandCanon(CUSTOM_SCOPES.find(s=>s.key===scopeKey).filter).length;
+}
+
+function renderCustomScopeGrid(){
+  const grid = document.getElementById('custom-scope-grid');
+  grid.innerHTML = '';
+  CUSTOM_SCOPES.forEach(s=>{
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'choice-card' + (customState.scope===s.key ? ' active' : '');
+    btn.innerHTML = `<div class="choice-ic">${s.icon}</div><div><div class="choice-label">${s.label}</div><div class="choice-desc">${s.desc}</div></div>`;
+    btn.addEventListener('click', ()=>{ customState.scope = s.key; renderCustomScopeGrid(); updateCustomPreview(); });
+    grid.appendChild(btn);
+  });
+}
+
+function updateCustomPreview(){
+  const total = scopeChapterCount(customState.scope);
+  let days;
+  if(customState.mode === 'days'){
+    days = Math.max(1, parseInt(document.getElementById('custom-days-input').value) || 30);
+  } else {
+    const pace = Math.max(1, parseInt(document.getElementById('custom-pace-input').value) || 3);
+    days = Math.max(1, Math.ceil(total/pace));
+  }
+  document.getElementById('custom-preview').innerHTML =
+    `<span class="pill pill-gold">${total} capítulos no total</span> <span class="pill pill-sage">${days} dias</span> <span class="pill pill-gold">${(total/days).toFixed(1)} cap./dia em média</span>`;
+}
+
+document.querySelectorAll('#custom-mode-tabs .tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    customState.mode = btn.dataset.mode;
+    document.querySelectorAll('#custom-mode-tabs .tab-btn').forEach(b=>b.classList.toggle('active', b===btn));
+    document.getElementById('custom-days-field').style.display = customState.mode==='days' ? 'block' : 'none';
+    document.getElementById('custom-pace-field').style.display = customState.mode==='pace' ? 'block' : 'none';
+    updateCustomPreview();
+  });
+});
+document.getElementById('custom-days-input').addEventListener('input', updateCustomPreview);
+document.getElementById('custom-pace-input').addEventListener('input', updateCustomPreview);
+
+document.getElementById('custom-generate-btn').addEventListener('click', ()=>{
+  const scope = CUSTOM_SCOPES.find(s=>s.key===customState.scope);
+  const total = scopeChapterCount(customState.scope);
+  let days;
+  if(customState.mode === 'days'){
+    days = Math.max(1, parseInt(document.getElementById('custom-days-input').value) || 30);
+  } else {
+    const pace = Math.max(1, parseInt(document.getElementById('custom-pace-input').value) || 3);
+    days = Math.max(1, Math.ceil(total/pace));
+  }
+  const customName = document.getElementById('custom-name-input').value.trim();
+  const name = customName || ('Plano personalizado — ' + scope.label);
+  const key = 'personalizado-' + Date.now();
+
+  PLAN_LIBRARY[key] = {
+    name, icon:"🛠️", color:"var(--sage-soft)",
+    tagline:`Sua leitura sob medida: ${scope.label.toLowerCase()} em ${days} dias, no seu próprio ritmo.`,
+    how:`Este plano foi montado especialmente para você: reunimos todos os capítulos de "${scope.label}" e dividimos igualmente entre os ${days} dias escolhidos, para uma média de ${(total/days).toFixed(1)} capítulos por dia.`,
+    tips:["Você pode voltar a esta tela e gerar quantos planos personalizados quiser.","Se o ritmo ficar pesado, gere de novo com mais dias — não tem problema recomeçar.","Marque cada dia lido para acompanhar seu progresso."],
+    days,
+    build(){ return mergeTracksIntoDays([expandCanon(scope.filter)], days); }
+  };
+  toast('Plano personalizado gerado! 🛠️', '✨');
+  openPlanDetail(key);
+});
+
+renderCustomScopeGrid();
+updateCustomPreview();
 
 /* =========================================================
    STUDIES
