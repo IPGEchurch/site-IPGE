@@ -1869,7 +1869,8 @@ function switchView(view){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+view).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.view===view));
-  document.getElementById('content').scrollTo({top:0, behavior:'smooth'});
+  document.getElementById('content').scrollTo({top:0, behavior:'auto'});
+  window.scrollTo({top:0, left:0, behavior:'auto'});
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('scrim').classList.remove('show');
   if(view==='dashboard') renderCharts();
