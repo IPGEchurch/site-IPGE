@@ -1064,7 +1064,8 @@ const state = {
   quizIdx: 0,
   quizAnswered: false,
   planProgress: {},   // { [planKey]: Set(dayIndex) }
-  currentPlanKey: null
+  currentPlanKey: null,
+  lastCustomPlanKey: null
 };
 
 /* =========================================================
@@ -1968,7 +1969,11 @@ function renderPlans(){
   const grid = document.getElementById('plans-grid');
   grid.innerHTML = '';
   PLANS.forEach(p=>{
-    const progress = p.key==='personalizado' ? 0 : planProgressPercent(p.key);
+    const hasCustom = p.key==='personalizado' && state.lastCustomPlanKey && PLAN_LIBRARY[state.lastCustomPlanKey];
+    const progress = p.key==='personalizado'
+      ? (hasCustom ? planProgressPercent(state.lastCustomPlanKey) : 0)
+      : planProgressPercent(p.key);
+    const desc = hasCustom ? PLAN_LIBRARY[state.lastCustomPlanKey].name : p.desc;
     const card = document.createElement('div');
     card.className = 'card plan-card';
     card.innerHTML = `
@@ -1976,17 +1981,21 @@ function renderPlans(){
         <div class="plan-icon" style="background:${p.color}">${p.icon}</div>
         <div>
           <div style="font-weight:600;color:var(--ink);">${p.name}</div>
-          <div class="muted" style="font-size:.8rem;">${p.desc}</div>
+          <div class="muted" style="font-size:.8rem;">${desc}</div>
         </div>
       </div>
       <div class="plan-progress-track"><div class="plan-progress-fill" style="width:${progress}%"></div></div>
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <span class="muted" style="font-size:.78rem;">${progress}% concluído</span>
-        <button class="btn btn-ghost btn-sm">Continuar</button>
+        <button class="btn btn-ghost btn-sm">${hasCustom ? 'Continuar' : (p.key==='personalizado' ? 'Criar' : 'Continuar')}</button>
       </div>`;
     card.querySelector('button').addEventListener('click', ()=>{
-      if(p.key === 'personalizado'){ switchView('plan-custom'); }
-      else { openPlanDetail(p.key); }
+      if(p.key === 'personalizado'){
+        if(hasCustom){ openPlanDetail(state.lastCustomPlanKey); }
+        else { switchView('plan-custom'); }
+      } else {
+        openPlanDetail(p.key);
+      }
     });
     grid.appendChild(card);
   });
@@ -2033,10 +2042,11 @@ function renderPlanDetail(){
         </div>
       </div>
       <p style="margin-top:14px;max-width:70ch;line-height:1.7;">${def.tagline}</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;align-items:center;">
         <span class="pill pill-gold">${totalDays} dias</span>
         <span class="pill pill-sage">${def.fixedSchedule ? '1 leitura por dia' : avgPace + ' capítulos/dia (média)'}</span>
         <span class="pill pill-gold">${donePercent}% concluído</span>
+        ${key.startsWith('personalizado-') ? '<button class="btn btn-ghost btn-sm" id="plan-new-custom-btn" style="margin-left:auto;">🛠️ Criar outro plano personalizado</button>' : ''}
       </div>
     </div>
 
@@ -2112,6 +2122,10 @@ function renderPlanDetail(){
     renderPlanDetail();
     renderPlans();
   });
+  const newCustomBtn = document.getElementById('plan-new-custom-btn');
+  if(newCustomBtn){
+    newCustomBtn.addEventListener('click', ()=> switchView('plan-custom'));
+  }
   document.getElementById('plan-mark-today-btn').addEventListener('click', ()=>{
     let next = 0;
     while(done.has(next) && next < totalDays) next++;
@@ -2207,6 +2221,8 @@ document.getElementById('custom-generate-btn').addEventListener('click', ()=>{
     build(){ return mergeTracksIntoDays([expandCanon(scope.filter)], days); }
   };
   toast('Plano personalizado gerado! 🛠️', '✨');
+  state.lastCustomPlanKey = key;
+  renderPlans();
   openPlanDetail(key);
 });
 
