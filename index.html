@@ -361,7 +361,7 @@ h1,h2,h3{font-family:var(--font-display);color:var(--ink);letter-spacing:-.01em;
 }
 .chap-dot.active{background:var(--gold);color:var(--ink);border-color:var(--gold);font-weight:700;}
 .verse{
-  display:flex;gap:14px;padding:9px 10px;border-radius:10px;line-height:1.85;font-size:1.06rem;
+  display:flex;align-items:flex-start;gap:14px;padding:9px 10px;border-radius:10px;
   cursor:pointer;transition:background .15s ease;
 }
 .verse:hover{background:var(--parchment-dim);}
@@ -378,17 +378,37 @@ h1,h2,h3{font-family:var(--font-display);color:var(--ink);letter-spacing:-.01em;
   70%{background:var(--sage-soft);box-shadow:0 0 0 2px var(--sage);}
   100%{background:var(--gold-soft);box-shadow:0 0 0 0 transparent;}
 }
-.vnum{font-family:var(--font-mono);font-size:.76rem;color:var(--gold);flex-shrink:0;padding-top:5px;width:22px;text-align:right;}
-.verse-actions{display:none;gap:6px;margin-left:auto;flex-shrink:0;}
+.vnum{font-family:var(--font-mono);font-size:.76rem;color:var(--gold);flex-shrink:0;padding-top:6px;width:22px;text-align:right;}
+.verse-text{
+  flex:1 1 auto;min-width:0;
+  font-size:1.06rem;line-height:1.8;padding-top:1px;
+  word-break:normal;overflow-wrap:break-word;
+}
+.verse-actions{display:none;gap:6px;margin-left:auto;flex-shrink:0;padding-top:2px;}
 @media (hover:hover) and (pointer:fine){
   .verse:hover .verse-actions{display:flex;}
 }
 @media (hover:none), (pointer:coarse){
   /* Em celulares/tablets não há :hover confiável (ex: Safari no iPhone),
-     então os botões de favoritar/anotar/compartilhar ficam sempre visíveis
-     e um pouco maiores, para facilitar o toque. */
-  .verse-actions{display:flex;gap:9px;}
+     então os botões de favoritar/anotar/compartilhar ficam sempre visíveis.
+     Como eles ocupam espaço fixo o tempo todo (não só no hover), o texto do
+     versículo é jogado para uma linha própria, ocupando 100% da largura —
+     assim ele nunca fica espremido numa coluna estreita, em qualquer tamanho de tela. */
+  .verse{flex-wrap:wrap;row-gap:6px;}
+  .vnum{width:auto;order:1;}
+  .verse-actions{display:flex;gap:9px;order:2;padding-top:0;}
+  .verse-text{flex-basis:100%;order:3;padding-top:2px;}
   .vbtn{width:32px;height:32px;font-size:.85rem;}
+}
+@media(max-width:760px){
+  .reader-card{padding:24px 20px;}
+  .reader-title{font-size:1.4rem;}
+  .verse{gap:10px;padding:8px 6px;}
+  .verse-text{font-size:1rem;line-height:1.72;}
+}
+@media(max-width:480px){
+  .reader-card{padding:18px 14px;}
+  .verse-text{font-size:.97rem;line-height:1.68;}
 }
 .vbtn{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:var(--paper);display:flex;align-items:center;justify-content:center;font-size:.75rem;}
 
@@ -2102,6 +2122,17 @@ const CAMPAIGNS = [
     purpose:"Buscar a presença de Deus, renovando a fé e entregando a Ele nossos planos, para viver o novo que Ele tem preparado.",
     image:"foto02.jpeg",
     emblem:"🌊"
+  },
+  {
+    id:"aguas-no-deserto",
+    status:"encerrada",
+    period:"Junho 2026",
+    title:"Águas no Deserto",
+    verseRef:"Isaías 43:19",
+    verseText:"\"Eis que faço uma coisa nova; agora sairá à luz; porventura não a percebeis? Eis que porei um caminho no deserto e rios no ermo.\"",
+    purpose:"Buscar a presença de Deus, renovando a fé e entregando a Ele nossos planos, para viver o novo que Ele tem preparado.",
+    image:"foto02.jpeg",
+    emblem:"🌊"
   }
 ];
 
@@ -2378,7 +2409,7 @@ function renderReader(){
     row.dataset.verse = i+1;
     row.innerHTML = `
       <span class="vnum">${i+1}</span>
-      <span>${text}</span>
+      <span class="verse-text">${text}</span>
       <span class="verse-actions">
         <button class="vbtn fav-btn" title="Favoritar">${isFav ? '❤️' : '🤍'}</button>
         <button class="vbtn note-btn" title="Anotar">📝</button>
