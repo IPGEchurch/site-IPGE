@@ -207,6 +207,28 @@ a{color:inherit;text-decoration:none;}
 .streak-num{font-family:var(--font-display);font-size:1.1rem;font-weight:600;color:var(--ink);}
 .streak-txt{font-size:.68rem;color:var(--text-dim);}
 
+/* Account button (sidebar footer → leva às Configurações) */
+.account-btn{
+  display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  background:linear-gradient(135deg, var(--gold-soft), transparent);
+  border:1px solid var(--line);border-radius:var(--radius-md);
+  padding:9px 10px;transition:all .18s ease;
+}
+.account-btn:hover{border-color:var(--gold);transform:translateY(-1px);box-shadow:var(--shadow-sm);}
+.account-btn:active{transform:translateY(0);}
+.account-avatar{
+  width:34px;height:34px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--sage),var(--gold));color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-weight:600;font-size:.95rem;
+}
+.account-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
+.account-name{font-size:.85rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.account-sub{font-size:.68rem;color:var(--text-dim);display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.account-flame{font-size:.8rem;filter:drop-shadow(0 1px 2px rgba(201,154,74,.4));}
+.account-gear{flex-shrink:0;color:var(--text-faint);display:flex;transition:color .18s ease, transform .3s ease;}
+.account-btn:hover .account-gear{color:var(--gold);transform:rotate(45deg);}
+
 /* Topbar */
 #topbar{
   position:sticky;top:0;z-index:30;
@@ -366,16 +388,16 @@ h1,h2,h3{font-family:var(--font-display);color:var(--ink);letter-spacing:-.01em;
 }
 .verse:hover{background:var(--parchment-dim);}
 .verse.favorited{background:var(--gold-soft);}
-.verse.verse-highlight{animation:verseFlash 2.1s ease;}
+.verse.verse-highlight{animation:verseFlash 1.1s ease;}
 @keyframes verseFlash{
   0%{background:var(--sage-soft);box-shadow:0 0 0 2px var(--sage);}
-  70%{background:var(--sage-soft);box-shadow:0 0 0 2px var(--sage);}
+  75%{background:var(--sage-soft);box-shadow:0 0 0 2px var(--sage);}
   100%{background:transparent;box-shadow:0 0 0 0 transparent;}
 }
 .verse.favorited.verse-highlight{animation-name:verseFlashFav;}
 @keyframes verseFlashFav{
   0%{background:var(--sage-soft);box-shadow:0 0 0 2px var(--sage);}
-  70%{background:var(--sage-soft);box-shadow:0 0 0 2px var(--sage);}
+  75%{background:var(--sage-soft);box-shadow:0 0 0 2px var(--sage);}
   100%{background:var(--gold-soft);box-shadow:0 0 0 0 transparent;}
 }
 .vnum{font-family:var(--font-mono);font-size:.76rem;color:var(--gold);flex-shrink:0;padding-top:6px;width:22px;text-align:right;}
@@ -674,6 +696,166 @@ textarea.notes-area:focus{border-color:var(--gold);}
 .prayer-del-btn:hover{border-color:var(--rose);color:var(--rose);background:var(--sage-soft);}
 @media(max-width:880px){.prayer-del-btn{width:38px;height:38px;}}
 
+/* ---------------- Settings (Configurações da conta) ---------------- */
+.settings-profile-card{
+  display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-top:22px;
+}
+.settings-avatar-wrap{position:relative;flex-shrink:0;}
+.settings-avatar{
+  width:78px;height:78px;border-radius:22px;
+  background:linear-gradient(135deg,var(--sage),var(--gold));color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-weight:600;font-size:2rem;
+  box-shadow:var(--shadow-sm);
+}
+.settings-avatar-edit{
+  position:absolute;bottom:-4px;right:-4px;width:30px;height:30px;border-radius:50%;
+  background:var(--ink);color:var(--parchment);border:3px solid var(--paper);
+  display:flex;align-items:center;justify-content:center;font-size:.8rem;transition:.18s ease;
+}
+[data-theme="dark"] .settings-avatar-edit{background:var(--gold);color:var(--ink);}
+.settings-avatar-edit:hover{transform:scale(1.08);}
+.settings-profile-info{flex:1;min-width:220px;}
+.settings-profile-name{font-family:var(--font-display);font-size:1.3rem;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.settings-profile-email{color:var(--text-dim);font-size:.88rem;margin-top:3px;}
+.settings-profile-meta{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+
+/* Layout: sub-navegação + painéis */
+.settings-layout{display:grid;grid-template-columns:230px 1fr;gap:24px;align-items:start;margin-top:26px;}
+.settings-nav{display:flex;flex-direction:column;gap:3px;position:sticky;top:14px;}
+.settings-nav-item{
+  display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  padding:10px 12px;border-radius:var(--radius-sm);border:none;background:transparent;
+  font-size:.87rem;font-weight:500;color:var(--text-dim);transition:background .18s ease,color .18s ease;
+}
+.settings-nav-item .ic{width:17px;text-align:center;flex-shrink:0;}
+.settings-nav-item:hover{background:var(--parchment-dim);color:var(--text);}
+.settings-nav-item.active{background:var(--ink);color:var(--parchment);}
+[data-theme="dark"] .settings-nav-item.active{background:var(--gold);color:var(--ink);}
+.settings-nav-item.danger-link{color:var(--rose);}
+.settings-nav-item.danger-link:hover{background:#F3DCD8;}
+[data-theme="dark"] .settings-nav-item.danger-link:hover{background:#3A2422;}
+
+.settings-content{min-width:0;}
+.settings-panel{display:none;animation:riseIn .35s ease both;}
+.settings-panel.active{display:block;}
+.settings-panel .card + .card{margin-top:16px;}
+.settings-card-head{margin-bottom:18px;}
+.settings-card-title{font-family:var(--font-display);font-size:1.08rem;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px;}
+.settings-card-sub{font-size:.82rem;color:var(--text-dim);margin-top:4px;line-height:1.5;}
+
+/* Seletor de avatares (mundo bíblico) */
+.avatar-picker-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;}
+.avatar-option{
+  display:flex;flex-direction:column;align-items:center;gap:7px;
+  background:transparent;border:none;padding:8px 4px;border-radius:14px;transition:background .18s ease;
+}
+.avatar-option:hover{background:var(--parchment-dim);}
+.avatar-swatch{
+  position:relative;width:52px;height:52px;border-radius:15px;
+  display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#fff;
+  border:2px solid transparent;box-shadow:var(--shadow-sm);transition:all .18s ease;
+}
+.avatar-swatch-initial{font-family:var(--font-display);font-weight:600;font-size:1.2rem;}
+.avatar-option.selected .avatar-swatch{border-color:var(--paper);box-shadow:0 0 0 3px var(--gold);transform:scale(1.05);}
+.avatar-option.selected .avatar-swatch::after{
+  content:'✓';position:absolute;top:-5px;right:-5px;width:18px;height:18px;border-radius:50%;
+  background:var(--sage);color:#fff;font-size:.62rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);
+}
+.avatar-label{font-size:.66rem;color:var(--text-dim);text-align:center;line-height:1.2;}
+.avatar-option.selected .avatar-label{color:var(--ink);font-weight:600;}
+
+/* Formulário */
+.settings-form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.settings-form-row.full{grid-template-columns:1fr;}
+@media(max-width:640px){.settings-form-row{grid-template-columns:1fr;}}
+.settings-field textarea.field-input{resize:vertical;min-height:84px;font-family:inherit;line-height:1.6;}
+.settings-form-actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;}
+
+/* Linhas de opção (usadas em notificações / privacidade) */
+.settings-option-row{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:14px 2px;border-bottom:1px solid var(--line);
+}
+.settings-option-row:last-child{border-bottom:none;}
+.settings-option-text{min-width:0;}
+.settings-option-title{font-size:.9rem;font-weight:600;color:var(--ink);}
+.settings-option-desc{font-size:.78rem;color:var(--text-dim);margin-top:2px;line-height:1.5;}
+
+/* Toggle switch */
+.switch{
+  position:relative;flex-shrink:0;width:44px;height:26px;border-radius:20px;
+  border:1px solid var(--line);background:var(--parchment-dim);transition:background .2s ease,border-color .2s ease;
+}
+.switch::after{
+  content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;
+  background:var(--paper);box-shadow:0 1px 4px rgba(0,0,0,.25);transition:transform .22s cubic-bezier(.2,.9,.3,1.3);
+}
+.switch.on{background:var(--sage);border-color:var(--sage);}
+.switch.on::after{transform:translateX(18px);background:#fff;}
+
+/* Sessões ativas */
+.session-item{display:flex;align-items:center;gap:14px;padding:13px 2px;border-bottom:1px solid var(--line);}
+.session-item:last-child{border-bottom:none;}
+.session-ic{width:38px;height:38px;border-radius:11px;background:var(--sage-soft);color:var(--sage);display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0;}
+.session-info{flex:1;min-width:0;}
+.session-name{font-size:.87rem;font-weight:600;color:var(--ink);}
+.session-meta{font-size:.75rem;color:var(--text-faint);margin-top:1px;}
+
+/* Zona de perigo */
+.settings-danger-card{border-color:var(--rose);}
+.settings-danger-row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:12px 0;}
+.settings-danger-row + .settings-danger-row{border-top:1px solid var(--line);}
+.settings-danger-title{font-size:.88rem;font-weight:600;color:var(--ink);}
+.settings-danger-desc{font-size:.78rem;color:var(--text-dim);margin-top:2px;max-width:44ch;line-height:1.5;}
+
+/* FAQ (Ajuda e suporte) */
+.help-faq{border:1px solid var(--line);border-radius:var(--radius-md);margin-bottom:10px;overflow:hidden;background:var(--paper);}
+.help-faq:last-of-type{margin-bottom:0;}
+.help-faq summary{
+  list-style:none;cursor:pointer;padding:13px 16px;display:flex;align-items:center;gap:10px;
+  font-weight:600;font-size:.87rem;color:var(--ink);background:var(--parchment-dim);
+}
+.help-faq summary::-webkit-details-marker{display:none;}
+.help-faq summary::before{content:'▸';font-size:.75rem;color:var(--gold);transition:transform .2s ease;flex-shrink:0;}
+.help-faq[open] summary::before{transform:rotate(90deg);}
+.help-faq-body{padding:12px 16px 16px;font-size:.85rem;color:var(--text-dim);line-height:1.65;}
+
+/* ---- Responsivo: telas de Configurações com toques maiores e mais visíveis ---- */
+@media(max-width:900px){
+  .settings-layout{grid-template-columns:1fr;}
+  .settings-nav{
+    flex-direction:row;flex-wrap:wrap;position:relative;top:0;gap:8px;margin-bottom:6px;
+  }
+  .settings-nav-item{
+    flex:1 1 calc(50% - 8px);min-width:150px;min-height:48px;
+    justify-content:center;text-align:center;border:1px solid var(--line);
+    border-radius:var(--radius-md);padding:12px 14px;font-size:.85rem;
+  }
+  .settings-nav-item.active{border-color:var(--ink);}
+  [data-theme="dark"] .settings-nav-item.active{border-color:var(--gold);}
+  .settings-nav-item.danger-link{flex-basis:100%;border-color:var(--rose);}
+  .settings-form-actions{flex-direction:column;}
+  .settings-form-actions .btn{width:100%;justify-content:center;min-height:46px;}
+  .settings-danger-row{flex-direction:column;align-items:stretch;}
+  .settings-danger-row .btn{width:100%;justify-content:center;min-height:46px;}
+  .session-item{flex-wrap:wrap;}
+  .switch{width:48px;height:28px;}
+  .switch::after{width:22px;height:22px;}
+  .switch.on::after{transform:translateX(20px);}
+  .avatar-picker-grid{grid-template-columns:repeat(4,1fr);}
+}
+@media(max-width:560px){
+  .settings-profile-card{padding:18px;}
+  .settings-avatar{width:64px;height:64px;border-radius:18px;font-size:1.6rem;}
+  .settings-nav-item{flex:1 1 100%;}
+  .settings-option-row{flex-wrap:wrap;}
+  .session-item .btn{width:100%;margin-left:0;justify-content:center;min-height:44px;}
+  .avatar-picker-grid{grid-template-columns:repeat(3,1fr);}
+  .avatar-swatch{width:46px;height:46px;font-size:1.25rem;}
+}
+
 /* Toast */
 #toast{
   position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(120%);
@@ -767,6 +949,7 @@ textarea.notes-area:focus{border-color:var(--gold);}
 /* Mobile nav */
 .mobile-topbar{display:none;}
 #mobile-menu-btn{display:none;}
+#mobile-search-btn{display:none;}
 @media(max-width:880px){
   #app-shell{grid-template-columns:1fr;}
   #sidebar{
@@ -777,8 +960,15 @@ textarea.notes-area:focus{border-color:var(--gold);}
   #mobile-menu-btn{display:flex;}
   #content{padding:22px 16px 90px;}
   .hero{padding:30px 22px;}
-  #topbar{padding:14px 16px;}
-  .search-box{display:none;}
+  #topbar{padding:14px 16px;flex-wrap:wrap;row-gap:10px;}
+  #mobile-search-btn{display:flex;}
+  .search-box{
+    display:none;
+    order:10;
+    flex:1 1 100%;
+    max-width:none;
+  }
+  .search-box.mobile-open{display:flex;}
 }
 .sidebar-scrim{display:none;position:fixed;inset:0;background:rgba(20,20,20,.4);z-index:39;}
 .sidebar-scrim.show{display:block;}
@@ -966,13 +1156,15 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
     </div>
 
     <div class="sidebar-footer">
-      <div class="streak-pill">
-        <div class="streak-flame">🔥</div>
-        <div>
-          <div class="streak-num" id="sidebar-streak">12</div>
-          <div class="streak-txt">dias consecutivos</div>
-        </div>
-      </div>
+      <button class="account-btn" data-goto="settings" title="Configurações da conta" aria-label="Abrir configurações da conta">
+        <span class="account-avatar" id="sidebar-account-avatar">A</span>
+        <span class="account-info">
+          <span class="account-name">Camila</span>
+        </span>
+        <span class="account-gear" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </span>
+      </button>
     </div>
   </aside>
 
@@ -989,6 +1181,9 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
         <input id="global-search" placeholder="Buscar palavra, tema, livro ou personagem…">
       </div>
       <div class="topbar-actions">
+        <button class="icon-btn" id="mobile-search-btn" title="Buscar" aria-label="Abrir busca">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </button>
         <div class="theme-switch" id="theme-switch">
           <button data-theme-choice="light" class="active" title="Claro">☀️</button>
           <button data-theme-choice="sepia" title="Sépia">📜</button>
@@ -1007,7 +1202,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
       <!-- ============ HOME ============ -->
       <section class="view active" id="view-home">
         <div class="hero">
-          <div class="hero-greeting" id="hero-greeting">Boa tarde, Ana. Que a paz do Senhor esteja com você.</div>
+          <div class="hero-greeting" id="hero-greeting">Boa tarde, Camila. Que a paz do Senhor esteja com você.</div>
           <div class="hero-verse">"Profetiza sobre estes ossos, e dize-lhes: Ossos secos, ouvi a palavra do Senhor!"</div>
           <div class="hero-ref">Ezequiel 37:4</div>
           <div class="hero-actions">
@@ -1392,6 +1587,386 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
           </div>
         </div>
         <div class="grid grid-3 media-grid" id="media-grid" style="margin-top:16px;"></div>
+      </section>
+
+      <!-- ============ SETTINGS (Configurações da conta) ============ -->
+      <section class="view" id="view-settings">
+        <div class="eyebrow">Configurações</div>
+        <h1 class="page-title">Minha conta</h1>
+        <p class="page-sub">Gerencie seu perfil, segurança e preferências dentro do IPGE Church.</p>
+
+        <div class="card settings-profile-card">
+          <div class="settings-avatar-wrap">
+            <div class="settings-avatar" id="settings-avatar-preview">A</div>
+            <button class="settings-avatar-edit" id="settings-avatar-edit-btn" title="Alterar foto" aria-label="Alterar foto">✎</button>
+          </div>
+          <div class="settings-profile-info">
+            <div class="settings-profile-name">Camila</div>
+            <div class="settings-profile-email">ana@exemplo.com · @camila.leitura</div>
+            <div class="settings-profile-meta">
+              <span class="pill pill-gold">Membro desde mar/2024</span>
+              <span class="pill pill-gold">IPGE Church — Sede</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-layout">
+          <nav class="settings-nav">
+            <button class="settings-nav-item active" data-settings-tab="perfil"><span class="ic">👤</span>Perfil</button>
+            <button class="settings-nav-item" data-settings-tab="seguranca"><span class="ic">🔒</span>Conta e segurança</button>
+            <button class="settings-nav-item" data-settings-tab="leitura"><span class="ic">📖</span>Preferências de leitura</button>
+            <button class="settings-nav-item" data-settings-tab="notificacoes"><span class="ic">🔔</span>Notificações</button>
+            <button class="settings-nav-item" data-settings-tab="suporte"><span class="ic">💬</span>Ajuda e suporte</button>
+            <button class="settings-nav-item danger-link" data-settings-tab="danger"><span class="ic">⚠️</span>Zona de perigo</button>
+          </nav>
+
+          <div class="settings-content">
+
+            <!-- PERFIL -->
+            <div class="settings-panel active" id="settings-panel-perfil">
+              <div class="card">
+                <div class="settings-card-head">
+                  <div class="settings-card-title">Escolha seu avatar</div>
+                  <div class="settings-card-sub">Selecione um símbolo do mundo bíblico para representar você no app.</div>
+                </div>
+                <div class="avatar-picker-grid" id="avatar-picker-grid">
+                  <button type="button" class="avatar-option selected" data-avatar-emoji="A" data-avatar-gradient="linear-gradient(135deg,var(--sage),var(--gold))" title="Inicial">
+                    <span class="avatar-swatch avatar-swatch-initial" style="background:linear-gradient(135deg,var(--sage),var(--gold));">A</span>
+                    <span class="avatar-label">Inicial</span>
+                  </button>
+                  <button type="button" class="avatar-option" data-avatar-emoji="🕊️" data-avatar-gradient="linear-gradient(135deg,#8FA6C9,#DCE6DD)" title="Pomba">
+                    <span class="avatar-swatch" style="background:linear-gradient(135deg,#8FA6C9,#DCE6DD);">🕊️</span>
+                    <span class="avatar-label">Pomba</span>
+                  </button>
+                  <button type="button" class="avatar-option" data-avatar-emoji="🔥" data-avatar-gradient="linear-gradient(135deg,var(--gold),var(--rose))" title="Chama">
+                    <span class="avatar-swatch" style="background:linear-gradient(135deg,var(--gold),var(--rose));">🔥</span>
+                    <span class="avatar-label">Chama</span>
+                  </button>
+                  <button type="button" class="avatar-option" data-avatar-emoji="📜" data-avatar-gradient="linear-gradient(135deg,var(--sage),#D9C48A)" title="Pergaminho">
+                    <span class="avatar-swatch" style="background:linear-gradient(135deg,var(--sage),#D9C48A);">📜</span>
+                    <span class="avatar-label">Pergaminho</span>
+                  </button>
+                  <button type="button" class="avatar-option" data-avatar-emoji="🐑" data-avatar-gradient="linear-gradient(135deg,#DCE6DD,#E8C98A)" title="Cordeiro">
+                    <span class="avatar-swatch" style="background:linear-gradient(135deg,#DCE6DD,#E8C98A);">🐑</span>
+                    <span class="avatar-label">Cordeiro</span>
+                  </button>
+                  <button type="button" class="avatar-option" data-avatar-emoji="🌾" data-avatar-gradient="linear-gradient(135deg,#D9C48A,#C99A4A)" title="Trigo">
+                    <span class="avatar-swatch" style="background:linear-gradient(135deg,#D9C48A,#C99A4A);">🌾</span>
+                    <span class="avatar-label">Trigo</span>
+                  </button>
+                  <button type="button" class="avatar-option" data-avatar-emoji="⚓" data-avatar-gradient="linear-gradient(135deg,#8FA6C9,#1A2540)" title="Âncora">
+                    <span class="avatar-swatch" style="background:linear-gradient(135deg,#8FA6C9,#1A2540);">⚓</span>
+                    <span class="avatar-label">Âncora</span>
+                  </button>
+                  <button type="button" class="avatar-option" data-avatar-emoji="⭐" data-avatar-gradient="linear-gradient(135deg,#1A2540,#C99A4A)" title="Estrela de Belém">
+                    <span class="avatar-swatch" style="background:linear-gradient(135deg,#1A2540,#C99A4A);">⭐</span>
+                    <span class="avatar-label">Estrela</span>
+                  </button>
+                  <button type="button" class="avatar-option" data-avatar-emoji="🐟" data-avatar-gradient="linear-gradient(135deg,#6E8F72,#8FA6C9)" title="Peixe (Ichthys)">
+                    <span class="avatar-swatch" style="background:linear-gradient(135deg,#6E8F72,#8FA6C9);">🐟</span>
+                    <span class="avatar-label">Peixe</span>
+                  </button>
+                  <button type="button" class="avatar-option" data-avatar-emoji="👑" data-avatar-gradient="linear-gradient(135deg,#C99A4A,#B8695A)" title="Coroa">
+                    <span class="avatar-swatch" style="background:linear-gradient(135deg,#C99A4A,#B8695A);">👑</span>
+                    <span class="avatar-label">Coroa</span>
+                  </button>
+                  <button type="button" class="avatar-option" data-avatar-emoji="🪔" data-avatar-gradient="linear-gradient(135deg,#E8C98A,#C99A4A)" title="Candeia">
+                    <span class="avatar-swatch" style="background:linear-gradient(135deg,#E8C98A,#C99A4A);">🪔</span>
+                    <span class="avatar-label">Candeia</span>
+                  </button>
+                  <button type="button" class="avatar-option" data-avatar-emoji="✝️" data-avatar-gradient="linear-gradient(135deg,#1A2540,#6E8F72)" title="Cruz">
+                    <span class="avatar-swatch" style="background:linear-gradient(135deg,#1A2540,#6E8F72);">✝️</span>
+                    <span class="avatar-label">Cruz</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="settings-card-head">
+                  <div class="settings-card-title">Informações do perfil</div>
+                  <div class="settings-card-sub">Esses dados aparecem para outros membros da igreja dentro do app.</div>
+                </div>
+                <div class="settings-form-row">
+                  <div class="settings-field">
+                    <label class="field-label">Nome de exibição</label>
+                    <input type="text" class="field-input" value="Camila">
+                  </div>
+                  <div class="settings-field">
+                    <label class="field-label">Nome de usuário</label>
+                    <input type="text" class="field-input" value="camila.leitura">
+                  </div>
+                </div>
+                <div class="settings-form-row">
+                  <div class="settings-field">
+                    <label class="field-label">E-mail</label>
+                    <input type="email" class="field-input" value="camila@exemplo.com">
+                  </div>
+                  <div class="settings-field">
+                    <label class="field-label">Telefone (opcional)</label>
+                    <input type="tel" class="field-input" placeholder="(00) 00000-0000">
+                  </div>
+                </div>
+                <div class="settings-form-row full">
+                  <div class="settings-field">
+                    <label class="field-label">Sobre mim / testemunho</label>
+                    <textarea class="field-input" placeholder="Conte um pouco da sua caminhada com a Palavra…">Buscando crescer um capítulo por dia. 📖✨</textarea>
+                  </div>
+                </div>
+                <div class="settings-form-row">
+                  <div class="settings-field">
+                    <label class="field-label">Congregação</label>
+                    <select class="field-input">
+                      <option>IPGE Church — Sede</option>
+                      <option>IPGE Church — Zona Norte</option>
+                      <option>IPGE Church — Zona Sul</option>
+                    </select>
+                  </div>
+                  <div class="settings-field">
+                    <label class="field-label">Fuso horário</label>
+                    <select class="field-input">
+                      <option>Brasília (GMT-3)</option>
+                      <option>Manaus (GMT-4)</option>
+                      <option>Fernando de Noronha (GMT-2)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="settings-form-actions">
+                  <button class="btn btn-primary" data-settings-save>Salvar alterações</button>
+                  <button class="btn btn-ghost" data-settings-discard>Descartar</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- CONTA E SEGURANÇA -->
+            <div class="settings-panel" id="settings-panel-seguranca">
+              <div class="card">
+                <div class="settings-card-head">
+                  <div class="settings-card-title">Alterar senha</div>
+                  <div class="settings-card-sub">Recomendamos uma senha com pelo menos 8 caracteres, misturando letras e números.</div>
+                </div>
+                <div class="settings-form-row full">
+                  <div class="settings-field">
+                    <label class="field-label">Senha atual</label>
+                    <input type="password" class="field-input" placeholder="••••••••">
+                  </div>
+                </div>
+                <div class="settings-form-row">
+                  <div class="settings-field">
+                    <label class="field-label">Nova senha</label>
+                    <input type="password" class="field-input" placeholder="••••••••">
+                  </div>
+                  <div class="settings-field">
+                    <label class="field-label">Confirmar nova senha</label>
+                    <input type="password" class="field-input" placeholder="••••••••">
+                  </div>
+                </div>
+                <div class="settings-form-actions">
+                  <button class="btn btn-primary" data-settings-save>Atualizar senha</button>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="settings-card-head">
+                  <div class="settings-card-title">Sessões ativas</div>
+                  <div class="settings-card-sub">Dispositivos onde sua conta está conectada atualmente.</div>
+                </div>
+                <div class="session-item">
+                  <div class="session-ic">💻</div>
+                  <div class="session-info">
+                    <div class="session-name">Este dispositivo — Navegador web</div>
+                    <div class="session-meta">Nova Iguaçu, RJ · sessão atual</div>
+                  </div>
+                  <span class="pill pill-sage">Ativa</span>
+                </div>
+                <div class="session-item">
+                  <div class="session-ic">📱</div>
+                  <div class="session-info">
+                    <div class="session-name">iPhone — App IPGE Church</div>
+                    <div class="session-meta">Último acesso há 2 dias</div>
+                  </div>
+                  <button class="btn btn-ghost btn-sm" data-settings-save>Encerrar</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- PREFERÊNCIAS DE LEITURA -->
+            <div class="settings-panel" id="settings-panel-leitura">
+              <div class="card">
+                <div class="settings-card-head">
+                  <div class="settings-card-title">Preferências de leitura</div>
+                  <div class="settings-card-sub">Personalize sua experiência de estudo bíblico.</div>
+                </div>
+                <div class="settings-form-row">
+                  <div class="settings-field">
+                    <label class="field-label">Meta diária de leitura</label>
+                    <select class="field-input">
+                      <option>1 capítulo por dia</option>
+                      <option>2 capítulos por dia</option>
+                      <option>3 capítulos por dia</option>
+                      <option>Livre</option>
+                    </select>
+                  </div>
+                  <div class="settings-field">
+                    <label class="field-label">Horário do lembrete diário</label>
+                    <input type="time" class="field-input" value="07:00">
+                  </div>
+                </div>
+                <div class="settings-form-row full">
+                  <div class="settings-field">
+                    <label class="field-label">Início da semana</label>
+                    <select class="field-input">
+                      <option>Domingo</option>
+                      <option>Segunda-feira</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="settings-form-actions">
+                  <button class="btn btn-primary" data-settings-save>Salvar preferências</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- NOTIFICAÇÕES -->
+            <div class="settings-panel" id="settings-panel-notificacoes">
+              <div class="card">
+                <div class="settings-card-head">
+                  <div class="settings-card-title">Notificações</div>
+                  <div class="settings-card-sub">Escolha o que você quer receber e por onde.</div>
+                </div>
+                <div class="settings-option-row">
+                  <div class="settings-option-text">
+                    <div class="settings-option-title">Lembrete diário de leitura</div>
+                    <div class="settings-option-desc">Um alerta no horário definido para não perder sua sequência.</div>
+                  </div>
+                  <button class="switch on" data-settings-toggle></button>
+                </div>
+                <div class="settings-option-row">
+                  <div class="settings-option-text">
+                    <div class="settings-option-title">Novas campanhas proféticas</div>
+                    <div class="settings-option-desc">Avisos quando uma nova campanha da igreja começar.</div>
+                  </div>
+                  <button class="switch on" data-settings-toggle></button>
+                </div>
+                <div class="settings-option-row">
+                  <div class="settings-option-text">
+                    <div class="settings-option-title">Respostas de oração</div>
+                    <div class="settings-option-desc">Notificação quando um pedido de oração for marcado como respondido.</div>
+                  </div>
+                  <button class="switch on" data-settings-toggle></button>
+                </div>
+                <div class="settings-option-row">
+                  <div class="settings-option-text">
+                    <div class="settings-option-title">Novidades e conteúdos da biblioteca</div>
+                    <div class="settings-option-desc">Áudios, vídeos e estudos novos adicionados à igreja.</div>
+                  </div>
+                  <button class="switch" data-settings-toggle></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- AJUDA E SUPORTE -->
+            <div class="settings-panel" id="settings-panel-suporte">
+              <div class="card">
+                <div class="settings-card-head">
+                  <div class="settings-card-title">Central de ajuda</div>
+                  <div class="settings-card-sub">Respostas rápidas para as dúvidas mais comuns sobre o app.</div>
+                </div>
+                <details class="help-faq">
+                  <summary>Como funciona a sequência de dias consecutivos?</summary>
+                  <div class="help-faq-body">Sua sequência aumenta a cada dia em que você conclui uma leitura ou devocional. Perder um dia reinicia a contagem.</div>
+                </details>
+                <details class="help-faq">
+                  <summary>Posso mudar meu plano de leitura no meio do caminho?</summary>
+                  <div class="help-faq-body">Sim. Vá até "Plano de leitura" e escolha um novo plano — seu progresso no plano atual fica salvo no seu histórico.</div>
+                </details>
+                <details class="help-faq">
+                  <summary>Meus dados ficam salvos se eu trocar de aparelho?</summary>
+                  <div class="help-faq-body">Assim que a sincronização com o servidor da igreja estiver ativa, sim. Por enquanto o app funciona localmente neste dispositivo.</div>
+                </details>
+                <details class="help-faq">
+                  <summary>Como falo com a liderança da igreja pelo app?</summary>
+                  <div class="help-faq-body">Use o formulário "Fale conosco" logo abaixo — sua mensagem chega direto para a equipe pastoral.</div>
+                </details>
+              </div>
+
+              <div class="card">
+                <div class="settings-card-head">
+                  <div class="settings-card-title">Fale conosco</div>
+                  <div class="settings-card-sub">Envie uma dúvida, sugestão ou relate um problema técnico.</div>
+                </div>
+                <div class="settings-form-row full">
+                  <div class="settings-field">
+                    <label class="field-label">Assunto</label>
+                    <select class="field-input">
+                      <option>Dúvida sobre o app</option>
+                      <option>Sugestão</option>
+                      <option>Reportar um problema</option>
+                      <option>Falar com a liderança</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="settings-form-row full">
+                  <div class="settings-field">
+                    <label class="field-label">Mensagem</label>
+                    <textarea class="field-input" placeholder="Escreva aqui sua mensagem…"></textarea>
+                  </div>
+                </div>
+                <div class="settings-form-actions">
+                  <button class="btn btn-primary" data-settings-save>Enviar mensagem</button>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="settings-card-head">
+                  <div class="settings-card-title">Sobre o app</div>
+                </div>
+                <div class="settings-option-row">
+                  <div class="settings-option-text">
+                    <div class="settings-option-title">Versão</div>
+                    <div class="settings-option-desc">IPGE Church — v1.0.0</div>
+                  </div>
+                </div>
+                <div class="settings-option-row">
+                  <div class="settings-option-text">
+                    <div class="settings-option-title">Termos de uso</div>
+                  </div>
+                  <span class="link-more">Ver</span>
+                </div>
+                <div class="settings-option-row">
+                  <div class="settings-option-text">
+                    <div class="settings-option-title">Política de privacidade</div>
+                  </div>
+                  <span class="link-more">Ver</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- ZONA DE PERIGO -->
+            <div class="settings-panel" id="settings-panel-danger">
+              <div class="card settings-danger-card">
+                <div class="settings-card-head">
+                  <div class="settings-card-title">⚠️ Zona de perigo</div>
+                  <div class="settings-card-sub">Estas ações afetam sua conta de forma permanente.</div>
+                </div>
+                <div class="settings-danger-row">
+                  <div>
+                    <div class="settings-danger-title">Sair da conta</div>
+                    <div class="settings-danger-desc">Encerra sua sessão neste dispositivo.</div>
+                  </div>
+                  <button class="btn btn-ghost btn-sm" id="settings-logout-btn">Sair</button>
+                </div>
+                <div class="settings-danger-row">
+                  <div>
+                    <div class="settings-danger-title">Excluir minha conta</div>
+                    <div class="settings-danger-desc">Remove permanentemente seu perfil, progresso, anotações e favoritos.</div>
+                  </div>
+                  <button class="btn btn-danger btn-sm" id="settings-delete-account-btn">Excluir conta</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
       </section>
 
     </main>
@@ -2620,7 +3195,7 @@ function goToFavoriteRef(ref){
       if(row){
         row.scrollIntoView({behavior:'smooth', block:'center'});
         row.classList.add('verse-highlight');
-        setTimeout(()=>row.classList.remove('verse-highlight'), 2100);
+        setTimeout(()=>row.classList.remove('verse-highlight'), 1100);
       }
     } else {
       // Favorito de CAPÍTULO: rola para o título principal (ex: "Levítico 1")
@@ -4190,14 +4765,209 @@ function renderCharts(){
 }
 
 /* =========================================================
-   GLOBAL SEARCH (simple demo: jumps to Bible + filters verses)
+   SETTINGS (Configurações da conta) — somente estético por
+   enquanto: nenhuma ação persiste dados, é só a experiência
+   visual. Quando o banco de dados existir, os handlers de
+   data-settings-save / data-settings-toggle passam a chamar
+   a API de verdade.
    ========================================================= */
-document.getElementById('global-search').addEventListener('keydown', e=>{
-  if(e.key==='Enter' && e.target.value.trim()){
-    switchView('bible');
-    toast('Buscando por "' + e.target.value + '"…', '🔍');
+(function initSettings(){
+  const nav = document.querySelectorAll('.settings-nav-item');
+  const panels = document.querySelectorAll('.settings-panel');
+
+  nav.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const tab = btn.dataset.settingsTab;
+      nav.forEach(n=>n.classList.toggle('active', n===btn));
+      panels.forEach(p=>p.classList.toggle('active', p.id === 'settings-panel-'+tab));
+      document.getElementById('content').scrollTo({top:0, behavior:'smooth'});
+    });
+  });
+
+  document.querySelectorAll('[data-settings-toggle]').forEach(sw=>{
+    sw.addEventListener('click', ()=> sw.classList.toggle('on'));
+  });
+
+  document.querySelectorAll('[data-settings-save]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      toast('Alterações salvas por aqui — a sincronização com o servidor chega em breve.', '✅');
+    });
+  });
+
+  const discardBtn = document.querySelector('[data-settings-discard]');
+  if(discardBtn){
+    discardBtn.addEventListener('click', ()=> toast('Alterações descartadas.', '↩️'));
+  }
+
+  /* Avatares temáticos do mundo bíblico */
+  const avatarOptions = document.querySelectorAll('.avatar-option');
+  const avatarPreview = document.getElementById('settings-avatar-preview');
+  const sidebarAvatar = document.getElementById('sidebar-account-avatar');
+  avatarOptions.forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      if(opt.classList.contains('selected')) return;
+      avatarOptions.forEach(o=>o.classList.remove('selected'));
+      opt.classList.add('selected');
+      const emoji = opt.dataset.avatarEmoji;
+      const gradient = opt.dataset.avatarGradient;
+      [avatarPreview, sidebarAvatar].forEach(el=>{
+        if(!el) return;
+        el.textContent = emoji;
+        el.style.background = gradient;
+      });
+      toast('Avatar atualizado! Isso ficará salvo de vez quando conectarmos o banco de dados.', '✨');
+    });
+  });
+
+  const avatarEditBtn = document.getElementById('settings-avatar-edit-btn');
+  if(avatarEditBtn){
+    avatarEditBtn.addEventListener('click', ()=> toast('Upload de foto chega quando conectarmos o armazenamento.', '🖼️'));
+  }
+
+  const logoutBtn = document.getElementById('settings-logout-btn');
+  if(logoutBtn){
+    logoutBtn.addEventListener('click', ()=>{
+      openConfirm({
+        title:'Sair da conta?',
+        text:'Você precisará entrar novamente para acessar seu progresso.',
+        confirmLabel:'Sair',
+        cancelLabel:'Cancelar',
+        onConfirm:()=> toast('Isso será ativado quando o login estiver conectado.', '👋')
+      });
+    });
+  }
+
+  const deleteBtn = document.getElementById('settings-delete-account-btn');
+  if(deleteBtn){
+    deleteBtn.addEventListener('click', ()=>{
+      openConfirm({
+        title:'Excluir sua conta?',
+        text:'Essa ação é permanente e removerá seu progresso, notas, favoritos e orações. Essa funcionalidade será ligada ao banco de dados futuramente.',
+        confirmLabel:'Excluir conta',
+        cancelLabel:'Manter minha conta',
+        onConfirm:()=> toast('Exclusão de conta ainda não está conectada ao banco de dados.', '⚠️')
+      });
+    });
+  }
+})();
+
+/* =========================================================
+   GLOBAL SEARCH
+   - "Mateus 1" ou "Zacarias 1"      -> vai direto para o capítulo (texto principal)
+   - "Mateus 1:1" ou "Mateus 1,1"    -> vai direto para o versículo e destaca em verde
+   - "Mateus" (só o livro)           -> vai para o primeiro capítulo do livro
+   - qualquer outro texto/trecho     -> procura em todos os versículos e vai até
+                                        o primeiro que contiver o texto buscado,
+                                        destacando-o em verde
+   ========================================================= */
+function stripAccents(s){
+  return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+function normText(s){
+  return stripAccents(s).toLowerCase().trim().replace(/\s+/g, ' ');
+}
+
+// Encontra o livro do cânon cujo nome bate (exato ou por prefixo) com o texto digitado
+function findCanonBook(rawName){
+  const nq = normText(rawName);
+  if(!nq) return null;
+  let hit = BIBLE_CANON.find(b => normText(b.book) === nq);
+  if(hit) return hit;
+  const starts = BIBLE_CANON.filter(b => normText(b.book).startsWith(nq));
+  if(starts.length){
+    starts.sort((a, b) => normText(a.book).length - normText(b.book).length);
+    return starts[0];
+  }
+  return null;
+}
+
+function performGlobalSearch(rawQuery){
+  const query = String(rawQuery || '').trim();
+  if(!query) return;
+  const bible = getBible();
+
+  // 1) "Livro Capítulo" ou "Livro Capítulo:Versículo" (também aceita vírgula/ponto)
+  const refMatch = query.match(/^(.+?)\s+(\d{1,3})(?:\s*[:.,]\s*(\d{1,3}))?$/);
+  if(refMatch){
+    const canonBook = findCanonBook(refMatch[1]);
+    if(canonBook){
+      const chapter = parseInt(refMatch[2], 10);
+      const verse = refMatch[3] ? parseInt(refMatch[3], 10) : null;
+      const bookIdx = bible.findIndex(b => normText(b.book) === normText(canonBook.book));
+      if(bookIdx >= 0 && bible[bookIdx].chapters[chapter]){
+        const chapVerses = bible[bookIdx].chapters[chapter];
+        const validVerse = verse && verse >= 1 && verse <= chapVerses.length;
+        goToFavoriteRef(`${bible[bookIdx].book} ${chapter}${validVerse ? ':' + verse : ''}`);
+        toast('Indo para ' + bible[bookIdx].book + ' ' + chapter + (validVerse ? ':' + verse : ''), '📖');
+      } else {
+        toast(canonBook.book + ' não tem o capítulo ' + chapter, '⚠️');
+      }
+      return;
+    }
+  }
+
+  // 2) Só o nome do livro -> primeiro capítulo disponível
+  const canonBookOnly = findCanonBook(query);
+  if(canonBookOnly){
+    const bookIdx = bible.findIndex(b => normText(b.book) === normText(canonBookOnly.book));
+    if(bookIdx >= 0){
+      const firstChapter = parseInt(Object.keys(bible[bookIdx].chapters)[0], 10);
+      goToFavoriteRef(`${bible[bookIdx].book} ${firstChapter}`);
+      toast('Indo para ' + bible[bookIdx].book, '📖');
+      return;
+    }
+  }
+
+  // 3) Busca por texto/trecho em todos os versículos
+  const nq = normText(query);
+  let found = null;
+  for(const b of bible){
+    for(const chapterKey of Object.keys(b.chapters)){
+      const verses = b.chapters[chapterKey];
+      for(let i = 0; i < verses.length; i++){
+        if(normText(verses[i]).includes(nq)){
+          found = { book: b.book, chapter: parseInt(chapterKey, 10), verse: i + 1 };
+          break;
+        }
+      }
+      if(found) break;
+    }
+    if(found) break;
+  }
+
+  if(found){
+    goToFavoriteRef(`${found.book} ${found.chapter}:${found.verse}`);
+    toast('Encontrado em ' + found.book + ' ' + found.chapter + ':' + found.verse, '🔍');
+  } else {
+    toast('Nada encontrado para "' + query + '"', '🤔');
+  }
+}
+
+const globalSearchInput = document.getElementById('global-search');
+const globalSearchBox = globalSearchInput.closest('.search-box');
+
+globalSearchInput.addEventListener('keydown', e => {
+  if(e.key === 'Enter' && e.target.value.trim()){
+    performGlobalSearch(e.target.value);
+    if(globalSearchBox) globalSearchBox.classList.remove('mobile-open');
+    e.target.blur();
+  } else if(e.key === 'Escape'){
+    e.target.value = '';
+    if(globalSearchBox) globalSearchBox.classList.remove('mobile-open');
+    e.target.blur();
   }
 });
+
+// Botão de lupa que aparece só no celular: abre/fecha a barra de busca
+const mobileSearchBtn = document.getElementById('mobile-search-btn');
+if(mobileSearchBtn && globalSearchBox){
+  mobileSearchBtn.addEventListener('click', () => {
+    globalSearchBox.classList.toggle('mobile-open');
+    if(globalSearchBox.classList.contains('mobile-open')){
+      setTimeout(() => globalSearchInput.focus(), 50);
+    }
+  });
+}
 
 })();
 </script>
