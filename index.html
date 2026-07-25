@@ -3154,13 +3154,24 @@ function renderReader(){
     });
     versesEl.appendChild(row);
   });
+  updateFavoriteChapterBtn();
 }
 
 document.getElementById('btn-favorite-chapter').addEventListener('click', ()=>{
   const book = getBible()[state.currentBookIdx];
   toggleFavorite(`${book.book} ${state.currentChapter}`, 'Capítulo completo');
-  toast('Capítulo favoritado', '❤️');
+  updateFavoriteChapterBtn();
 });
+
+function updateFavoriteChapterBtn(){
+  const btn = document.getElementById('btn-favorite-chapter');
+  if(!btn || !getBible().length) return;
+  const book = getBible()[state.currentBookIdx];
+  const ref = `${book.book} ${state.currentChapter}`;
+  const isFav = state.favorites.some(f=>f.ref===ref);
+  btn.textContent = isFav ? '💔 Remover dos favoritos' : '❤️ Favoritar capítulo';
+  btn.classList.toggle('is-favorited', isFav);
+}
 
 function toggleFavorite(ref, text){
   const idx = state.favorites.findIndex(f=>f.ref===ref);
