@@ -1225,23 +1225,22 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
           </div>
         </div>
 
-        <div class="sec-row"><h2>Sua semana em números</h2></div>
-        <div class="grid grid-4">
-          <div class="card stat-card"><div class="stat-top"><div class="stat-ic" style="background:var(--gold-soft)">🔥</div></div><div class="stat-num" id="home-streak">12</div><div class="stat-label">dias consecutivos</div></div>
-          <div class="card stat-card"><div class="stat-top"><div class="stat-ic" style="background:var(--sage-soft)">⏱️</div></div><div class="stat-num">18 min</div><div class="stat-label">de leitura hoje</div></div>
-          <div class="card stat-card"><div class="stat-top"><div class="stat-ic" style="background:var(--gold-soft)">📚</div></div><div class="stat-num">3</div><div class="stat-label">livros concluídos</div></div>
-          <div class="card stat-card"><div class="stat-top"><div class="stat-ic" style="background:var(--sage-soft)">✅</div></div><div class="stat-num">147</div><div class="stat-label">capítulos lidos</div></div>
+        <div class="sec-row"><h2>Sua atividade por aqui</h2></div>
+        <div class="grid grid-3">
+          <div class="card stat-card"><div class="stat-top"><div class="stat-ic" style="background:var(--sage-soft)">⏱️</div></div><div class="stat-num" id="home-session-time">0 min</div><div class="stat-label">tempo nesta sessão</div></div>
+          <div class="card stat-card"><div class="stat-top"><div class="stat-ic" style="background:var(--gold-soft)">❤️</div></div><div class="stat-num" id="home-fav-count">0</div><div class="stat-label">versículos favoritados</div></div>
+          <div class="card stat-card"><div class="stat-top"><div class="stat-ic" style="background:var(--sage-soft)">📝</div></div><div class="stat-num" id="home-notes-count">0</div><div class="stat-label">anotações registradas</div></div>
         </div>
 
         <div class="sec-row"><h2>Continue de onde parou</h2></div>
-        <div class="card" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
-          <div class="plan-icon" style="background:var(--sage-soft);">📘</div>
+        <div class="card" id="home-continue-card" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+          <div class="plan-icon" style="background:var(--sage-soft);" id="home-continue-icon">📘</div>
           <div style="flex:1;min-width:200px;">
-            <div style="font-weight:600;color:var(--ink);">Plano: Novo Testamento em 90 dias</div>
-            <div class="muted">Próximo: Evangelho de João, capítulo 3</div>
+            <div style="font-weight:600;color:var(--ink);" id="home-continue-title">Plano: Novo Testamento em 90 dias</div>
+            <div class="muted" id="home-continue-sub">Próximo: Evangelho de João, capítulo 3</div>
             <div class="plan-progress-track" style="margin-top:10px;"><div class="plan-progress-fill" style="width:34%"></div></div>
           </div>
-          <button class="btn btn-primary" data-goto="bible">Continuar leitura</button>
+          <button class="btn btn-primary" id="home-continue-btn" data-goto="bible">Continuar leitura</button>
         </div>
       </section>
 
@@ -2022,7 +2021,8 @@ const state = {
   theme: 'light',
   fontScale: 1,
   focus: false,
-  streak: 12,
+  lastVisitedView: null, // última seção visitada (fora da home) — usada em "Continue de onde parou"
+  sessionStart: Date.now(), // marca quando a sessão começou — usado no "tempo nesta sessão"
   favorites: [], // {ref, text}
   noteBlocks: [], // {id, name, createdDate, notes:[{tag, text, date}]}
   openBlockId: null,
@@ -2957,7 +2957,65 @@ function switchView(view){
   if(previousView==='media' && view!=='media' && typeof closeMediaPlayer === 'function') closeMediaPlayer();
   // Saiu da tela do Quiz bíblico: reinicia XP, acertos, erros e conquistas da sessão
   if(previousView==='quiz' && view!=='quiz') resetQuizSession();
+  // Guarda a última seção visitada (fora da home) para o card "Continue de onde parou"
+  if(view!=='home') state.lastVisitedView = view;
+  if(view==='home'){ renderHomeStats(); renderHomeContinue(); }
 }
+
+/* Mapa de conteúdo do card "Continue de onde parou", por seção */
+const CONTINUE_MAP = {
+  bible:      { icon:'📘', title:'Leitura da Bíblia', sub:'Continue de onde você parou nas Escrituras.', btn:'Continuar leitura' },
+  devotional: { icon:'🙏', title:'Devocional diário', sub:'Retome o devocional de hoje.', btn:'Continuar devocional' },
+  plans:      { icon:'📅', title:'Plano de leitura', sub:'Continue seguindo seu plano de leitura.', btn:'Continuar plano' },
+  studies:    { icon:'🕊️', title:'Estudos bíblicos', sub:'Continue o estudo que você começou.', btn:'Continuar estudo' },
+  ai:         { icon:'✨', title:'Perguntar à IA', sub:'Volte para sua conversa com a IA.', btn:'Continuar conversa' },
+  notes:      { icon:'📝', title:'Minhas anotações', sub:'Veja e continue suas anotações.', btn:'Continuar anotações' },
+  favorites:  { icon:'❤️', title:'Favoritos', sub:'Veja os versículos que você favoritou.', btn:'Ver favoritos' },
+  prayer:     { icon:'🙌', title:'Oração', sub:'Continue seu momento de oração.', btn:'Continuar oração' },
+  quiz:       { icon:'🏆', title:'Quiz bíblico', sub:'Volte a jogar e ganhar XP.', btn:'Continuar jogando' },
+  media:      { icon:'🎧', title:'Biblioteca multimídia', sub:'Continue ouvindo ou assistindo.', btn:'Continuar' },
+  campaigns:  { icon:'🔥', title:'Campanhas Proféticas', sub:'Veja as campanhas em andamento.', btn:'Ver campanhas' },
+  dashboard:  { icon:'📊', title:'Painel espiritual', sub:'Veja sua evolução e suas estatísticas.', btn:'Ver painel' },
+};
+
+/* Atualiza o card "Continue de onde parou" com base na última seção visitada */
+function renderHomeContinue(){
+  const icon = document.getElementById('home-continue-icon');
+  const title = document.getElementById('home-continue-title');
+  const sub = document.getElementById('home-continue-sub');
+  const btn = document.getElementById('home-continue-btn');
+  if(!icon || !title || !sub || !btn) return;
+  const info = CONTINUE_MAP[state.lastVisitedView];
+  if(!info){
+    // Nada visitado ainda nesta sessão: mantém a sugestão padrão de leitura
+    icon.textContent = '📘';
+    title.textContent = 'Plano: Novo Testamento em 90 dias';
+    sub.textContent = 'Próximo: Evangelho de João, capítulo 3';
+    btn.textContent = 'Continuar leitura';
+    btn.dataset.goto = 'bible';
+    return;
+  }
+  icon.textContent = info.icon;
+  title.textContent = info.title;
+  sub.textContent = info.sub;
+  btn.textContent = info.btn;
+  btn.dataset.goto = state.lastVisitedView;
+}
+
+/* Atualiza os números do bloco "Sua atividade por aqui" */
+function renderHomeStats(){
+  const timeEl = document.getElementById('home-session-time');
+  if(timeEl){
+    const mins = Math.max(0, Math.floor((Date.now() - state.sessionStart) / 60000));
+    timeEl.textContent = mins < 60 ? `${mins} min` : `${Math.floor(mins/60)}h ${mins%60}min`;
+  }
+  const favEl = document.getElementById('home-fav-count');
+  if(favEl) favEl.textContent = state.favorites.length;
+  const notesEl = document.getElementById('home-notes-count');
+  if(notesEl) notesEl.textContent = state.noteBlocks.reduce((sum,b)=> sum + b.notes.length, 0);
+}
+// Mantém o "tempo nesta sessão" contando enquanto a home estiver aberta
+setInterval(()=>{ if(state.view==='home') renderHomeStats(); }, 30000);
 
 document.querySelectorAll('[data-view]').forEach(el=>{
   el.addEventListener('click', ()=>switchView(el.dataset.view));
@@ -4988,6 +5046,10 @@ if(mobileSearchBtn && globalSearchBox){
     }
   });
 }
+
+// Preenche os cartões da home já na primeira carga da página (view inicial é 'home')
+renderHomeStats();
+renderHomeContinue();
 
 })();
 </script>
