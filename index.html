@@ -380,7 +380,16 @@ h1,h2,h3{font-family:var(--font-display);color:var(--ink);letter-spacing:-.01em;
 }
 .vnum{font-family:var(--font-mono);font-size:.76rem;color:var(--gold);flex-shrink:0;padding-top:5px;width:22px;text-align:right;}
 .verse-actions{display:none;gap:6px;margin-left:auto;flex-shrink:0;}
-.verse:hover .verse-actions{display:flex;}
+@media (hover:hover) and (pointer:fine){
+  .verse:hover .verse-actions{display:flex;}
+}
+@media (hover:none), (pointer:coarse){
+  /* Em celulares/tablets não há :hover confiável (ex: Safari no iPhone),
+     então os botões de favoritar/anotar/compartilhar ficam sempre visíveis
+     e um pouco maiores, para facilitar o toque. */
+  .verse-actions{display:flex;gap:9px;}
+  .vbtn{width:32px;height:32px;font-size:.85rem;}
+}
 .vbtn{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:var(--paper);display:flex;align-items:center;justify-content:center;font-size:.75rem;}
 
 /* AI chat */
