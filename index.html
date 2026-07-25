@@ -960,13 +960,18 @@ textarea.notes-area:focus{border-color:var(--gold);}
   #mobile-menu-btn{display:flex;}
   #content{padding:22px 16px 90px;}
   .hero{padding:30px 22px;}
-  #topbar{padding:14px 16px;flex-wrap:wrap;row-gap:10px;}
+  #topbar{padding:14px 16px;}
   #mobile-search-btn{display:flex;}
   .search-box{
     display:none;
-    order:10;
-    flex:1 1 100%;
+    position:absolute;
+    left:16px;right:16px;
+    top:100%;
+    margin-top:8px;
     max-width:none;
+    box-shadow:var(--shadow);
+    z-index:31;
+    background:var(--paper);
   }
   .search-box.mobile-open{display:flex;}
 }
@@ -1202,7 +1207,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
       <!-- ============ HOME ============ -->
       <section class="view active" id="view-home">
         <div class="hero">
-          <div class="hero-greeting" id="hero-greeting">Boa tarde, Camila. Que a paz do Senhor esteja com você.</div>
+          <div class="hero-greeting" id="hero-greeting">Boa tarde, Ana. Que a paz do Senhor esteja com você.</div>
           <div class="hero-verse">"Profetiza sobre estes ossos, e dize-lhes: Ossos secos, ouvi a palavra do Senhor!"</div>
           <div class="hero-ref">Ezequiel 37:4</div>
           <div class="hero-actions">
@@ -1601,8 +1606,8 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
             <button class="settings-avatar-edit" id="settings-avatar-edit-btn" title="Alterar foto" aria-label="Alterar foto">✎</button>
           </div>
           <div class="settings-profile-info">
-            <div class="settings-profile-name">Camila</div>
-            <div class="settings-profile-email">ana@exemplo.com · @camila.leitura</div>
+            <div class="settings-profile-name">Ana</div>
+            <div class="settings-profile-email">ana@exemplo.com · @ana.leitura</div>
             <div class="settings-profile-meta">
               <span class="pill pill-gold">Membro desde mar/2024</span>
               <span class="pill pill-gold">IPGE Church — Sede</span>
@@ -1689,17 +1694,17 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
                 <div class="settings-form-row">
                   <div class="settings-field">
                     <label class="field-label">Nome de exibição</label>
-                    <input type="text" class="field-input" value="Camila">
+                    <input type="text" class="field-input" value="Ana">
                   </div>
                   <div class="settings-field">
                     <label class="field-label">Nome de usuário</label>
-                    <input type="text" class="field-input" value="camila.leitura">
+                    <input type="text" class="field-input" value="ana.leitura">
                   </div>
                 </div>
                 <div class="settings-form-row">
                   <div class="settings-field">
                     <label class="field-label">E-mail</label>
-                    <input type="email" class="field-input" value="camila@exemplo.com">
+                    <input type="email" class="field-input" value="ana@exemplo.com">
                   </div>
                   <div class="settings-field">
                     <label class="field-label">Telefone (opcional)</label>
