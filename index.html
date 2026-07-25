@@ -684,18 +684,104 @@ textarea.notes-area:focus{border-color:var(--gold);}
 .pill-sage{background:var(--sage-soft);color:var(--sage);}
 hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
 
-.campaign-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:22px;margin-top:22px;width:100%}
-.campaign-card{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:20px;overflow:hidden;min-width:0}
-.campaign-image{width:100%;aspect-ratio:1 / 1;border-radius:18px;overflow:hidden;background:var(--parchment);margin:0 auto 18px;display:flex;align-items:center;justify-content:center}
-.campaign-image img{width:100%;height:100%;object-fit:contain;display:block}
-.campaign-card h2{margin:0 0 12px}
-.campaign-card p{line-height:1.7}
-
-@media(max-width:640px){
-  .campaign-list{grid-template-columns:1fr;gap:16px}
-  .campaign-card{padding:14px;border-radius:16px}
-  .campaign-image{border-radius:14px;margin-bottom:14px}
+/* ---- Campanhas Proféticas ---- */
+.campaign-hero{
+  position:relative;overflow:hidden;
+  display:grid;grid-template-columns:280px 1fr;
+  border-radius:26px;margin-top:22px;
+  background:
+    radial-gradient(560px 320px at 88% -10%, var(--gold-soft) 0%, transparent 60%),
+    linear-gradient(180deg, var(--ink) 0%, var(--ink-soft) 100%);
+  color:var(--parchment);
+  box-shadow:var(--shadow);
 }
+.campaign-hero::after{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(240px 240px at 6% 92%, rgba(232,201,138,.28), transparent 70%);
+  animation:glow 8s ease-in-out infinite;
+  pointer-events:none;
+}
+.campaign-hero-media{position:relative;min-height:220px;background:linear-gradient(160deg, rgba(232,201,138,.22), rgba(0,0,0,.18));}
+.campaign-hero-media img{width:100%;height:100%;object-fit:cover;display:block;}
+.campaign-hero-media.media-empty{display:flex;align-items:center;justify-content:center;}
+.campaign-hero-media.media-empty::after{content:attr(data-emblem);font-size:4.2rem;filter:drop-shadow(0 6px 16px rgba(0,0,0,.3));}
+.campaign-hero-body{position:relative;padding:32px 34px;display:flex;flex-direction:column;gap:14px;}
+.campaign-status{
+  display:inline-flex;align-items:center;gap:6px;width:fit-content;
+  font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  padding:5px 12px;border-radius:20px;
+  background:rgba(232,201,138,.16);color:var(--gold-soft);border:1px solid rgba(232,201,138,.35);
+}
+.campaign-hero-title{font-family:var(--font-display);font-weight:600;font-size:clamp(1.4rem,2.6vw,1.9rem);}
+.campaign-hero-ref{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;opacity:.7;}
+.campaign-hero-verse{font-family:var(--font-display);font-style:italic;font-size:1.05rem;line-height:1.6;opacity:.95;}
+.campaign-hero-purpose{font-size:.92rem;line-height:1.7;opacity:.85;max-width:62ch;}
+.campaign-hero-actions{margin-top:4px;}
+@media(max-width:760px){
+  .campaign-hero{grid-template-columns:1fr;}
+  .campaign-hero-media{min-height:150px;}
+  .campaign-hero-body{padding:24px 22px;}
+}
+@media(max-width:480px){
+  .campaign-hero{border-radius:20px;}
+  .campaign-hero-media{min-height:120px;}
+  .campaign-hero-body{padding:18px 16px;gap:10px;}
+  .campaign-hero-verse{font-size:.98rem;}
+  .campaign-hero-purpose{font-size:.87rem;}
+  .campaign-status{font-size:.65rem;padding:4px 10px;}
+  .campaign-hero-actions .chip-btn{width:100%;justify-content:center;}
+}
+
+/* ---- Campanhas anteriores (cards com foto, mais discretas que a atual) ---- */
+.campaign-past-toggle-row{flex-wrap:wrap;gap:10px;}
+#campaign-past-toggle{white-space:nowrap;}
+.campaign-past-grid{
+  margin-top:6px;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;
+}
+.campaign-past-grid[hidden]{display:none;}
+.campaign-past-card{
+  position:relative;overflow:hidden;
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-sm);transition:transform .2s ease, box-shadow .2s ease;
+}
+.campaign-past-card:hover{transform:translateY(-3px);box-shadow:var(--shadow);}
+.campaign-past-media{position:relative;height:170px;background:linear-gradient(160deg, var(--parchment-dim), var(--line));transition:height .3s ease;}
+.campaign-past-item.open .campaign-past-media{height:260px;}
+.campaign-past-media img{width:100%;height:100%;object-fit:cover;display:block;}
+.campaign-past-media.media-empty{display:flex;align-items:center;justify-content:center;}
+.campaign-past-media.media-empty::after{content:attr(data-emblem);font-size:2.6rem;opacity:.85;filter:drop-shadow(0 4px 10px rgba(0,0,0,.15));}
+.campaign-past-status{
+  position:absolute;top:10px;left:10px;
+  font-size:.62rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  padding:4px 10px;border-radius:20px;
+  background:rgba(26,37,64,.7);color:var(--parchment);backdrop-filter:blur(3px);
+}
+.campaign-past-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:4px;}
+.campaign-past-head{display:flex;align-items:flex-start;gap:8px;cursor:pointer;}
+.campaign-past-head-text{flex:1;min-width:0;}
+.campaign-past-period{font-family:var(--font-mono);font-size:.65rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;}
+.campaign-past-title{font-family:var(--font-display);font-weight:600;font-size:1rem;margin-top:2px;}
+.campaign-past-ref{font-size:.74rem;color:var(--text-dim);margin-top:2px;}
+.campaign-past-chevron{color:var(--text-faint);transition:transform .2s ease;flex-shrink:0;margin-top:3px;}
+.campaign-past-item.open .campaign-past-chevron{transform:rotate(180deg);}
+.campaign-past-details{display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);}
+.campaign-past-item.open .campaign-past-details{display:block;}
+.campaign-past-verse{font-family:var(--font-display);font-style:italic;font-size:.88rem;line-height:1.6;margin-bottom:6px;}
+.campaign-past-purpose{font-size:.82rem;line-height:1.6;color:var(--text-dim);}
+@media(max-width:640px){
+  .campaign-past-grid{grid-template-columns:1fr 1fr;gap:12px;}
+  .campaign-past-media{height:130px;}
+  .campaign-past-item.open .campaign-past-media{height:200px;}
+  .campaign-past-body{padding:12px 12px 14px;}
+  .campaign-past-title{font-size:.92rem;}
+}
+@media(max-width:480px){
+  .campaign-past-grid{grid-template-columns:1fr;}
+  .campaign-past-media{height:160px;}
+  .campaign-past-item.open .campaign-past-media{height:230px;}
+}
+
 </style>
 </head>
 <body>
@@ -1155,13 +1241,11 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
       <section class="view" id="view-quiz">
         <div class="eyebrow">Aprendizado</div>
         <h1 class="page-title">Quiz bíblico</h1>
-        <p class="page-sub">Teste seu conhecimento das Escrituras e conquiste medalhas.</p>
+        <p class="page-sub">Teste seu conhecimento das Escrituras. Sua pontuação é por sessão: ao sair desta tela, tudo reinicia.</p>
 
-        <div class="grid grid-4" style="margin-top:22px;">
-          <div class="card stat-card"><div class="stat-ic" style="background:var(--gold-soft)">⭐</div><div class="stat-num" id="quiz-xp">240</div><div class="stat-label">XP total</div></div>
+        <div class="grid" style="grid-template-columns:repeat(2,minmax(160px,1fr));margin-top:22px;">
+          <div class="card stat-card"><div class="stat-ic" style="background:var(--gold-soft)">⭐</div><div class="stat-num" id="quiz-xp">0</div><div class="stat-label">XP da sessão</div></div>
           <div class="card stat-card"><div class="stat-ic" style="background:var(--sage-soft)">🎯</div><div class="stat-num" id="quiz-score">0</div><div class="stat-label">acertos nesta sessão</div></div>
-          <div class="card stat-card"><div class="stat-ic" style="background:var(--gold-soft)">🏅</div><div class="stat-num">Nível 3</div><div class="stat-label">Discípulo dedicado</div></div>
-          <div class="card stat-card"><div class="stat-ic" style="background:var(--sage-soft)">📈</div><div class="stat-num" id="quiz-rank">#8</div><div class="stat-label">no ranking semanal</div></div>
         </div>
 
         <div class="card" style="margin-top:22px;max-width:640px;">
@@ -1171,7 +1255,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
           <button class="btn btn-ghost" id="quiz-next" style="margin-top:8px;display:none;">Próxima pergunta →</button>
         </div>
 
-        <div class="sec-row"><h2>Conquistas</h2></div>
+        <div class="sec-row"><h2>Conquistas do quiz</h2></div>
         <div class="ach-grid" id="achievements-grid"></div>
       </section>
 
@@ -1179,32 +1263,17 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
       <section class="view" id="view-campaigns">
         <div class="eyebrow">Direcionamento espiritual</div>
         <h1 class="page-title">Campanhas Proféticas</h1>
-        <p class="page-sub">Acompanhe as campanhas atuais da igreja, seus propósitos e bases bíblicas.</p>
+        <p class="page-sub">Acompanhe a campanha atual da igreja e reviva as jornadas espirituais que já caminhamos juntos.</p>
 
-        <div class="campaign-list">
-          <article class="campaign-card">
-            <div class="campaign-image">
-              <!-- Substitua campanha.jpg pela foto da nova campanha -->
-              <img src="/foto03.jpeg" alt="Foto da campanha profética">
-            </div>
-            <h2>Campanha atual</h2>
-            <p><strong>Base bíblica:</strong><br>"Então me disse: Profetiza sobre estes ossos, e dize-lhes: Ossos secos, ouvi a palavra do Senhor." - Ezequiel 37:4</p>
-            <p><strong>Propósito:</strong><br>Fortalecer a fé e lembrar que, através da Palavra de Deus, Ele pode restaurar, renovar e trazer vida ao que estava sem esperança.</p>
-          </article>
+        <div id="campaign-featured"></div>
+
+        <div class="sec-row campaign-past-toggle-row">
+          <h2>Campanhas anteriores</h2>
+          <button class="btn btn-ghost btn-sm" id="campaign-past-toggle">
+            <span class="em">📜</span><span id="campaign-past-toggle-label">Mostrar campanhas anteriores</span>
+          </button>
         </div>
-
-        <div class="campaign-list">
-          <article class="campaign-card">
-            <div class="campaign-image">
-              <!-- Substitua campanha.jpg pela foto da nova campanha -->
-              <img src="/foto02.jpeg" alt="Foto da campanha profética">
-            </div>
-            <h2>Ultima Campanha</h2>
-            <p><strong>Base bíblica:</strong><br>"Eis que faço uma coisa nova; agora sairá à luz; porventura não a percebeis? Eis que porei um caminho no deserto e rios no ermo." - Isaías 43:19</p>
-            <p><strong>Propósito:</strong><br>Buscar a presença de Deus, renovando a fé e entregando a Ele nossos planos, para viver o novo que Ele tem preparado.</p>
-          </article>
-        </div>
-
+        <div class="campaign-past-grid" id="campaign-timeline" hidden></div>
       </section>
 
       <!-- ============ MEDIA ============ -->
@@ -1249,8 +1318,6 @@ const state = {
   fontScale: 1,
   focus: false,
   streak: 12,
-  xp: 240,
-  quizScore: 0,
   favorites: [], // {ref, text}
   noteBlocks: [], // {id, name, createdDate, notes:[{tag, text, date}]}
   openBlockId: null,
@@ -1258,11 +1325,20 @@ const state = {
   devoNoteBlocks: [], // {id, dateKey, dateLabel, notes:[{text, date, editedDate}]} — um bloco por dia de devocional
   openDevoBlockId: null,
   editingDevoNote: null, // {blockId, idx} da anotação de devocional sendo editada agora
+  openCampaignIds: new Set(), // ids de campanhas anteriores abertas (detalhes expandidos)
+  campaignPastOpen: false, // se a grade de campanhas anteriores está visível
   prayers: [],   // {text, date, answered}
   currentBookIdx: 0,
   currentChapter: 1,
   testamentFilter: 'AT',
-  quizIdx: 0,
+  quizXp: 0,          // XP da sessão atual do quiz — reinicia ao sair da tela
+  quizScore: 0,        // acertos na sessão atual
+  quizWrong: 0,         // erros na sessão atual
+  quizStreak: 0,         // sequência atual de acertos seguidos
+  quizBestStreak: 0,       // maior sequência de acertos na sessão atual
+  quizHardCorrect: false,   // acertou alguma pergunta difícil na sessão atual
+  quizDeck: [],              // perguntas embaralhadas da sessão atual
+  quizPos: 0,                 // posição atual dentro do quizDeck
   quizAnswered: false,
   planProgress: {},   // { [planKey]: Set(dayIndex) }
   currentPlanKey: null,
@@ -1978,24 +2054,118 @@ const MEDIA = [
   {type:"Vídeo", title:"O que é o Reino de Deus?", desc:"Vídeo explicativo sobre um dos temas centrais da Bíblia.", icon:"🎬", color:"linear-gradient(135deg,#6E8F72,#9ABF9E)"}
 ];
 
-const ACHIEVEMENTS = [
-  {emoji:"📖", name:"7 dias lendo", desc:"Sequência de uma semana", unlocked:true},
-  {emoji:"🏆", name:"Primeiro livro", desc:"Concluiu um livro inteiro", unlocked:true},
-  {emoji:"🔥", name:"30 dias seguidos", desc:"Um mês de constância", unlocked:false},
-  {emoji:"⭐", name:"100 capítulos", desc:"Marco de leitura", unlocked:true},
-  {emoji:"🕯️", name:"Guerreiro de oração", desc:"10 pedidos registrados", unlocked:false},
-  {emoji:"🧠", name:"Mente bíblica", desc:"20 acertos no quiz", unlocked:false},
-  {emoji:"📝", name:"Escriba fiel", desc:"15 anotações salvas", unlocked:false},
-  {emoji:"🌅", name:"Madrugador", desc:"7 devocionais antes das 7h", unlocked:true}
+// Campanhas Proféticas da igreja — a primeira com status "ativa" vira o destaque no topo,
+// as demais entram automaticamente na linha do tempo abaixo, da mais recente para a mais antiga.
+// Para lançar uma nova campanha: mude a atual de "ativa" para "encerrada" e adicione uma nova no topo com status "ativa".
+// "image" pode apontar para uma foto real (ex: /foto04.jpeg); se não existir, o emblema (campo "emblem") aparece no lugar.
+const CAMPAIGNS = [
+  {
+    id:"vale-ossos-secos",
+    status:"ativa",
+    period:"Julho 2026",
+    title:"Vale de Ossos Secos",
+    verseRef:"Ezequiel 37:4",
+    verseText:"\"Então me disse: Profetiza sobre estes ossos, e dize-lhes: Ossos secos, ouvi a palavra do Senhor.\"",
+    purpose:"Fortalecer a fé e lembrar que, através da Palavra de Deus, Ele pode restaurar, renovar e trazer vida ao que estava sem esperança.",
+    image:"foto03.jpeg",
+    emblem:"🦴"
+  },
+  {
+    id:"aguas-no-deserto",
+    status:"encerrada",
+    period:"Junho 2026",
+    title:"Águas no Deserto",
+    verseRef:"Isaías 43:19",
+    verseText:"\"Eis que faço uma coisa nova; agora sairá à luz; porventura não a percebeis? Eis que porei um caminho no deserto e rios no ermo.\"",
+    purpose:"Buscar a presença de Deus, renovando a fé e entregando a Ele nossos planos, para viver o novo que Ele tem preparado.",
+    image:"foto02.jpeg",
+    emblem:"🌊"
+  },
+  {
+    id:"aguas-no-deserto",
+    status:"encerrada",
+    period:"Junho 2026",
+    title:"Águas no Deserto",
+    verseRef:"Isaías 43:19",
+    verseText:"\"Eis que faço uma coisa nova; agora sairá à luz; porventura não a percebeis? Eis que porei um caminho no deserto e rios no ermo.\"",
+    purpose:"Buscar a presença de Deus, renovando a fé e entregando a Ele nossos planos, para viver o novo que Ele tem preparado.",
+    image:"foto02.jpeg",
+    emblem:"🌊"
+  },
+  {
+    id:"aguas-no-deserto",
+    status:"encerrada",
+    period:"Junho 2026",
+    title:"Águas no Deserto",
+    verseRef:"Isaías 43:19",
+    verseText:"\"Eis que faço uma coisa nova; agora sairá à luz; porventura não a percebeis? Eis que porei um caminho no deserto e rios no ermo.\"",
+    purpose:"Buscar a presença de Deus, renovando a fé e entregando a Ele nossos planos, para viver o novo que Ele tem preparado.",
+    image:"foto02.jpeg",
+    emblem:"🌊"
+  }
+];
+
+const QUIZ_ACHIEVEMENTS = [
+  {emoji:"🎯", name:"Primeiro acerto", desc:"Acertou a primeira pergunta da sessão", test: s => s.quizScore >= 1},
+  {emoji:"🔥", name:"Sequência de 3", desc:"3 acertos seguidos na mesma sessão", test: s => s.quizBestStreak >= 3},
+  {emoji:"⚡", name:"Sequência de 5", desc:"5 acertos seguidos na mesma sessão", test: s => s.quizBestStreak >= 5},
+  {emoji:"🧠", name:"Mente afiada", desc:"Acertou uma pergunta de nível difícil", test: s => s.quizHardCorrect},
+  {emoji:"💯", name:"Sessão redonda", desc:"10 acertos sem nenhum erro na sessão", test: s => s.quizScore >= 10 && s.quizWrong === 0},
+  {emoji:"🌟", name:"Centena de XP", desc:"Alcançou 100 XP em uma única sessão", test: s => s.quizXp >= 100}
 ];
 
 const QUIZ_QUESTIONS = [
+  // Fácil
   {level:"Fácil", q:"Quem construiu a arca antes do dilúvio?", options:["Abraão","Noé","Moisés","Davi"], correct:1},
   {level:"Fácil", q:"Em qual livro encontramos os Dez Mandamentos?", options:["Gênesis","Levítico","Êxodo","Números"], correct:2},
+  {level:"Fácil", q:"Quem foi o primeiro homem criado por Deus, segundo a Bíblia?", options:["Caim","Set","Adão","Abel"], correct:2},
+  {level:"Fácil", q:"Em quantos dias Deus criou o mundo, segundo Gênesis?", options:["5","6","7","8"], correct:1},
+  {level:"Fácil", q:"Qual foi o primeiro milagre de Jesus, segundo o Evangelho de João?", options:["Curar um cego","Andar sobre as águas","Transformar água em vinho","Multiplicar pães"], correct:2},
+  {level:"Fácil", q:"Quem traiu Jesus por trinta moedas de prata?", options:["Pedro","Tomé","Judas Iscariotes","Filipe"], correct:2},
+  {level:"Fácil", q:"Em que cidade Jesus nasceu?", options:["Nazaré","Jerusalém","Belém","Cafarnaum"], correct:2},
+  {level:"Fácil", q:"Quem foi engolido por um grande peixe?", options:["Elias","Jonas","Isaías","Eliseu"], correct:1},
+  {level:"Fácil", q:"Qual é o último livro da Bíblia?", options:["Judas","Apocalipse","João","Hebreus"], correct:1},
+  {level:"Fácil", q:"Quantos livros tem o Novo Testamento?", options:["24","27","30","39"], correct:1},
+  {level:"Fácil", q:"Quem era a mãe de Jesus?", options:["Maria","Marta","Isabel","Ana"], correct:0},
+  {level:"Fácil", q:"Qual mar Moisés abriu para o povo de Israel atravessar?", options:["Mar Morto","Mar da Galileia","Mar Vermelho","Mar Mediterrâneo"], correct:2},
+  {level:"Fácil", q:"Quem matou o gigante Golias?", options:["Saul","Davi","Jônatas","Samuel"], correct:1},
+  {level:"Fácil", q:"Em qual monte Moisés recebeu os Dez Mandamentos?", options:["Monte Sinai","Monte Carmelo","Monte das Oliveiras","Monte Ararate"], correct:0},
+  {level:"Fácil", q:"Quantos filhos Jacó teve, que se tornaram as doze tribos de Israel?", options:["10","11","12","13"], correct:2},
+  {level:"Fácil", q:"Qual é o primeiro livro da Bíblia?", options:["Êxodo","Gênesis","Levítico","Números"], correct:1},
+  // Médio
   {level:"Médio", q:"Quantos discípulos Jesus escolheu como apóstolos?", options:["7","10","12","14"], correct:2},
   {level:"Médio", q:"Quem foi jogado na cova dos leões?", options:["Daniel","Jonas","Elias","José"], correct:0},
+  {level:"Médio", q:"Quem foi o rei de Israel conhecido por sua sabedoria e autor de Provérbios?", options:["Davi","Salomão","Roboão","Josafá"], correct:1},
+  {level:"Médio", q:"Qual apóstolo negou conhecer Jesus três vezes?", options:["João","Tiago","Pedro","André"], correct:2},
+  {level:"Médio", q:"Quantos anos os israelitas vagaram pelo deserto antes de entrar em Canaã?", options:["20","30","40","50"], correct:2},
+  {level:"Médio", q:"Quem era a esposa de Abraão que riu ao ouvir que teria um filho na velhice?", options:["Agar","Sara","Rebeca","Raquel"], correct:1},
+  {level:"Médio", q:"Qual profeta subiu ao céu em um redemoinho, num carro de fogo?", options:["Eliseu","Isaías","Elias","Ezequiel"], correct:2},
+  {level:"Médio", q:"Em qual festa judaica Jesus foi crucificado?", options:["Pentecostes","Páscoa","Tabernáculos","Purim"], correct:1},
+  {level:"Médio", q:"Quem escreveu o livro de Apocalipse?", options:["Pedro","Paulo","João","Tiago"], correct:2},
+  {level:"Médio", q:"Qual foi a primeira das pragas enviadas sobre o Egito, segundo Êxodo?", options:["Gafanhotos","Água transformada em sangue","Trevas","Granizo"], correct:1},
+  {level:"Médio", q:"Quantos pães e peixes Jesus usou para alimentar cerca de 5 mil pessoas?", options:["3 pães e 2 peixes","5 pães e 2 peixes","5 pães e 5 peixes","7 pães e 3 peixes"], correct:1},
+  {level:"Médio", q:"Quem foi o pai de João Batista?", options:["Zacarias","José","Simeão","Ananias"], correct:0},
+  {level:"Médio", q:"Qual cidade foi destruída junto com Sodoma?", options:["Nínive","Gomorra","Jericó","Babilônia"], correct:1},
+  {level:"Médio", q:"Quem traiu Sansão ao cortar seus cabelos enquanto ele dormia?", options:["Dalila","Jezabel","Rute","Ester"], correct:0},
+  {level:"Médio", q:"Qual era a profissão de Pedro antes de seguir Jesus?", options:["Cobrador de impostos","Pescador","Carpinteiro","Pastor de ovelhas"], correct:1},
+  {level:"Médio", q:"Em qual ilha o apóstolo João escreveu o livro de Apocalipse, estando exilado?", options:["Creta","Chipre","Patmos","Rodes"], correct:2},
+  // Difícil
   {level:"Difícil", q:"Qual é o penúltimo livro do Antigo Testamento?", options:["Malaquias","Ageu","Zacarias","Sofonias"], correct:2},
-  {level:"Difícil", q:"Quem escreveu a maior parte das cartas do Novo Testamento?", options:["Pedro","Paulo","João","Tiago"], correct:1}
+  {level:"Difícil", q:"Quem escreveu a maior parte das cartas do Novo Testamento?", options:["Pedro","Paulo","João","Tiago"], correct:1},
+  {level:"Difícil", q:"Qual é considerado o menor livro do Antigo Testamento em número de versículos?", options:["Obadias","Ageu","Naum","Rute"], correct:0},
+  {level:"Difícil", q:"Quantos capítulos tem o livro de Salmos?", options:["100","120","150","176"], correct:2},
+  {level:"Difícil", q:"Quem foi o profeta que ungiu Davi como rei de Israel?", options:["Natã","Samuel","Gade","Eli"], correct:1},
+  {level:"Difícil", q:"Qual livro da Bíblia tem o maior número de capítulos?", options:["Isaías","Jeremias","Salmos","Gênesis"], correct:2},
+  {level:"Difícil", q:"Quem foi o general israelita que, com a profetisa Débora, derrotou os cananeus?", options:["Baraque","Gideão","Otniel","Jefté"], correct:0},
+  {level:"Difícil", q:"Em qual cidade Paulo teve sua conversão, no caminho para lá?", options:["Antioquia","Damasco","Éfeso","Corinto"], correct:1},
+  {level:"Difícil", q:"Qual rei de Israel perdeu o reino por não destruir totalmente os amalequitas, como Deus ordenara?", options:["Saul","Acabe","Jeroboão","Roboão"], correct:0},
+  {level:"Difícil", q:"Segundo Gênesis, quantos anos viveu Matusalém, o homem mais velho da Bíblia?", options:["777","888","930","969"], correct:3},
+  {level:"Difícil", q:"Qual profeta menor descreveu uma praga de gafanhotos como sinal de julgamento?", options:["Joel","Obadias","Miquéias","Naum"], correct:0},
+  {level:"Difícil", q:"Quem foi o primeiro mártir cristão registrado no livro de Atos?", options:["Tiago","Estêvão","Barnabé","Timóteo"], correct:1},
+  {level:"Difícil", q:"Qual foi o nome do servo de Abraão enviado para buscar uma esposa para Isaque?", options:["Eliezer","Eleazar","Efraim","Elimeleque"], correct:0},
+  {level:"Difícil", q:"Quantas pragas Deus enviou sobre o Egito antes que Faraó libertasse o povo de Israel?", options:["7","9","10","12"], correct:2},
+  {level:"Difícil", q:"Em que língua foi originalmente escrita a maior parte do Antigo Testamento?", options:["Aramaico","Grego","Hebraico","Latim"], correct:2},
+  {level:"Difícil", q:"Qual foi o nome dado ao lugar onde Jesus foi crucificado, que significa 'lugar da caveira'?", options:["Getsêmani","Gólgota","Siloé","Betesda"], correct:1}
 ];
 
 
@@ -2011,6 +2181,7 @@ function toast(msg, emoji){
 }
 
 function switchView(view){
+  const previousView = state.view;
   state.view = view;
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+view).classList.add('active');
@@ -2027,6 +2198,8 @@ function switchView(view){
   document.getElementById('scrim').classList.remove('show');
   if(view==='dashboard') renderCharts();
   if(view==='studies') renderStudies(state.studyFilter || 'Todos');
+  // Saiu da tela do Quiz bíblico: reinicia XP, acertos, erros e conquistas da sessão
+  if(previousView==='quiz' && view!=='quiz') resetQuizSession();
 }
 
 document.querySelectorAll('[data-view]').forEach(el=>{
@@ -2802,10 +2975,7 @@ function renderPlanDetail(){
     while(done.has(next) && next < totalDays) next++;
     if(next >= totalDays){ toast('Você já concluiu todo o plano! 🎉', '🏆'); return; }
     done.add(next);
-    state.xp += 5;
-    const xpEl = document.getElementById('quiz-xp');
-    if(xpEl) xpEl.textContent = state.xp;
-    toast('Dia ' + (next+1) + ' marcado como lido (+5 XP)', '✅');
+    toast('Dia ' + (next+1) + ' marcado como lido', '✅');
     renderPlanDetail();
     renderPlans();
   });
@@ -3475,8 +3645,50 @@ renderPrayers();
 /* =========================================================
    QUIZ
    ========================================================= */
+function shuffleArray(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+// Embaralha também as alternativas de cada pergunta, recalculando o índice da correta
+function shuffleQuestion(q){
+  const order = shuffleArray(q.options.map((_, i) => i));
+  return {
+    level: q.level,
+    q: q.q,
+    options: order.map(i => q.options[i]),
+    correct: order.indexOf(q.correct)
+  };
+}
+function buildQuizDeck(){
+  return shuffleArray(QUIZ_QUESTIONS).map(shuffleQuestion);
+}
+// Reinicia totalmente a sessão do quiz: XP, acertos, erros, sequência e conquistas voltam a 0
+function resetQuizSession(){
+  state.quizXp = 0;
+  state.quizScore = 0;
+  state.quizWrong = 0;
+  state.quizStreak = 0;
+  state.quizBestStreak = 0;
+  state.quizHardCorrect = false;
+  state.quizDeck = buildQuizDeck();
+  state.quizPos = 0;
+  state.quizAnswered = false;
+  document.getElementById('quiz-xp').textContent = state.quizXp;
+  document.getElementById('quiz-score').textContent = state.quizScore;
+  renderQuiz();
+  renderAchievements();
+}
 function renderQuiz(){
-  const q = QUIZ_QUESTIONS[state.quizIdx];
+  if(state.quizPos >= state.quizDeck.length){
+    // Acabou o baralho de perguntas: embaralha um novo lote, mantendo XP/acertos da sessão
+    state.quizDeck = buildQuizDeck();
+    state.quizPos = 0;
+  }
+  const q = state.quizDeck[state.quizPos];
   document.getElementById('quiz-difficulty').textContent = q.level;
   document.getElementById('quiz-question').textContent = q.q;
   const optsEl = document.getElementById('quiz-options');
@@ -3495,35 +3707,145 @@ function renderQuiz(){
       if(!correct) optsEl.children[q.correct].classList.add('correct');
       if(correct){
         state.quizScore += 1;
-        state.xp += 10;
+        state.quizStreak += 1;
+        state.quizBestStreak = Math.max(state.quizBestStreak, state.quizStreak);
+        if(q.level === 'Difícil') state.quizHardCorrect = true;
+        state.quizXp += 10;
         document.getElementById('quiz-score').textContent = state.quizScore;
-        document.getElementById('quiz-xp').textContent = state.xp;
+        document.getElementById('quiz-xp').textContent = state.quizXp;
         toast('Resposta correta! +10 XP', '🎉');
       } else {
-        toast('Quase! A resposta certa está em verde.', '📖');
+        state.quizWrong += 1;
+        state.quizStreak = 0;
+        state.quizXp = Math.max(0, state.quizXp - 5);
+        document.getElementById('quiz-xp').textContent = state.quizXp;
+        toast('Quase! A resposta certa está em verde. -5 XP', '📖');
       }
+      renderAchievements();
       document.getElementById('quiz-next').style.display = 'inline-flex';
     });
     optsEl.appendChild(b);
   });
 }
 document.getElementById('quiz-next').addEventListener('click', ()=>{
-  state.quizIdx = (state.quizIdx + 1) % QUIZ_QUESTIONS.length;
+  state.quizPos += 1;
   renderQuiz();
 });
-renderQuiz();
+resetQuizSession();
 
 function renderAchievements(){
   const grid = document.getElementById('achievements-grid');
   grid.innerHTML = '';
-  ACHIEVEMENTS.forEach(a=>{
+  QUIZ_ACHIEVEMENTS.forEach(a=>{
+    const unlocked = a.test(state);
     const div = document.createElement('div');
-    div.className = 'ach' + (a.unlocked ? '' : ' locked');
+    div.className = 'ach' + (unlocked ? '' : ' locked');
     div.innerHTML = `<div class="ach-emoji">${a.emoji}</div><div class="ach-name">${a.name}</div><div class="ach-desc">${a.desc}</div>`;
     grid.appendChild(div);
   });
 }
 renderAchievements();
+
+/* =========================================================
+   CAMPANHAS PROFÉTICAS
+   ========================================================= */
+function renderCampaigns(){
+  const featured = CAMPAIGNS.find(c => c.status === 'ativa') || CAMPAIGNS[0];
+  const featuredEl = document.getElementById('campaign-featured');
+  if(featured && featuredEl){
+    featuredEl.innerHTML = `
+      <article class="campaign-hero">
+        <div class="campaign-hero-media" data-emblem="${featured.emblem || '🔥'}">
+          <img src="${featured.image}" alt="${escapeHtml(featured.title)}" onerror="this.remove(); this.parentElement.classList.add('media-empty');">
+        </div>
+        <div class="campaign-hero-body">
+          <span class="campaign-status">🔥 Campanha em andamento</span>
+          <h2 class="campaign-hero-title">${escapeHtml(featured.title)}</h2>
+          <span class="campaign-hero-ref">${escapeHtml(featured.period)} · Base bíblica: ${escapeHtml(featured.verseRef)}</span>
+          <p class="campaign-hero-verse">${escapeHtml(featured.verseText)}</p>
+          <p class="campaign-hero-purpose"><strong>Propósito:</strong> ${escapeHtml(featured.purpose)}</p>
+          <div class="campaign-hero-actions">
+            <button class="chip-btn" id="campaign-share-btn"><span class="em">🔗</span>Compartilhar base bíblica</button>
+          </div>
+        </div>
+      </article>`;
+    const shareBtn = document.getElementById('campaign-share-btn');
+    if(shareBtn){
+      shareBtn.addEventListener('click', ()=>{
+        const text = featured.verseText + ' — ' + featured.verseRef;
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(text).then(
+            ()=> toast('Base bíblica copiada', '🔗'),
+            ()=> toast('Base bíblica: ' + text, '🔗')
+          );
+        } else {
+          toast('Base bíblica: ' + text, '🔗');
+        }
+      });
+    }
+  }
+
+  const timeline = document.getElementById('campaign-timeline');
+  if(!timeline) return;
+  const past = CAMPAIGNS.filter(c => c !== featured);
+
+  const toggleBtn = document.getElementById('campaign-past-toggle');
+  const toggleLabel = document.getElementById('campaign-past-toggle-label');
+  if(toggleBtn){
+    if(past.length === 0){
+      toggleBtn.style.display = 'none';
+    } else {
+      toggleBtn.style.display = '';
+      toggleBtn.onclick = ()=>{
+        state.campaignPastOpen = !state.campaignPastOpen;
+        renderCampaigns();
+      };
+    }
+  }
+  if(toggleLabel){
+    toggleLabel.textContent = state.campaignPastOpen ? 'Ocultar campanhas anteriores' : 'Mostrar campanhas anteriores';
+  }
+  timeline.hidden = !state.campaignPastOpen;
+
+  if(past.length === 0){
+    timeline.innerHTML = '<div class="card"><div class="muted">Ainda não há campanhas anteriores registradas.</div></div>';
+    return;
+  }
+  timeline.innerHTML = past.map((c, idx)=>{
+    const key = c.id + '__' + idx;
+    const isOpen = state.openCampaignIds.has(key);
+    return `
+      <div class="campaign-past-card campaign-past-item${isOpen ? ' open' : ''}">
+        <div class="campaign-past-media" data-emblem="${c.emblem || '🔥'}">
+          <img src="${c.image}" alt="${escapeHtml(c.title)}" onerror="this.remove(); this.parentElement.classList.add('media-empty');">
+          <span class="campaign-past-status">Encerrada</span>
+        </div>
+        <div class="campaign-past-body">
+          <div class="campaign-past-head" data-campaign-toggle="${key}">
+            <div class="campaign-past-head-text">
+              <span class="campaign-past-period">${escapeHtml(c.period)}</span>
+              <h3 class="campaign-past-title">${escapeHtml(c.title)}</h3>
+              <span class="campaign-past-ref">${escapeHtml(c.verseRef)}</span>
+            </div>
+            <span class="campaign-past-chevron">▾</span>
+          </div>
+          <div class="campaign-past-details">
+            <p class="campaign-past-verse">${escapeHtml(c.verseText)}</p>
+            <p class="campaign-past-purpose"><strong>Propósito:</strong> ${escapeHtml(c.purpose)}</p>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+  timeline.querySelectorAll('[data-campaign-toggle]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const id = el.dataset.campaignToggle;
+      if(state.openCampaignIds.has(id)) state.openCampaignIds.delete(id);
+      else state.openCampaignIds.add(id);
+      renderCampaigns();
+    });
+  });
+}
+renderCampaigns();
 
 /* =========================================================
    MEDIA
