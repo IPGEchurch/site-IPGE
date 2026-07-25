@@ -556,9 +556,16 @@ textarea.notes-area:focus{border-color:var(--gold);}
 .ach-desc{font-size:.68rem;color:var(--text-faint);margin-top:2px;}
 
 /* Prayer */
-.prayer-item{padding:16px 18px;border-radius:14px;border:1px solid var(--line);background:var(--paper);margin-bottom:12px;display:flex;justify-content:space-between;gap:14px;align-items:flex-start;}
+.prayer-item{padding:16px 18px;border-radius:14px;border:1px solid var(--line);background:var(--paper);margin-bottom:12px;display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap;}
 .prayer-item.answered{background:var(--sage-soft);border-color:var(--sage);}
 .prayer-date{font-family:var(--font-mono);font-size:.7rem;color:var(--text-faint);margin-top:4px;}
+.prayer-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;}
+.prayer-del-btn{
+  width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);background:transparent;color:var(--text-dim);flex-shrink:0;transition:all .18s ease;
+}
+.prayer-del-btn:hover{border-color:var(--rose);color:var(--rose);background:var(--sage-soft);}
+@media(max-width:880px){.prayer-del-btn{width:38px;height:38px;}}
 
 /* Toast */
 #toast{
@@ -1014,6 +1021,11 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
             <button class="btn btn-ghost btn-sm" style="margin-top:12px;" id="devo-save-note">Salvar anotação</button>
           </div>
         </div>
+
+        <div style="margin-top:22px;">
+          <h3 style="font-size:1rem;margin-bottom:12px;">Meu registro devocional</h3>
+          <div id="devo-note-blocks-list" style="display:flex;flex-direction:column;gap:16px;"></div>
+        </div>
       </section>
 
       <!-- ============ PLANS ============ -->
@@ -1173,7 +1185,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
           <article class="campaign-card">
             <div class="campaign-image">
               <!-- Substitua campanha.jpg pela foto da nova campanha -->
-              <img src="foto03.jpeg" alt="Foto da campanha profética">
+              <img src="/foto03.jpeg" alt="Foto da campanha profética">
             </div>
             <h2>Campanha atual</h2>
             <p><strong>Base bíblica:</strong><br>"Então me disse: Profetiza sobre estes ossos, e dize-lhes: Ossos secos, ouvi a palavra do Senhor." - Ezequiel 37:4</p>
@@ -1185,7 +1197,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
           <article class="campaign-card">
             <div class="campaign-image">
               <!-- Substitua campanha.jpg pela foto da nova campanha -->
-              <img src="foto02.jpeg" alt="Foto da campanha profética">
+              <img src="/foto02.jpeg" alt="Foto da campanha profética">
             </div>
             <h2>Ultima Campanha</h2>
             <p><strong>Base bíblica:</strong><br>"Eis que faço uma coisa nova; agora sairá à luz; porventura não a percebeis? Eis que porei um caminho no deserto e rios no ermo." - Isaías 43:19</p>
@@ -1243,6 +1255,9 @@ const state = {
   noteBlocks: [], // {id, name, createdDate, notes:[{tag, text, date}]}
   openBlockId: null,
   editingNote: null, // {blockId, idx} da anotação sendo editada agora
+  devoNoteBlocks: [], // {id, dateKey, dateLabel, notes:[{text, date, editedDate}]} — um bloco por dia de devocional
+  openDevoBlockId: null,
+  editingDevoNote: null, // {blockId, idx} da anotação de devocional sendo editada agora
   prayers: [],   // {text, date, answered}
   currentBookIdx: 0,
   currentChapter: 1,
@@ -2430,10 +2445,185 @@ document.getElementById('devo-complete').addEventListener('click', ()=>{
 document.getElementById('devo-save-note').addEventListener('click', ()=>{
   const val = document.getElementById('devo-notes').value;
   if(!val.trim()) return toast('Escreva algo antes de salvar', '⚠️');
-  addNote('Devocional — ' + todayDevo.ref, val);
+  addDevoNote(val);
   document.getElementById('devo-notes').value = '';
   toast('Anotação salva', '📝');
 });
+
+/* =========================================================
+   DEVOTIONAL NOTES (um bloco de notas por dia de devocional)
+   ========================================================= */
+function todayDevoKey(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function findOrCreateTodayDevoBlock(){
+  const key = todayDevoKey();
+  let block = state.devoNoteBlocks.find(b=>b.dateKey===key);
+  if(!block){
+    block = {
+      id: 'devo-blk-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),
+      dateKey: key,
+      dateLabel: new Date().toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long'}),
+      notes: []
+    };
+    state.devoNoteBlocks.unshift(block);
+  }
+  return block;
+}
+function addDevoNote(text){
+  const block = findOrCreateTodayDevoBlock();
+  block.notes.unshift({text: text || '', date: new Date().toLocaleDateString('pt-BR')});
+  state.openDevoBlockId = block.id;
+  renderDevoNoteBlocks();
+}
+function deleteDevoNoteFromBlock(blockId, idx){
+  const block = state.devoNoteBlocks.find(b=>b.id===blockId);
+  if(!block) return;
+  block.notes.splice(idx, 1);
+  if(state.editingDevoNote && state.editingDevoNote.blockId===blockId && state.editingDevoNote.idx===idx) state.editingDevoNote = null;
+  renderDevoNoteBlocks();
+}
+function saveEditDevoNote(blockId, idx, text){
+  const block = state.devoNoteBlocks.find(b=>b.id===blockId);
+  if(!block || !block.notes[idx]) return;
+  block.notes[idx].text = text;
+  block.notes[idx].editedDate = new Date().toLocaleDateString('pt-BR');
+  state.editingDevoNote = null;
+  renderDevoNoteBlocks();
+}
+function deleteDevoNoteBlock(blockId){
+  state.devoNoteBlocks = state.devoNoteBlocks.filter(b=>b.id!==blockId);
+  if(state.editingDevoNote && state.editingDevoNote.blockId===blockId) state.editingDevoNote = null;
+  renderDevoNoteBlocks();
+}
+
+function renderDevoNoteBlocks(){
+  const list = document.getElementById('devo-note-blocks-list');
+  if(!list) return;
+  list.innerHTML = '';
+  if(state.devoNoteBlocks.length===0){
+    list.innerHTML = '<div class="card"><div class="muted">Suas anotações do devocional vão aparecer aqui. Salve a primeira anotação de hoje para criar o bloco do dia.</div></div>';
+    return;
+  }
+  state.devoNoteBlocks.forEach(block=>{
+    const isOpen = state.openDevoBlockId === block.id;
+    const wrap = document.createElement('div');
+    wrap.className = 'note-block' + (isOpen ? ' open' : '');
+
+    const notesHtml = block.notes.length
+      ? block.notes.map((n, idx)=>{
+          const isEditing = state.editingDevoNote && state.editingDevoNote.blockId===block.id && state.editingDevoNote.idx===idx;
+          if(isEditing){
+            return `
+            <div class="note-item note-item-editing">
+              <textarea class="notes-area" id="devo-edit-text-textarea" placeholder="Escreva sua reflexão…"></textarea>
+              <div class="note-toolbar-row">
+                <button class="btn btn-primary" data-devo-save-edit="${block.id}::${idx}">Salvar alterações</button>
+                <button class="btn btn-ghost" data-devo-cancel-edit="1">Cancelar</button>
+              </div>
+            </div>`;
+          }
+          return `
+          <div class="note-item">
+            <div class="note-item-head">
+              <span class="note-item-meta">
+                <span class="muted" style="font-size:.75rem;">${n.editedDate ? 'editado em ' + n.editedDate : n.date}</span>
+                <button class="note-item-edit" data-devo-editblock="${block.id}" data-devo-editidx="${idx}" title="Editar anotação">✏️</button>
+                <button class="note-item-del" data-devo-block="${block.id}" data-devo-idx="${idx}" title="Excluir anotação">✕</button>
+              </span>
+            </div>
+            <p style="margin-top:10px;line-height:1.7;">${n.text ? escapeHtml(n.text).replace(/\n/g,'<br>') : '<i class="muted">(sem texto ainda)</i>'}</p>
+          </div>`;
+        }).join('')
+      : '<div class="note-block-empty">Nenhuma anotação neste bloco ainda.</div>';
+
+    wrap.innerHTML = `
+      <div class="note-block-head" data-devo-toggle="${block.id}">
+        <span class="note-block-title">📓 Devocional — ${escapeHtml(block.dateLabel)}</span>
+        <span class="note-block-count">${block.notes.length} anotaç${block.notes.length===1?'ão':'ões'}</span>
+        <span class="note-block-chevron">▾</span>
+        <button class="note-block-del" data-devo-delblock="${block.id}" title="Excluir bloco de notas">🗑️</button>
+      </div>
+      <div class="note-block-body">
+        <div style="display:flex;flex-direction:column;">${notesHtml}</div>
+      </div>`;
+    list.appendChild(wrap);
+  });
+
+  if(state.editingDevoNote){
+    const { blockId, idx } = state.editingDevoNote;
+    const block = state.devoNoteBlocks.find(b=>b.id===blockId);
+    const note = block && block.notes[idx];
+    const textArea = document.getElementById('devo-edit-text-textarea');
+    if(note && textArea){
+      textArea.value = note.text;
+      textArea.focus();
+      const len = textArea.value.length;
+      textArea.setSelectionRange(len, len);
+    }
+  }
+
+  list.querySelectorAll('[data-devo-toggle]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      if(e.target.closest('[data-devo-delblock]')) return;
+      const id = el.dataset.devoToggle;
+      state.openDevoBlockId = (state.openDevoBlockId === id) ? null : id;
+      renderDevoNoteBlocks();
+    });
+  });
+  list.querySelectorAll('.note-item-edit[data-devo-editblock]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      state.editingDevoNote = { blockId: el.dataset.devoEditblock, idx: parseInt(el.dataset.devoEditidx, 10) };
+      renderDevoNoteBlocks();
+    });
+  });
+  list.querySelectorAll('[data-devo-save-edit]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const [blockId, idxStr] = el.dataset.devoSaveEdit.split('::');
+      const idx = parseInt(idxStr, 10);
+      const textArea = document.getElementById('devo-edit-text-textarea');
+      const text = textArea.value;
+      if(!text.trim()) return toast('A anotação não pode ficar vazia', '⚠️');
+      saveEditDevoNote(blockId, idx, text);
+      toast('Anotação atualizada', '✏️');
+    });
+  });
+  list.querySelectorAll('[data-devo-cancel-edit]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      state.editingDevoNote = null;
+      renderDevoNoteBlocks();
+    });
+  });
+  list.querySelectorAll('.note-item-del[data-devo-block]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      deleteDevoNoteFromBlock(el.dataset.devoBlock, parseInt(el.dataset.devoIdx, 10));
+    });
+  });
+  list.querySelectorAll('[data-devo-delblock]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const id = el.dataset.devoDelblock;
+      const block = state.devoNoteBlocks.find(b=>b.id===id);
+      if(!block) return;
+      openConfirm({
+        title: 'Excluir bloco de notas?',
+        text: `Tem certeza que deseja excluir o registro de "${block.dateLabel}"${block.notes.length ? ' e ' + block.notes.length + ' anotaç' + (block.notes.length===1?'ão':'ões') + ' dentro dele' : ''}? Essa ação não pode ser desfeita.`,
+        confirmLabel: 'Excluir bloco',
+        cancelLabel: 'Continuar com o bloco',
+        onConfirm: ()=>{
+          deleteDevoNoteBlock(id);
+          toast('Bloco de notas excluído', '🗑️');
+        }
+      });
+    });
+  });
+}
+renderDevoNoteBlocks();
 
 /* =========================================================
    PLANS
@@ -3214,24 +3404,68 @@ function renderPrayers(){
   if(activeList.length===0) active.innerHTML = '<div class="muted">Nenhum pedido ativo no momento.</div>';
   if(answeredList.length===0) answered.innerHTML = '<div class="muted">Suas orações respondidas aparecerão aqui.</div>';
   activeList.forEach((p)=>{
-    const realIdx = state.prayers.indexOf(p);
     const div = document.createElement('div');
     div.className = 'prayer-item';
-    div.innerHTML = `<div><div>${p.text}</div><div class="prayer-date">${p.date}</div></div><button class="btn btn-ghost btn-sm">Marcar respondida</button>`;
-    div.querySelector('button').addEventListener('click', ()=>{ state.prayers[realIdx].answered = true; renderPrayers(); toast('Glória a Deus! Oração respondida 🎉', '🙌'); });
+    div.innerHTML = `
+      <div>
+        <div>${escapeHtml(p.text)}</div>
+        <div class="prayer-date">${p.date}</div>
+      </div>
+      <div class="prayer-actions">
+        <button class="btn btn-ghost btn-sm" data-answer="${p.id}">Marcar respondida</button>
+        <button class="prayer-del-btn" data-delprayer="${p.id}" title="Excluir pedido">🗑️</button>
+      </div>`;
     active.appendChild(div);
   });
   answeredList.forEach(p=>{
     const div = document.createElement('div');
     div.className = 'prayer-item answered';
-    div.innerHTML = `<div><div>${p.text}</div><div class="prayer-date">${p.date}</div></div><span class="pill pill-sage">Respondida ✓</span>`;
+    div.innerHTML = `
+      <div>
+        <div>${escapeHtml(p.text)}</div>
+        <div class="prayer-date">${p.date}</div>
+      </div>
+      <div class="prayer-actions">
+        <span class="pill pill-sage">Respondida ✓</span>
+        <button class="prayer-del-btn" data-delprayer="${p.id}" title="Excluir oração respondida">🗑️</button>
+      </div>`;
     answered.appendChild(div);
+  });
+
+  active.querySelectorAll('[data-answer]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const p = state.prayers.find(pr=>pr.id===btn.dataset.answer);
+      if(!p) return;
+      p.answered = true;
+      renderPrayers();
+      toast('Glória a Deus! Oração respondida 🎉', '🙌');
+    });
+  });
+  [active, answered].forEach(container=>{
+    container.querySelectorAll('[data-delprayer]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const id = btn.dataset.delprayer;
+        const p = state.prayers.find(pr=>pr.id===id);
+        if(!p) return;
+        openConfirm({
+          title: p.answered ? 'Excluir oração respondida?' : 'Excluir pedido de oração?',
+          text: `Tem certeza que deseja excluir "${p.text}"? Essa ação não pode ser desfeita.`,
+          confirmLabel: 'Excluir',
+          cancelLabel: 'Manter',
+          onConfirm: ()=>{
+            state.prayers = state.prayers.filter(pr=>pr.id!==id);
+            renderPrayers();
+            toast('Excluído', '🗑️');
+          }
+        });
+      });
+    });
   });
 }
 document.getElementById('add-prayer-btn').addEventListener('click', ()=>{
   const val = document.getElementById('new-prayer-text').value;
   if(!val.trim()) return toast('Escreva um pedido antes de adicionar', '⚠️');
-  state.prayers.unshift({text:val, date:new Date().toLocaleDateString('pt-BR'), answered:false});
+  state.prayers.unshift({id:'pr-'+Date.now()+'-'+Math.random().toString(36).slice(2,7), text:val, date:new Date().toLocaleDateString('pt-BR'), answered:false});
   document.getElementById('new-prayer-text').value = '';
   renderPrayers();
   toast('Pedido de oração adicionado', '🕯️');
