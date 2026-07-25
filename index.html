@@ -2474,16 +2474,23 @@ function goToFavoriteRef(ref){
   switchView('bible');
   renderBookList();
   renderReader();
-  if(parsed.verse){
-    setTimeout(()=>{
+  setTimeout(()=>{
+    if(parsed.verse){
+      // Favorito de VERSÍCULO: rola até o versículo específico e destaca
       const row = document.querySelector(`#verse-list .verse[data-verse="${parsed.verse}"]`);
       if(row){
         row.scrollIntoView({behavior:'smooth', block:'center'});
         row.classList.add('verse-highlight');
         setTimeout(()=>row.classList.remove('verse-highlight'), 2100);
       }
-    }, 220);
-  }
+    } else {
+      // Favorito de CAPÍTULO: rola para o título principal (ex: "Levítico 1")
+      const title = document.getElementById('reader-book-title');
+      if(title){
+        title.scrollIntoView({behavior:'smooth', block:'start'});
+      }
+    }
+  }, 220);
 }
 
 /* init bible: show the offline sample instantly, then fetch the full Bible in the background */
