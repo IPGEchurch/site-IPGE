@@ -1106,7 +1106,6 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
               </div>
               <div style="display:flex;gap:8px;">
                 <button class="btn btn-ghost btn-sm" id="btn-favorite-chapter">❤️ Favoritar capítulo</button>
-                <button class="btn btn-ghost btn-sm" id="btn-listen-chapter">🎧 Ouvir</button>
               </div>
             </div>
             <div class="chapter-nav" id="chapter-nav"></div>
@@ -2581,9 +2580,6 @@ document.getElementById('btn-favorite-chapter').addEventListener('click', ()=>{
   const book = getBible()[state.currentBookIdx];
   toggleFavorite(`${book.book} ${state.currentChapter}`, 'Capítulo completo');
   toast('Capítulo favoritado', '❤️');
-});
-document.getElementById('btn-listen-chapter').addEventListener('click', ()=>{
-  toast('Reproduzindo áudio do capítulo…', '🎧');
 });
 
 function toggleFavorite(ref, text){
