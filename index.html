@@ -78,7 +78,7 @@
 }
 
 *{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;overflow-anchor:none;height:100%;overscroll-behavior-y:none;}
+html{scroll-behavior:smooth;overflow-anchor:none;height:100%;}
 body{
   font-family:var(--font-body);
   background:var(--parchment);
@@ -88,8 +88,8 @@ body{
   transition:background .35s ease, color .35s ease;
   overflow-x:hidden;
   overflow-anchor:none;
-  overscroll-behavior-y:none;
 }
+body.no-scroll{overflow:hidden;}
 img{max-width:100%;display:block;}
 button{font-family:inherit;cursor:pointer;}
 a{color:inherit;text-decoration:none;}
@@ -2952,6 +2952,7 @@ function switchView(view){
   });
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('scrim').classList.remove('show');
+  document.body.classList.remove('no-scroll');
   if(view==='dashboard') renderCharts();
   if(view==='studies') renderStudies(state.studyFilter || 'Todos');
   if(previousView==='media' && view!=='media' && typeof closeMediaPlayer === 'function') closeMediaPlayer();
@@ -3088,10 +3089,12 @@ document.getElementById('exit-focus-btn').addEventListener('click', ()=>{
 document.getElementById('mobile-menu-btn').addEventListener('click', ()=>{
   document.getElementById('sidebar').classList.add('open');
   document.getElementById('scrim').classList.add('show');
+  document.body.classList.add('no-scroll');
 });
 document.getElementById('scrim').addEventListener('click', ()=>{
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('scrim').classList.remove('show');
+  document.body.classList.remove('no-scroll');
 });
 
 /* =========================================================
