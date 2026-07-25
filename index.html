@@ -1251,34 +1251,29 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
         <p class="page-sub">Acompanhe seu ritmo devocional e veja como sua constância tem crescido.</p>
 
         <div class="grid grid-4" style="margin-top:26px;">
-          <div class="card stat-card"><div class="stat-ic" style="background:var(--gold-soft)">🔥</div><div class="stat-num">12</div><div class="stat-label">dias consecutivos</div></div>
-          <div class="card stat-card"><div class="stat-ic" style="background:var(--sage-soft)">⏱️</div><div class="stat-num">18 min</div><div class="stat-label">tempo de leitura hoje</div></div>
-          <div class="card stat-card"><div class="stat-ic" style="background:var(--gold-soft)">📚</div><div class="stat-num">3</div><div class="stat-label">livros concluídos</div></div>
-          <div class="card stat-card"><div class="stat-ic" style="background:var(--sage-soft)">📖</div><div class="stat-num">147</div><div class="stat-label">capítulos lidos</div></div>
+          <div class="card stat-card"><div class="stat-ic" style="background:var(--sage-soft)">🕊️</div><div class="stat-num" id="dash-stat-studies">0 de 0</div><div class="stat-label">estudos concluídos</div></div>
+          <div class="card stat-card"><div class="stat-ic" style="background:var(--gold-soft)">🙌</div><div class="stat-num" id="dash-stat-prayers">0</div><div class="stat-label">orações registradas</div></div>
+          <div class="card stat-card"><div class="stat-ic" style="background:var(--sage-soft)">📔</div><div class="stat-num" id="dash-stat-noteblocks">0</div><div class="stat-label">blocos de anotações</div></div>
+          <div class="card stat-card"><div class="stat-ic" style="background:var(--gold-soft)">🌅</div><div class="stat-num" id="dash-stat-devo">0</div><div class="stat-label">devocionais registrados</div></div>
         </div>
 
-        <div class="grid grid-2" style="margin-top:22px;">
+        <div class="grid" style="margin-top:22px;align-items:start;">
           <div class="card">
-            <h3 style="font-size:1.05rem;margin-bottom:14px;">Evolução da leitura (últimas 8 semanas)</h3>
-            <canvas id="chart-progress" height="140"></canvas>
-          </div>
-          <div class="card">
-            <h3 style="font-size:1.05rem;margin-bottom:14px;">Distribuição por categoria</h3>
-            <canvas id="chart-distribution" height="140"></canvas>
-          </div>
-        </div>
-
-        <div class="sec-row"><h2>Plano atual</h2></div>
-        <div class="card plan-card">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div>
-              <div style="font-weight:600;color:var(--ink);">Novo Testamento em 90 dias</div>
-              <div class="muted">Próximo capítulo: João 3</div>
+            <h3 style="font-size:1.05rem;margin-bottom:6px;">Versículo surpresa</h3>
+            <p class="muted" style="font-size:.82rem;margin-bottom:14px;">Só um toque para receber uma palavra agora.</p>
+            <div id="dash-surprise-verse" class="devo-block" style="min-height:96px;display:flex;flex-direction:column;justify-content:center;">
+              <div class="muted" style="font-size:.85rem;">Toque no botão abaixo para sortear um versículo da Bíblia.</div>
             </div>
-            <span class="pill pill-gold">34% concluído</span>
+            <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+              <button class="btn btn-primary btn-sm" id="dash-surprise-btn">🎲 Sortear versículo</button>
+              <button class="btn btn-ghost btn-sm" id="dash-surprise-fav-btn" style="display:none;">❤️ Favoritar</button>
+              <button class="btn btn-ghost btn-sm" id="dash-surprise-goto-btn" style="display:none;">📖 Ler no contexto</button>
+            </div>
           </div>
-          <div class="plan-progress-track"><div class="plan-progress-fill" style="width:34%"></div></div>
         </div>
+
+        <div class="sec-row"><h2>Continue o estudo</h2></div>
+        <div class="card plan-card" id="dash-continue-study-card"></div>
 
         <div class="sec-row"><h2>Versículos favoritos recentes</h2></div>
         <div class="grid grid-3" id="dash-favorites"></div>
@@ -4815,35 +4810,130 @@ document.getElementById('media-player-overlay').addEventListener('click', e=>{
 /* =========================================================
    CHARTS
    ========================================================= */
-let chartsInit = false;
-function renderCharts(){
-  if(chartsInit) return;
-  chartsInit = true;
-  const ctx1 = document.getElementById('chart-progress');
-  new Chart(ctx1, {
-    type:'line',
-    data:{
-      labels:['Sem 1','Sem 2','Sem 3','Sem 4','Sem 5','Sem 6','Sem 7','Sem 8'],
-      datasets:[{
-        label:'Capítulos lidos',
-        data:[6,9,7,12,15,11,18,21],
-        borderColor:'#C99A4A',
-        backgroundColor:'rgba(201,154,74,0.15)',
-        fill:true, tension:.4, pointRadius:3
-      }]
-    },
-    options:{plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, grid:{color:'rgba(0,0,0,.06)'}}, x:{grid:{display:false}}}}
-  });
-  const ctx2 = document.getElementById('chart-distribution');
-  new Chart(ctx2, {
-    type:'doughnut',
-    data:{
-      labels:['Evangelhos','Cartas','Salmos','Profetas','Lei'],
-      datasets:[{data:[32,24,20,14,10], backgroundColor:['#C99A4A','#6E8F72','#B8695A','#8FA6C9','#D9C48A']}]
-    },
-    options:{plugins:{legend:{position:'bottom', labels:{boxWidth:10, font:{size:11}}}}}
-  });
+// Monta a distribuição de atividade a partir do estado real do app (sem banco de dados)
+function getActivityDistribution(){
+  const notesCount = state.noteBlocks.reduce((sum,b)=> sum + b.notes.length, 0);
+  return {
+    labels:['Estudos concluídos','Plano de leitura','Anotações','Orações','Favoritos'],
+    data:[
+      state.completedStudies.size,
+      state.currentPlanKey ? (state.planProgress[state.currentPlanKey] ? state.planProgress[state.currentPlanKey].size : 1) : 0,
+      notesCount,
+      state.prayers.length,
+      state.favorites.length
+    ]
+  };
 }
+
+let distributionChart = null;
+function renderCharts(){
+  const ctx2 = document.getElementById('chart-distribution');
+  if(ctx2){
+    const dist = getActivityDistribution();
+    const allZero = dist.data.every(n=>n===0);
+    const chartData = allZero ? [1,1,1,1,1] : dist.data;
+    if(distributionChart){
+      distributionChart.data.datasets[0].data = chartData;
+      distributionChart.update();
+    } else {
+      distributionChart = new Chart(ctx2, {
+        type:'doughnut',
+        data:{
+          labels:dist.labels,
+          datasets:[{data:chartData, backgroundColor:['#C99A4A','#6E8F72','#B8695A','#8FA6C9','#D9C48A']}]
+        },
+        options:{plugins:{legend:{position:'bottom', labels:{boxWidth:10, font:{size:11}}}}}
+      });
+    }
+  }
+  renderDashboardStats();
+  renderDashContinueStudy();
+}
+
+/* Atualiza os 4 cartões de estatísticas do painel espiritual */
+function renderDashboardStats(){
+  const studiesEl = document.getElementById('dash-stat-studies');
+  if(studiesEl) studiesEl.textContent = `${state.completedStudies.size} de ${STUDIES.length}`;
+  const prayersEl = document.getElementById('dash-stat-prayers');
+  if(prayersEl) prayersEl.textContent = state.prayers.length;
+  const noteBlocksEl = document.getElementById('dash-stat-noteblocks');
+  if(noteBlocksEl) noteBlocksEl.textContent = state.noteBlocks.length;
+  const devoEl = document.getElementById('dash-stat-devo');
+  if(devoEl) devoEl.textContent = state.devoNoteBlocks.length;
+}
+
+/* "Continue o estudo" — busca o último estudo bíblico acessado (state.currentStudyIdx) */
+function renderDashContinueStudy(){
+  const card = document.getElementById('dash-continue-study-card');
+  if(!card) return;
+  const idx = state.currentStudyIdx;
+  const s = (idx !== null && idx !== undefined) ? STUDIES[idx] : null;
+
+  if(!s){
+    card.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;">
+        <div>
+          <div style="font-weight:600;color:var(--ink);">Você ainda não começou nenhum estudo</div>
+          <div class="muted">Escolha um estudo bíblico e comece sua jornada agora.</div>
+        </div>
+        <button class="btn btn-primary" id="dash-continue-study-btn">Ver estudos bíblicos →</button>
+      </div>`;
+    document.getElementById('dash-continue-study-btn').addEventListener('click', ()=> switchView('studies'));
+    return;
+  }
+
+  const done = state.completedStudies.has(s.title);
+  card.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;">
+      <div>
+        <span class="study-tag">${s.tag}</span>
+        <div style="font-weight:600;color:var(--ink);margin-top:6px;">${s.title}</div>
+        <div class="muted">📖 ${s.ref}</div>
+      </div>
+      <span class="pill ${done ? 'pill-sage' : 'pill-gold'}">${done ? '✓ concluído' : 'em andamento'}</span>
+    </div>
+    <button class="btn btn-primary" id="dash-continue-study-btn">↩ Continuar de onde parou</button>`;
+  document.getElementById('dash-continue-study-btn').addEventListener('click', ()=> openStudyDetail(idx));
+}
+
+/* "Versículo surpresa" — sorteia um versículo real da Bíblia carregada, sem depender de banco de dados */
+(function initDashSurpriseVerse(){
+  const btn = document.getElementById('dash-surprise-btn');
+  if(!btn) return;
+  const resultBox = document.getElementById('dash-surprise-verse');
+  const favBtn = document.getElementById('dash-surprise-fav-btn');
+  const gotoBtn = document.getElementById('dash-surprise-goto-btn');
+  let current = null; // {ref, text}
+
+  btn.addEventListener('click', ()=>{
+    const bible = getBible();
+    const book = bible[Math.floor(Math.random()*bible.length)];
+    const chapterKeys = Object.keys(book.chapters);
+    const chapterKey = chapterKeys[Math.floor(Math.random()*chapterKeys.length)];
+    const verses = book.chapters[chapterKey];
+    const verseIdx = Math.floor(Math.random()*verses.length);
+    current = { ref: `${book.book} ${chapterKey}:${verseIdx+1}`, text: verses[verseIdx] };
+
+    resultBox.innerHTML = `
+      <div class="devo-text" style="font-family:var(--font-display);font-style:italic;font-size:1.05rem;">"${current.text}"</div>
+      <div class="muted" style="margin-top:8px;font-size:.82rem;">${current.ref}</div>`;
+    favBtn.style.display = 'inline-flex';
+    gotoBtn.style.display = 'inline-flex';
+    favBtn.textContent = state.favorites.some(f=>f.ref===current.ref) ? '💔 Remover dos favoritos' : '❤️ Favoritar';
+  });
+
+  favBtn.addEventListener('click', ()=>{
+    if(!current) return;
+    toggleFavorite(current.ref, current.text);
+    favBtn.textContent = state.favorites.some(f=>f.ref===current.ref) ? '💔 Remover dos favoritos' : '❤️ Favoritar';
+    renderDashboardStats();
+  });
+
+  gotoBtn.addEventListener('click', ()=>{
+    if(!current) return;
+    goToFavoriteRef(current.ref);
+  });
+})();
 
 /* =========================================================
    SETTINGS (Configurações da conta) — somente estético por
