@@ -536,6 +536,82 @@ textarea.notes-area:focus{border-color:var(--gold);}
 }
 #toast.show{transform:translateX(-50%) translateY(0);opacity:1;visibility:visible;pointer-events:auto;}
 
+/* Confirm modal */
+.confirm-overlay{
+  position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;
+  background:rgba(20,16,10,.45);backdrop-filter:blur(2px);
+  opacity:0;visibility:hidden;pointer-events:none;transition:opacity .22s ease;
+  padding:20px;
+}
+.confirm-overlay.show{opacity:1;visibility:visible;pointer-events:auto;}
+.confirm-box{
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);
+  box-shadow:var(--shadow);max-width:380px;width:100%;padding:26px 26px 22px;
+  transform:translateY(14px) scale(.97);transition:transform .25s cubic-bezier(.2,.9,.3,1.3);
+  text-align:center;
+}
+.confirm-overlay.show .confirm-box{transform:translateY(0) scale(1);}
+.confirm-icon{
+  width:52px;height:52px;border-radius:50%;background:var(--rose);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin:0 auto 14px;
+}
+.confirm-title{font-family:var(--font-display);font-size:1.15rem;font-weight:600;color:var(--ink);}
+.confirm-text{color:var(--text-dim);font-size:.9rem;margin-top:8px;line-height:1.55;}
+.confirm-actions{display:flex;gap:10px;margin-top:22px;}
+.confirm-actions .btn{flex:1;justify-content:center;}
+.btn-danger{background:var(--rose);color:#fff;}
+.btn-danger:hover{transform:translateY(-1px);box-shadow:var(--shadow-sm);}
+
+/* Note blocks */
+.note-block{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden;}
+.note-block-head{display:flex;align-items:center;gap:10px;padding:18px 20px;cursor:pointer;flex-wrap:wrap;}
+.note-block-title{
+  font-family:var(--font-display);font-size:1.05rem;font-weight:600;color:var(--ink);
+  flex:1 1 140px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.note-block-count{font-size:.72rem;color:var(--text-faint);font-family:var(--font-mono);white-space:nowrap;flex-shrink:0;}
+.note-block-chevron{transition:transform .2s ease;color:var(--text-faint);flex-shrink:0;}
+.note-block.open .note-block-chevron{transform:rotate(180deg);}
+.note-block-del{
+  width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);background:transparent;color:var(--text-dim);flex-shrink:0;transition:all .18s ease;
+}
+.note-block-del:hover{border-color:var(--rose);color:var(--rose);background:var(--sage-soft);}
+.note-block-body{display:none;padding:0 20px 20px;border-top:1px solid var(--line);}
+.note-block.open .note-block-body{display:block;padding-top:18px;}
+.note-block-empty{color:var(--text-dim);font-size:.85rem;padding:6px 2px 4px;}
+.note-item{padding:14px 16px;border-radius:12px;background:var(--parchment-dim);margin-top:10px;min-width:0;}
+.note-item-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+.note-item-meta{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.note-toolbar-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
+.note-toolbar-row:first-child{margin-top:0;}
+.note-input{
+  flex:1;min-width:200px;border:1px solid var(--line);border-radius:9px;
+  padding:9px 12px;background:var(--parchment);color:var(--text);outline:none;
+  font-family:inherit;font-size:.9rem;
+}
+
+@media(max-width:880px){
+  .note-block-del{width:38px;height:38px;}
+}
+@media(max-width:520px){
+  .note-block-head{padding:15px 16px;gap:8px;}
+  .note-block-title{font-size:.98rem;flex-basis:100%;}
+  .note-block-body{padding:0 16px 16px;}
+  .note-block.open .note-block-body{padding-top:15px;}
+  .note-item{padding:12px 14px;}
+  .note-input{min-width:0;flex-basis:100%;}
+  .note-toolbar-row .btn{flex:1;justify-content:center;}
+  #new-block-name{min-width:0;}
+}
+@media(max-width:400px){
+  .confirm-actions{flex-direction:column;}
+  .confirm-box{padding:22px 20px 18px;}
+}
+.note-item:first-child{margin-top:0;}
+.note-item-del{background:transparent;border:none;color:var(--text-faint);font-size:.8rem;padding:2px 4px;}
+.note-item-del:hover{color:var(--rose);}
+
 /* Mobile nav */
 .mobile-topbar{display:none;}
 #mobile-menu-btn{display:none;}
@@ -986,14 +1062,16 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
         <div class="eyebrow">Minha jornada</div>
         <h1 class="page-title">Minhas anotações</h1>
         <p class="page-sub">Reflexões organizadas por livro, capítulo ou tema.</p>
+
         <div class="card" style="margin-top:22px;">
-          <textarea class="notes-area" id="new-note-text" placeholder="Escreva uma nova reflexão…"></textarea>
-          <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
-            <input id="new-note-tag" placeholder="Referência ou tema (ex: Salmos 23, Fé)" style="flex:1;min-width:200px;border:1px solid var(--line);border-radius:9px;padding:9px 12px;background:var(--parchment);color:var(--text);outline:none;">
-            <button class="btn btn-primary" id="add-note-btn">Salvar anotação</button>
+          <h3 style="font-size:1rem;margin-bottom:10px;">Criar novo bloco de notas</h3>
+          <div class="note-toolbar-row">
+            <input id="new-block-name" class="note-input" placeholder="Nome do bloco (ex: Salmos, Estudo de quarta, Orações 2026)">
+            <button class="btn btn-primary" id="add-block-btn"><span class="em">📓</span>Criar bloco</button>
           </div>
         </div>
-        <div id="notes-list" style="margin-top:20px;display:flex;flex-direction:column;gap:12px;"></div>
+
+        <div id="note-blocks-list" style="margin-top:20px;display:flex;flex-direction:column;gap:16px;"></div>
       </section>
 
       <!-- ============ FAVORITES ============ -->
@@ -1096,6 +1174,18 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
 
 <div id="toast"></div>
 
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-icon">🗑️</div>
+    <div class="confirm-title" id="confirm-title">Excluir bloco de notas?</div>
+    <div class="confirm-text" id="confirm-text">Essa ação não pode ser desfeita.</div>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" id="confirm-cancel-btn">Continuar com o bloco</button>
+      <button class="btn btn-danger" id="confirm-ok-btn">Excluir</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
 "use strict";
@@ -1112,7 +1202,8 @@ const state = {
   xp: 240,
   quizScore: 0,
   favorites: [], // {ref, text}
-  notes: [],     // {tag, text, date}
+  noteBlocks: [], // {id, name, createdDate, notes:[{tag, text, date}]}
+  openBlockId: null,
   prayers: [],   // {text, date, answered}
   currentBookIdx: 0,
   currentChapter: 1,
@@ -2716,41 +2807,191 @@ document.getElementById('study-detail-back').addEventListener('click', ()=>{
 });
 
 /* =========================================================
-   NOTES
+   NOTES (organizadas em blocos)
    ========================================================= */
-function addNote(tag, text){
-  state.notes.unshift({tag: tag || 'Geral', text: text || '', date: new Date().toLocaleDateString('pt-BR')});
-  renderNotes();
+function findOrCreateDefaultBlock(){
+  let block = state.noteBlocks.find(b=>b.name==='Geral');
+  if(!block){
+    block = {id:'blk-'+Date.now()+'-'+Math.random().toString(36).slice(2,7), name:'Geral', createdDate:new Date().toLocaleDateString('pt-BR'), notes:[]};
+    state.noteBlocks.push(block);
+  }
+  return block;
 }
-function renderNotes(){
-  const list = document.getElementById('notes-list');
+// Compatível com chamadas existentes addNote(tag, text) vindas do leitor bíblico e do devocional —
+// elas caem no bloco "Geral", que é criado automaticamente se ainda não existir.
+function addNote(tag, text){
+  const block = findOrCreateDefaultBlock();
+  block.notes.unshift({tag: tag || 'Geral', text: text || '', date: new Date().toLocaleDateString('pt-BR')});
+  state.openBlockId = block.id;
+  renderNoteBlocks();
+}
+function addNoteBlock(name){
+  const block = {id:'blk-'+Date.now()+'-'+Math.random().toString(36).slice(2,7), name: name, createdDate:new Date().toLocaleDateString('pt-BR'), notes:[]};
+  state.noteBlocks.unshift(block);
+  state.openBlockId = block.id;
+  renderNoteBlocks();
+}
+function addNoteToBlock(blockId, tag, text){
+  const block = state.noteBlocks.find(b=>b.id===blockId);
+  if(!block) return;
+  block.notes.unshift({tag: tag || 'Geral', text: text || '', date: new Date().toLocaleDateString('pt-BR')});
+  renderNoteBlocks();
+}
+function deleteNoteFromBlock(blockId, idx){
+  const block = state.noteBlocks.find(b=>b.id===blockId);
+  if(!block) return;
+  block.notes.splice(idx, 1);
+  renderNoteBlocks();
+}
+function deleteNoteBlock(blockId){
+  state.noteBlocks = state.noteBlocks.filter(b=>b.id!==blockId);
+  renderNoteBlocks();
+}
+
+function renderNoteBlocks(){
+  const list = document.getElementById('note-blocks-list');
   list.innerHTML = '';
-  if(state.notes.length===0){
-    list.innerHTML = '<div class="muted">Você ainda não escreveu nenhuma anotação. Comece registrando o que Deus tem falado ao seu coração.</div>';
+  if(state.noteBlocks.length===0){
+    list.innerHTML = '<div class="card"><div class="muted">Você ainda não criou nenhum bloco de notas. Crie um acima para começar a registrar suas reflexões.</div></div>';
     return;
   }
-  state.notes.forEach((n, idx)=>{
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <span class="pill pill-sage">${n.tag}</span>
-        <span class="muted" style="font-size:.75rem;">${n.date}</span>
+  state.noteBlocks.forEach(block=>{
+    const isOpen = state.openBlockId === block.id;
+    const wrap = document.createElement('div');
+    wrap.className = 'note-block' + (isOpen ? ' open' : '');
+
+    const notesHtml = block.notes.length
+      ? block.notes.map((n, idx)=>`
+        <div class="note-item">
+          <div class="note-item-head">
+            <span class="pill pill-sage">${escapeHtml(n.tag)}</span>
+            <span class="note-item-meta">
+              <span class="muted" style="font-size:.75rem;">${n.date}</span>
+              <button class="note-item-del" data-block="${block.id}" data-idx="${idx}" title="Excluir anotação">✕</button>
+            </span>
+          </div>
+          <p style="margin-top:10px;line-height:1.7;">${n.text ? escapeHtml(n.text).replace(/\n/g,'<br>') : '<i class="muted">(sem texto ainda)</i>'}</p>
+        </div>`).join('')
+      : '<div class="note-block-empty">Nenhuma anotação neste bloco ainda.</div>';
+
+    wrap.innerHTML = `
+      <div class="note-block-head" data-toggle="${block.id}">
+        <span class="note-block-title">📓 ${escapeHtml(block.name)}</span>
+        <span class="note-block-count">${block.notes.length} anotaç${block.notes.length===1?'ão':'ões'}</span>
+        <span class="note-block-chevron">▾</span>
+        <button class="note-block-del" data-delblock="${block.id}" title="Excluir bloco de notas">🗑️</button>
       </div>
-      <p style="margin-top:10px;line-height:1.7;">${n.text || '<i class=\"muted\">(sem texto ainda)</i>'}</p>`;
-    list.appendChild(card);
+      <div class="note-block-body">
+        <textarea class="notes-area" data-textarea="${block.id}" placeholder="Escreva uma nova reflexão neste bloco…"></textarea>
+        <div class="note-toolbar-row">
+          <input data-tag="${block.id}" class="note-input" placeholder="Referência ou tema (ex: Salmos 23, Fé)">
+          <button class="btn btn-primary" data-save="${block.id}">Salvar anotação</button>
+        </div>
+        <div style="margin-top:16px;display:flex;flex-direction:column;">${notesHtml}</div>
+      </div>`;
+    list.appendChild(wrap);
+  });
+
+  // Toggle abrir/fechar bloco
+  list.querySelectorAll('[data-toggle]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      if(e.target.closest('[data-delblock]')) return;
+      const id = el.dataset.toggle;
+      state.openBlockId = (state.openBlockId === id) ? null : id;
+      renderNoteBlocks();
+    });
+  });
+  // Salvar anotação dentro de um bloco
+  list.querySelectorAll('[data-save]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const id = el.dataset.save;
+      const textarea = list.querySelector(`[data-textarea="${id}"]`);
+      const tagInput = list.querySelector(`[data-tag="${id}"]`);
+      const text = textarea.value;
+      const tag = tagInput.value || 'Geral';
+      if(!text.trim()) return toast('Escreva uma reflexão antes de salvar', '⚠️');
+      addNoteToBlock(id, tag, text);
+      toast('Anotação salva', '📝');
+    });
+  });
+  // Excluir anotação individual
+  list.querySelectorAll('.note-item-del').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      deleteNoteFromBlock(el.dataset.block, parseInt(el.dataset.idx, 10));
+    });
+  });
+  // Excluir bloco inteiro (com confirmação)
+  list.querySelectorAll('[data-delblock]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const id = el.dataset.delblock;
+      const block = state.noteBlocks.find(b=>b.id===id);
+      if(!block) return;
+      openConfirm({
+        title: 'Excluir bloco de notas?',
+        text: `Tem certeza que deseja excluir o bloco "${block.name}"${block.notes.length ? ' e ' + block.notes.length + ' anotaç' + (block.notes.length===1?'ão':'ões') + ' dentro dele' : ''}? Essa ação não pode ser desfeita.`,
+        confirmLabel: 'Excluir bloco',
+        cancelLabel: 'Continuar com o bloco',
+        onConfirm: ()=>{
+          deleteNoteBlock(id);
+          toast('Bloco de notas excluído', '🗑️');
+        }
+      });
+    });
   });
 }
-document.getElementById('add-note-btn').addEventListener('click', ()=>{
-  const text = document.getElementById('new-note-text').value;
-  const tag = document.getElementById('new-note-tag').value || 'Geral';
-  if(!text.trim()) return toast('Escreva uma reflexão antes de salvar', '⚠️');
-  addNote(tag, text);
-  document.getElementById('new-note-text').value = '';
-  document.getElementById('new-note-tag').value = '';
-  toast('Anotação salva', '📝');
+
+document.getElementById('add-block-btn').addEventListener('click', ()=>{
+  const input = document.getElementById('new-block-name');
+  const name = input.value.trim();
+  if(!name) return toast('Dê um nome ao bloco de notas', '⚠️');
+  addNoteBlock(name);
+  input.value = '';
+  toast('Bloco de notas criado', '📓');
 });
-renderNotes();
+document.getElementById('new-block-name').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') document.getElementById('add-block-btn').click();
+});
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+renderNoteBlocks();
+
+/* =========================================================
+   CONFIRM MODAL (genérico, usado para exclusões)
+   ========================================================= */
+function openConfirm({title, text, confirmLabel, cancelLabel, onConfirm}){
+  const overlay = document.getElementById('confirm-overlay');
+  document.getElementById('confirm-title').textContent = title || 'Tem certeza?';
+  document.getElementById('confirm-text').textContent = text || 'Essa ação não pode ser desfeita.';
+  const okBtn = document.getElementById('confirm-ok-btn');
+  const cancelBtn = document.getElementById('confirm-cancel-btn');
+  okBtn.textContent = confirmLabel || 'Excluir';
+  cancelBtn.textContent = cancelLabel || 'Cancelar';
+
+  const close = ()=> overlay.classList.remove('show');
+  const onOk = ()=>{ close(); if(onConfirm) onConfirm(); cleanup(); };
+  const onCancel = ()=>{ close(); cleanup(); };
+  const onOverlayClick = (e)=>{ if(e.target === overlay) onCancel(); };
+  const onKeydown = (e)=>{ if(e.key === 'Escape') onCancel(); };
+  function cleanup(){
+    okBtn.removeEventListener('click', onOk);
+    cancelBtn.removeEventListener('click', onCancel);
+    overlay.removeEventListener('click', onOverlayClick);
+    document.removeEventListener('keydown', onKeydown);
+  }
+  okBtn.addEventListener('click', onOk);
+  cancelBtn.addEventListener('click', onCancel);
+  overlay.addEventListener('click', onOverlayClick);
+  document.addEventListener('keydown', onKeydown);
+  overlay.classList.add('show');
+}
 
 /* =========================================================
    FAVORITES
