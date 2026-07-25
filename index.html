@@ -1260,7 +1260,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
         <div class="grid" style="margin-top:22px;align-items:start;">
           <div class="card">
             <h3 style="font-size:1.05rem;margin-bottom:6px;">Versículo surpresa</h3>
-            <p class="muted" style="font-size:.82rem;margin-bottom:14px;">Só um toque para receber uma palavra agora.</p>
+            <p class="muted" style="font-size:.82rem;margin-bottom:14px;">Sem gráfico, sem planilha — só um toque para receber uma palavra agora.</p>
             <div id="dash-surprise-verse" class="devo-block" style="min-height:96px;display:flex;flex-direction:column;justify-content:center;">
               <div class="muted" style="font-size:.85rem;">Toque no botão abaixo para sortear um versículo da Bíblia.</div>
             </div>
@@ -1276,7 +1276,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
         <div class="card plan-card" id="dash-continue-study-card"></div>
 
         <div class="sec-row"><h2>Versículos favoritos recentes</h2></div>
-        <div class="grid grid-3" id="dash-favorites"></div>
+        <div class="grid grid-2" id="dash-favorites"></div>
       </section>
 
       <!-- ============ BIBLE ============ -->
@@ -4372,7 +4372,7 @@ function renderFavorites(){
 function renderDashFavorites(){
   const dash = document.getElementById('dash-favorites');
   dash.innerHTML = '';
-  const recent = state.favorites.slice(-3).reverse();
+  const recent = state.favorites.slice(-2).reverse();
   if(recent.length===0){ dash.innerHTML = '<div class="muted">Seus versículos favoritos aparecerão aqui.</div>'; return; }
   recent.forEach(f=>{
     const card = document.createElement('div');
@@ -4380,6 +4380,7 @@ function renderDashFavorites(){
     card.innerHTML = `<div style="font-family:var(--font-display);font-style:italic;">"${f.text}"</div><div class="muted" style="margin-top:8px;font-size:.78rem;">${f.ref}</div>`;
     dash.appendChild(card);
   });
+  syncDashSurpriseFavBtn();
 }
 renderFavorites();
 renderDashFavorites();
@@ -4897,13 +4898,21 @@ function renderDashContinueStudy(){
 }
 
 /* "Versículo surpresa" — sorteia um versículo real da Bíblia carregada, sem depender de banco de dados */
+/* Versículo sorteado atualmente exibido no painel + sincronização do botão de favoritar,
+   chamada sempre que a lista de favoritos muda em QUALQUER tela do app (Bíblia, aba de
+   Favoritos, etc.), para o botão nunca "travar" em "Remover dos favoritos". */
+let dashSurpriseCurrent = null; // {ref, text}
+function syncDashSurpriseFavBtn(){
+  const favBtn = document.getElementById('dash-surprise-fav-btn');
+  if(!favBtn || !dashSurpriseCurrent) return;
+  favBtn.textContent = state.favorites.some(f=>f.ref===dashSurpriseCurrent.ref) ? '💔 Remover dos favoritos' : '❤️ Favoritar';
+}
 (function initDashSurpriseVerse(){
   const btn = document.getElementById('dash-surprise-btn');
   if(!btn) return;
   const resultBox = document.getElementById('dash-surprise-verse');
   const favBtn = document.getElementById('dash-surprise-fav-btn');
   const gotoBtn = document.getElementById('dash-surprise-goto-btn');
-  let current = null; // {ref, text}
 
   btn.addEventListener('click', ()=>{
     const bible = getBible();
@@ -4912,26 +4921,26 @@ function renderDashContinueStudy(){
     const chapterKey = chapterKeys[Math.floor(Math.random()*chapterKeys.length)];
     const verses = book.chapters[chapterKey];
     const verseIdx = Math.floor(Math.random()*verses.length);
-    current = { ref: `${book.book} ${chapterKey}:${verseIdx+1}`, text: verses[verseIdx] };
+    dashSurpriseCurrent = { ref: `${book.book} ${chapterKey}:${verseIdx+1}`, text: verses[verseIdx] };
 
     resultBox.innerHTML = `
-      <div class="devo-text" style="font-family:var(--font-display);font-style:italic;font-size:1.05rem;">"${current.text}"</div>
-      <div class="muted" style="margin-top:8px;font-size:.82rem;">${current.ref}</div>`;
+      <div class="devo-text" style="font-family:var(--font-display);font-style:italic;font-size:1.05rem;">"${dashSurpriseCurrent.text}"</div>
+      <div class="muted" style="margin-top:8px;font-size:.82rem;">${dashSurpriseCurrent.ref}</div>`;
     favBtn.style.display = 'inline-flex';
     gotoBtn.style.display = 'inline-flex';
-    favBtn.textContent = state.favorites.some(f=>f.ref===current.ref) ? '💔 Remover dos favoritos' : '❤️ Favoritar';
+    syncDashSurpriseFavBtn();
   });
 
   favBtn.addEventListener('click', ()=>{
-    if(!current) return;
-    toggleFavorite(current.ref, current.text);
-    favBtn.textContent = state.favorites.some(f=>f.ref===current.ref) ? '💔 Remover dos favoritos' : '❤️ Favoritar';
+    if(!dashSurpriseCurrent) return;
+    toggleFavorite(dashSurpriseCurrent.ref, dashSurpriseCurrent.text);
+    syncDashSurpriseFavBtn();
     renderDashboardStats();
   });
 
   gotoBtn.addEventListener('click', ()=>{
-    if(!current) return;
-    goToFavoriteRef(current.ref);
+    if(!dashSurpriseCurrent) return;
+    goToFavoriteRef(dashSurpriseCurrent.ref);
   });
 })();
 
