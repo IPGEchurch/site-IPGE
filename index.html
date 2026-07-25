@@ -1119,7 +1119,6 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
               <div class="devo-label">Oração sugerida</div>
               <div class="devo-text" id="devo-prayer" style="font-style:italic;"></div>
             </div>
-            <button class="btn btn-primary" id="devo-complete">Marcar devocional como concluído</button>
           </div>
           <div class="card">
             <h3 style="font-size:1rem;margin-bottom:10px;">Minhas anotações de hoje</h3>
@@ -2647,12 +2646,6 @@ document.getElementById('devo-reflection').textContent = todayDevo.reflection;
 document.getElementById('devo-application').textContent = todayDevo.application;
 document.getElementById('devo-question').textContent = todayDevo.question;
 document.getElementById('devo-prayer').textContent = todayDevo.prayer;
-document.getElementById('devo-complete').addEventListener('click', ()=>{
-  state.streak += 1;
-  document.getElementById('sidebar-streak').textContent = state.streak;
-  document.getElementById('home-streak').textContent = state.streak;
-  toast('Devocional concluído! Sequência: ' + state.streak + ' dias', '🔥');
-});
 document.getElementById('devo-save-note').addEventListener('click', ()=>{
   const val = document.getElementById('devo-notes').value;
   if(!val.trim()) return toast('Escreva algo antes de salvar', '⚠️');
@@ -3558,7 +3551,7 @@ function renderFavorites(){
         <button class="fav-del-btn" title="Remover dos favoritos" data-favdel="${escapeHtml(f.ref)}">🗑️</button>
       </div>
       <div class="fav-card-actions">
-        <button class="btn btn-ghost btn-sm" data-favgoto="${escapeHtml(f.ref)}"><span class="em">📖</span>Ir até o Capítulo/versículo</button>
+        <button class="btn btn-ghost btn-sm" data-favgoto="${escapeHtml(f.ref)}"><span class="em">📖</span>Ir até o versículo</button>
       </div>`;
     grid.appendChild(card);
   });
