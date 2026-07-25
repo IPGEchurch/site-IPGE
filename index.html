@@ -266,6 +266,18 @@ h1,h2,h3{font-family:var(--font-display);color:var(--ink);letter-spacing:-.01em;
 @media(max-width:1020px){.grid-4{grid-template-columns:repeat(2,1fr);}.grid-3{grid-template-columns:1fr 1fr;}.grid-2{grid-template-columns:1fr;}}
 @media(max-width:640px){.grid-4{grid-template-columns:1fr 1fr;}.grid-3{grid-template-columns:1fr;}}
 
+/* Favorite card */
+.fav-card{display:flex;flex-direction:column;height:100%;}
+.fav-card-text{font-family:var(--font-display);font-style:italic;line-height:1.6;flex:1;}
+.fav-card-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;}
+.fav-card-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+.fav-card-actions .btn{flex:1;justify-content:center;white-space:nowrap;}
+.fav-del-btn{
+  width:36px;height:36px;flex:0 0 auto;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);background:transparent;color:var(--text-dim);transition:all .18s ease;
+}
+.fav-del-btn:hover{border-color:var(--rose);color:var(--rose);background:var(--sage-soft);}
+
 /* ---- Hero (Home / "Lâmpada" signature) ---- */
 .hero{
   position:relative;overflow:hidden;
@@ -354,6 +366,18 @@ h1,h2,h3{font-family:var(--font-display);color:var(--ink);letter-spacing:-.01em;
 }
 .verse:hover{background:var(--parchment-dim);}
 .verse.favorited{background:var(--gold-soft);}
+.verse.verse-highlight{animation:verseFlash 2.1s ease;}
+@keyframes verseFlash{
+  0%{background:var(--sage-soft);box-shadow:0 0 0 2px var(--sage);}
+  70%{background:var(--sage-soft);box-shadow:0 0 0 2px var(--sage);}
+  100%{background:transparent;box-shadow:0 0 0 0 transparent;}
+}
+.verse.favorited.verse-highlight{animation-name:verseFlashFav;}
+@keyframes verseFlashFav{
+  0%{background:var(--sage-soft);box-shadow:0 0 0 2px var(--sage);}
+  70%{background:var(--sage-soft);box-shadow:0 0 0 2px var(--sage);}
+  100%{background:var(--gold-soft);box-shadow:0 0 0 0 transparent;}
+}
 .vnum{font-family:var(--font-mono);font-size:.76rem;color:var(--gold);flex-shrink:0;padding-top:5px;width:22px;text-align:right;}
 .verse-actions{display:none;gap:6px;margin-left:auto;flex-shrink:0;}
 .verse:hover .verse-actions{display:flex;}
@@ -1135,7 +1159,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
           <article class="campaign-card">
             <div class="campaign-image">
               <!-- Substitua campanha.jpg pela foto da nova campanha -->
-              <img src="foto03.jpeg" alt="Foto da campanha profética">
+              <img src="/foto03.jpeg" alt="Foto da campanha profética">
             </div>
             <h2>Campanha atual</h2>
             <p><strong>Base bíblica:</strong><br>"Então me disse: Profetiza sobre estes ossos, e dize-lhes: Ossos secos, ouvi a palavra do Senhor." - Ezequiel 37:4</p>
@@ -1147,7 +1171,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
           <article class="campaign-card">
             <div class="campaign-image">
               <!-- Substitua campanha.jpg pela foto da nova campanha -->
-              <img src="foto02.jpeg" alt="Foto da campanha profética">
+              <img src="/foto02.jpeg" alt="Foto da campanha profética">
             </div>
             <h2>Ultima Campanha</h2>
             <p><strong>Base bíblica:</strong><br>"Eis que faço uma coisa nova; agora sairá à luz; porventura não a percebeis? Eis que porei um caminho no deserto e rios no ermo." - Isaías 43:19</p>
@@ -2148,6 +2172,7 @@ function renderReader(){
     const isFav = state.favorites.some(f=>f.ref===ref);
     const row = document.createElement('div');
     row.className = 'verse' + (isFav ? ' favorited' : '');
+    row.dataset.verse = i+1;
     row.innerHTML = `
       <span class="vnum">${i+1}</span>
       <span>${text}</span>
@@ -2190,6 +2215,41 @@ function toggleFavorite(ref, text){
   else { state.favorites.push({ref, text}); toast('Adicionado aos favoritos', '❤️'); }
   renderFavorites();
   renderDashFavorites();
+}
+
+// Interpreta uma referência como "Salmos 23:1" (versículo) ou "Gênesis 1" (capítulo)
+function parseVerseRef(ref){
+  const m = String(ref).match(/^(.*)\s(\d+)(?::(\d+))?$/);
+  if(!m) return null;
+  return { book: m[1], chapter: parseInt(m[2], 10), verse: m[3] ? parseInt(m[3], 10) : null };
+}
+
+// Leva o usuário até o versículo/capítulo salvo diretamente na tela da Bíblia
+function goToFavoriteRef(ref){
+  const parsed = parseVerseRef(ref);
+  const bible = getBible();
+  const bookIdx = parsed ? bible.findIndex(b=>b.book===parsed.book) : -1;
+  if(!parsed || bookIdx<0 || !bible[bookIdx].chapters[parsed.chapter]){
+    toast('Não foi possível localizar esse texto na Bíblia agora', '⚠️');
+    return;
+  }
+  state.testamentFilter = bible[bookIdx].testament;
+  document.querySelectorAll('.tab-btn[data-testament]').forEach(b=>b.classList.toggle('active', b.dataset.testament===state.testamentFilter));
+  state.currentBookIdx = bookIdx;
+  state.currentChapter = parsed.chapter;
+  switchView('bible');
+  renderBookList();
+  renderReader();
+  if(parsed.verse){
+    setTimeout(()=>{
+      const row = document.querySelector(`#verse-list .verse[data-verse="${parsed.verse}"]`);
+      if(row){
+        row.scrollIntoView({behavior:'smooth', block:'center'});
+        row.classList.add('verse-highlight');
+        setTimeout(()=>row.classList.remove('verse-highlight'), 2100);
+      }
+    }, 220);
+  }
 }
 
 /* init bible: show the offline sample instantly, then fetch the full Bible in the background */
@@ -3005,9 +3065,39 @@ function renderFavorites(){
   }
   state.favorites.forEach(f=>{
     const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `<div style="font-family:var(--font-display);font-style:italic;line-height:1.6;">"${f.text}"</div><div class="muted" style="margin-top:10px;font-size:.8rem;">${f.ref}</div>`;
+    card.className = 'card fav-card';
+    card.innerHTML = `
+      <div class="fav-card-text">"${escapeHtml(f.text)}"</div>
+      <div class="fav-card-foot">
+        <span class="muted" style="font-size:.8rem;">${escapeHtml(f.ref)}</span>
+        <button class="fav-del-btn" title="Remover dos favoritos" data-favdel="${escapeHtml(f.ref)}">🗑️</button>
+      </div>
+      <div class="fav-card-actions">
+        <button class="btn btn-ghost btn-sm" data-favgoto="${escapeHtml(f.ref)}"><span class="em">📖</span>Ir até o versículo</button>
+      </div>`;
     grid.appendChild(card);
+  });
+  grid.querySelectorAll('[data-favgoto]').forEach(btn=>{
+    btn.addEventListener('click', ()=> goToFavoriteRef(btn.dataset.favgoto));
+  });
+  grid.querySelectorAll('[data-favdel]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const ref = btn.dataset.favdel;
+      openConfirm({
+        title: 'Remover dos favoritos?',
+        text: `Deseja remover "${ref}" dos seus favoritos? Essa ação não pode ser desfeita.`,
+        confirmLabel: 'Remover',
+        cancelLabel: 'Manter favorito',
+        onConfirm: ()=>{
+          const idx = state.favorites.findIndex(f=>f.ref===ref);
+          if(idx>=0) state.favorites.splice(idx,1);
+          toast('Removido dos favoritos', '💔');
+          renderFavorites();
+          renderDashFavorites();
+          if(state.view==='bible') renderReader();
+        }
+      });
+    });
   });
 }
 function renderDashFavorites(){
