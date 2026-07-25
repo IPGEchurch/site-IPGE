@@ -644,6 +644,11 @@ textarea.notes-area:focus{border-color:var(--gold);}
 .note-item:first-child{margin-top:0;}
 .note-item-del{background:transparent;border:none;color:var(--text-faint);font-size:.8rem;padding:2px 4px;}
 .note-item-del:hover{color:var(--rose);}
+.note-item-edit{background:transparent;border:none;color:var(--text-faint);font-size:.85rem;padding:2px 4px;}
+.note-item-edit:hover{color:var(--gold);}
+[data-theme="dark"] .note-item-edit:hover{color:var(--gold);}
+.note-item-editing{background:var(--parchment);border:1px solid var(--gold);}
+.note-item-editing .note-toolbar-row{margin-top:12px;}
 
 /* Mobile nav */
 .mobile-topbar{display:none;}
@@ -1237,6 +1242,7 @@ const state = {
   favorites: [], // {ref, text}
   noteBlocks: [], // {id, name, createdDate, notes:[{tag, text, date}]}
   openBlockId: null,
+  editingNote: null, // {blockId, idx} da anotação sendo editada agora
   prayers: [],   // {text, date, answered}
   currentBookIdx: 0,
   currentChapter: 1,
@@ -2910,10 +2916,21 @@ function deleteNoteFromBlock(blockId, idx){
   const block = state.noteBlocks.find(b=>b.id===blockId);
   if(!block) return;
   block.notes.splice(idx, 1);
+  if(state.editingNote && state.editingNote.blockId===blockId && state.editingNote.idx===idx) state.editingNote = null;
+  renderNoteBlocks();
+}
+function saveEditNote(blockId, idx, tag, text){
+  const block = state.noteBlocks.find(b=>b.id===blockId);
+  if(!block || !block.notes[idx]) return;
+  block.notes[idx].tag = tag || 'Geral';
+  block.notes[idx].text = text;
+  block.notes[idx].editedDate = new Date().toLocaleDateString('pt-BR');
+  state.editingNote = null;
   renderNoteBlocks();
 }
 function deleteNoteBlock(blockId){
   state.noteBlocks = state.noteBlocks.filter(b=>b.id!==blockId);
+  if(state.editingNote && state.editingNote.blockId===blockId) state.editingNote = null;
   renderNoteBlocks();
 }
 
@@ -2930,17 +2947,32 @@ function renderNoteBlocks(){
     wrap.className = 'note-block' + (isOpen ? ' open' : '');
 
     const notesHtml = block.notes.length
-      ? block.notes.map((n, idx)=>`
-        <div class="note-item">
-          <div class="note-item-head">
-            <span class="pill pill-sage">${escapeHtml(n.tag)}</span>
-            <span class="note-item-meta">
-              <span class="muted" style="font-size:.75rem;">${n.date}</span>
-              <button class="note-item-del" data-block="${block.id}" data-idx="${idx}" title="Excluir anotação">✕</button>
-            </span>
-          </div>
-          <p style="margin-top:10px;line-height:1.7;">${n.text ? escapeHtml(n.text).replace(/\n/g,'<br>') : '<i class="muted">(sem texto ainda)</i>'}</p>
-        </div>`).join('')
+      ? block.notes.map((n, idx)=>{
+          const isEditing = state.editingNote && state.editingNote.blockId===block.id && state.editingNote.idx===idx;
+          if(isEditing){
+            return `
+            <div class="note-item note-item-editing">
+              <input class="note-input" id="edit-tag-input" placeholder="Referência ou tema (ex: Salmos 23, Fé)">
+              <textarea class="notes-area" id="edit-text-textarea" style="margin-top:12px;" placeholder="Escreva sua reflexão…"></textarea>
+              <div class="note-toolbar-row">
+                <button class="btn btn-primary" data-save-edit="${block.id}::${idx}">Salvar alterações</button>
+                <button class="btn btn-ghost" data-cancel-edit="1">Cancelar</button>
+              </div>
+            </div>`;
+          }
+          return `
+          <div class="note-item">
+            <div class="note-item-head">
+              <span class="pill pill-sage">${escapeHtml(n.tag)}</span>
+              <span class="note-item-meta">
+                <span class="muted" style="font-size:.75rem;">${n.editedDate ? 'editado em ' + n.editedDate : n.date}</span>
+                <button class="note-item-edit" data-editblock="${block.id}" data-editidx="${idx}" title="Editar anotação">✏️</button>
+                <button class="note-item-del" data-block="${block.id}" data-idx="${idx}" title="Excluir anotação">✕</button>
+              </span>
+            </div>
+            <p style="margin-top:10px;line-height:1.7;">${n.text ? escapeHtml(n.text).replace(/\n/g,'<br>') : '<i class="muted">(sem texto ainda)</i>'}</p>
+          </div>`;
+        }).join('')
       : '<div class="note-block-empty">Nenhuma anotação neste bloco ainda.</div>';
 
     wrap.innerHTML = `
@@ -2960,6 +2992,22 @@ function renderNoteBlocks(){
       </div>`;
     list.appendChild(wrap);
   });
+
+  // Preenche o formulário de edição (via propriedades JS, evitando problemas de escaping em atributos)
+  if(state.editingNote){
+    const { blockId, idx } = state.editingNote;
+    const block = state.noteBlocks.find(b=>b.id===blockId);
+    const note = block && block.notes[idx];
+    const tagInput = document.getElementById('edit-tag-input');
+    const textArea = document.getElementById('edit-text-textarea');
+    if(note && tagInput && textArea){
+      tagInput.value = note.tag;
+      textArea.value = note.text;
+      textArea.focus();
+      const len = textArea.value.length;
+      textArea.setSelectionRange(len, len);
+    }
+  }
 
   // Toggle abrir/fechar bloco
   list.querySelectorAll('[data-toggle]').forEach(el=>{
@@ -2982,6 +3030,36 @@ function renderNoteBlocks(){
       if(!text.trim()) return toast('Escreva uma reflexão antes de salvar', '⚠️');
       addNoteToBlock(id, tag, text);
       toast('Anotação salva', '📝');
+    });
+  });
+  // Editar anotação individual
+  list.querySelectorAll('.note-item-edit').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      state.editingNote = { blockId: el.dataset.editblock, idx: parseInt(el.dataset.editidx, 10) };
+      renderNoteBlocks();
+    });
+  });
+  // Salvar alterações da anotação em edição
+  list.querySelectorAll('[data-save-edit]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const [blockId, idxStr] = el.dataset.saveEdit.split('::');
+      const idx = parseInt(idxStr, 10);
+      const tagInput = document.getElementById('edit-tag-input');
+      const textArea = document.getElementById('edit-text-textarea');
+      const text = textArea.value;
+      if(!text.trim()) return toast('A anotação não pode ficar vazia', '⚠️');
+      saveEditNote(blockId, idx, tagInput.value, text);
+      toast('Anotação atualizada', '✏️');
+    });
+  });
+  // Cancelar edição
+  list.querySelectorAll('[data-cancel-edit]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      state.editingNote = null;
+      renderNoteBlocks();
     });
   });
   // Excluir anotação individual
