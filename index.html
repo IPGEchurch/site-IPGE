@@ -3413,7 +3413,13 @@ function switchView(view){
   // Saiu da tela do Quiz bíblico: reinicia XP, acertos, erros e conquistas da sessão
   if(previousView==='quiz' && view!=='quiz') resetQuizSession();
   // Guarda a última seção visitada (fora da home) para o card "Continue de onde parou"
-  if(view!=='home') state.lastVisitedView = view;
+  if(view!=='home'){
+    state.lastVisitedView = view;
+    if(state.sessionToken && CONTINUE_MAP[view]){
+      db.rpc('atualizar_ultima_tela', { p_token: state.sessionToken, p_tela: view })
+        .then(({error})=>{ if(error) console.error('Erro ao salvar última tela:', error); });
+    }
+  }
   if(view==='home'){ renderHomeStats(); renderHomeContinue(); }
 }
 
@@ -3554,11 +3560,15 @@ document.getElementById('scrim').addEventListener('click', ()=>{
 /* =========================================================
    HOME — greeting by time of day
    ========================================================= */
-(function initHome(){
+function atualizarSaudacao(){
   const h = new Date().getHours();
   const greet = h<12 ? 'Bom dia' : h<18 ? 'Boa tarde' : 'Boa noite';
-  document.getElementById('hero-greeting').textContent = greet + '. Que a paz do Senhor esteja com você.';
-})();
+  const nomeCompleto = state.perfil && state.perfil.nome_exibicao ? state.perfil.nome_exibicao.trim() : '';
+  const primeiroNome = nomeCompleto ? nomeCompleto.split(' ')[0] : '';
+  const el = document.getElementById('hero-greeting');
+  if(el) el.textContent = greet + (primeiroNome ? ', ' + primeiroNome : '') + '. Que a paz do Senhor esteja com você.';
+}
+atualizarSaudacao();
 
 /* =========================================================
    BIBLE READER
@@ -3956,31 +3966,65 @@ function findOrCreateTodayDevoBlock(){
   }
   return block;
 }
-function addDevoNote(text){
+async function addDevoNote(text){
   const block = findOrCreateTodayDevoBlock();
-  block.notes.unshift({text: text || '', date: new Date().toLocaleDateString('pt-BR')});
+  const note = {text: text || '', date: new Date().toLocaleDateString('pt-BR'), id: null};
+  block.notes.unshift(note);
   state.openDevoBlockId = block.id;
   renderDevoNoteBlocks();
+
+  if(!state.sessionToken) return;
+  if(!block.dbId){
+    const { data, error } = await db.rpc('obter_ou_criar_bloco_devocional', {
+      p_token: state.sessionToken,
+      p_data_chave: block.dateKey,
+      p_data_label: block.dateLabel
+    });
+    if(error){ console.error('Erro ao criar bloco do devocional:', error); return; }
+    block.dbId = data;
+  }
+  const { data: anotacaoId, error: errNota } = await db.rpc('salvar_anotacao_devocional', {
+    p_token: state.sessionToken,
+    p_bloco_id: block.dbId,
+    p_texto: note.text
+  });
+  if(errNota){ console.error('Erro ao salvar anotação do devocional:', errNota); return; }
+  note.id = anotacaoId;
 }
-function deleteDevoNoteFromBlock(blockId, idx){
+async function deleteDevoNoteFromBlock(blockId, idx){
   const block = state.devoNoteBlocks.find(b=>b.id===blockId);
   if(!block) return;
+  const note = block.notes[idx];
   block.notes.splice(idx, 1);
   if(state.editingDevoNote && state.editingDevoNote.blockId===blockId && state.editingDevoNote.idx===idx) state.editingDevoNote = null;
   renderDevoNoteBlocks();
+  if(note && note.id && state.sessionToken){
+    const { error } = await db.rpc('excluir_anotacao_devocional', { p_token: state.sessionToken, p_anotacao_id: note.id });
+    if(error) console.error('Erro ao excluir anotação do devocional:', error);
+  }
 }
-function saveEditDevoNote(blockId, idx, text){
+async function saveEditDevoNote(blockId, idx, text){
   const block = state.devoNoteBlocks.find(b=>b.id===blockId);
   if(!block || !block.notes[idx]) return;
   block.notes[idx].text = text;
   block.notes[idx].editedDate = new Date().toLocaleDateString('pt-BR');
   state.editingDevoNote = null;
   renderDevoNoteBlocks();
+  const noteId = block.notes[idx].id;
+  if(noteId && state.sessionToken){
+    const { error } = await db.rpc('editar_anotacao_devocional', { p_token: state.sessionToken, p_anotacao_id: noteId, p_texto: text });
+    if(error) console.error('Erro ao editar anotação do devocional:', error);
+  }
 }
-function deleteDevoNoteBlock(blockId){
+async function deleteDevoNoteBlock(blockId){
+  const block = state.devoNoteBlocks.find(b=>b.id===blockId);
   state.devoNoteBlocks = state.devoNoteBlocks.filter(b=>b.id!==blockId);
   if(state.editingDevoNote && state.editingDevoNote.blockId===blockId) state.editingDevoNote = null;
   renderDevoNoteBlocks();
+  if(block && block.dbId && state.sessionToken){
+    const { error } = await db.rpc('excluir_bloco_devocional', { p_token: state.sessionToken, p_bloco_id: block.dbId });
+    if(error) console.error('Erro ao excluir bloco do devocional:', error);
+  }
 }
 
 function renderDevoNoteBlocks(){
@@ -4161,11 +4205,24 @@ renderPlans();
 /* =========================================================
    PLAN DETAIL PAGE
    ========================================================= */
-function openPlanDetail(key){
+async function openPlanDetail(key){
   state.currentPlanKey = key;
   if(!state.planProgress[key]) state.planProgress[key] = new Set();
   renderPlanDetail();
   switchView('plan-detail');
+
+  if(state.sessionToken){
+    const { data, error } = await db.rpc('listar_progresso_plano', { p_token: state.sessionToken, p_plano_chave: key });
+    if(error){
+      console.error('Erro ao carregar progresso do plano:', error);
+    } else {
+      state.planProgress[key] = new Set((data || []).map(r => r.dia_indice));
+      if(state.currentPlanKey === key){
+        renderPlanDetail();
+        renderPlans();
+      }
+    }
+  }
 }
 
 function renderPlanDetail(){
@@ -4265,6 +4322,11 @@ function renderPlanDetail(){
         if(e.target.checked) done.add(d); else done.delete(d);
         renderPlanDetail();
         renderPlans();
+        if(state.sessionToken){
+          const rpcName = e.target.checked ? 'marcar_dia_plano' : 'desmarcar_dia_plano';
+          db.rpc(rpcName, { p_token: state.sessionToken, p_plano_chave: key, p_dia_indice: d })
+            .then(({error})=>{ if(error) console.error('Erro ao salvar progresso do plano:', error); });
+        }
       });
       rowsWrap.appendChild(row);
     }
@@ -4277,6 +4339,10 @@ function renderPlanDetail(){
     toast('Progresso reiniciado', '🔄');
     renderPlanDetail();
     renderPlans();
+    if(state.sessionToken){
+      db.rpc('reiniciar_progresso_plano', { p_token: state.sessionToken, p_plano_chave: key })
+        .then(({error})=>{ if(error) console.error('Erro ao reiniciar progresso do plano:', error); });
+    }
   });
   const newCustomBtn = document.getElementById('plan-new-custom-btn');
   if(newCustomBtn){
@@ -4290,6 +4356,10 @@ function renderPlanDetail(){
     toast('Dia ' + (next+1) + ' marcado como lido', '✅');
     renderPlanDetail();
     renderPlans();
+    if(state.sessionToken){
+      db.rpc('marcar_dia_plano', { p_token: state.sessionToken, p_plano_chave: key, p_dia_indice: next })
+        .then(({error})=>{ if(error) console.error('Erro ao salvar progresso do plano:', error); });
+    }
   });
 }
 
@@ -4311,6 +4381,20 @@ const customState = { scope:'toda', mode:'days' };
 
 function scopeChapterCount(scopeKey){
   return expandCanon(CUSTOM_SCOPES.find(s=>s.key===scopeKey).filter).length;
+}
+
+function construirPlanoPersonalizado(chave, nome, escopoChave, dias){
+  const scope = CUSTOM_SCOPES.find(s=>s.key===escopoChave);
+  if(!scope) return;
+  const total = scopeChapterCount(escopoChave);
+  PLAN_LIBRARY[chave] = {
+    name: nome, icon:"🛠️", color:"var(--sage-soft)",
+    tagline:`Sua leitura sob medida: ${scope.label.toLowerCase()} em ${dias} dias, no seu próprio ritmo.`,
+    how:`Este plano foi montado especialmente para você: reunimos todos os capítulos de "${scope.label}" e dividimos igualmente entre os ${dias} dias escolhidos, para uma média de ${(total/dias).toFixed(1)} capítulos por dia.`,
+    tips:["Você pode voltar a esta tela e gerar quantos planos personalizados quiser.","Se o ritmo ficar pesado, gere de novo com mais dias — não tem problema recomeçar.","Marque cada dia lido para acompanhar seu progresso."],
+    days: dias,
+    build(){ return mergeTracksIntoDays([expandCanon(scope.filter)], dias); }
+  };
 }
 
 function renderCustomScopeGrid(){
@@ -4365,18 +4449,21 @@ document.getElementById('custom-generate-btn').addEventListener('click', ()=>{
   const name = customName || ('Plano personalizado — ' + scope.label);
   const key = 'personalizado-' + Date.now();
 
-  PLAN_LIBRARY[key] = {
-    name, icon:"🛠️", color:"var(--sage-soft)",
-    tagline:`Sua leitura sob medida: ${scope.label.toLowerCase()} em ${days} dias, no seu próprio ritmo.`,
-    how:`Este plano foi montado especialmente para você: reunimos todos os capítulos de "${scope.label}" e dividimos igualmente entre os ${days} dias escolhidos, para uma média de ${(total/days).toFixed(1)} capítulos por dia.`,
-    tips:["Você pode voltar a esta tela e gerar quantos planos personalizados quiser.","Se o ritmo ficar pesado, gere de novo com mais dias — não tem problema recomeçar.","Marque cada dia lido para acompanhar seu progresso."],
-    days,
-    build(){ return mergeTracksIntoDays([expandCanon(scope.filter)], days); }
-  };
+  construirPlanoPersonalizado(key, name, customState.scope, days);
   toast('Plano personalizado gerado! 🛠️', '✨');
   state.lastCustomPlanKey = key;
   renderPlans();
   openPlanDetail(key);
+
+  if(state.sessionToken){
+    db.rpc('salvar_plano_personalizado', {
+      p_token: state.sessionToken,
+      p_chave: key,
+      p_nome: name,
+      p_escopo_chave: customState.scope,
+      p_dias: days
+    }).then(({error})=>{ if(error) console.error('Erro ao salvar plano personalizado:', error); });
+  }
 });
 
 renderCustomScopeGrid();
@@ -4525,7 +4612,10 @@ function renderStudyDetail(){
       <h3 style="margin-top:8px;">${done ? 'Estudo concluído!' : 'Concluiu este estudo?'}</h3>
       <p class="muted" style="margin-top:6px;">Você já concluiu ${completedCount} de ${totalCount} estudos (${progressPercent}%).</p>
       <div class="plan-progress-track" style="margin:16px auto 18px;max-width:320px;"><div class="plan-progress-fill" style="width:${progressPercent}%"></div></div>
-      <button class="btn ${done ? 'btn-ghost' : 'btn-primary'} btn-sm" id="study-complete-btn">${done ? '↺ Marcar como não concluído' : '✓ Marcar estudo como concluído'}</button>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn ${done ? 'btn-ghost' : 'btn-primary'} btn-sm" id="study-complete-btn">${done ? '↺ Marcar como não concluído' : '✓ Marcar estudo como concluído'}</button>
+        <button class="btn btn-ghost btn-sm" id="study-goto-list-btn">Ir para os estudos</button>
+      </div>
     </div>
 
     <div class="study-section">
@@ -4535,13 +4625,24 @@ function renderStudyDetail(){
   `;
 
   document.getElementById('study-complete-btn').addEventListener('click', ()=>{
-    if(state.completedStudies.has(s.title)){
+    const estavaConcluido = state.completedStudies.has(s.title);
+    if(estavaConcluido){
       state.completedStudies.delete(s.title);
     } else {
       state.completedStudies.add(s.title);
       toast('Estudo concluído: ' + s.title, '🎉');
     }
     renderStudyDetail();
+    if(state.view === 'studies') renderStudies(state.studyFilter || 'Todos');
+    if(state.sessionToken){
+      const rpcName = estavaConcluido ? 'desmarcar_estudo_concluido' : 'marcar_estudo_concluido';
+      db.rpc(rpcName, { p_token: state.sessionToken, p_titulo_estudo: s.title })
+        .then(({error})=>{ if(error) console.error('Erro ao salvar estudo concluído:', error); });
+    }
+  });
+
+  document.getElementById('study-goto-list-btn').addEventListener('click', ()=>{
+    switchView('studies');
   });
 
   container.querySelectorAll('.next-study-card').forEach(el=>{
@@ -4559,39 +4660,71 @@ document.getElementById('study-detail-back').addEventListener('click', ()=>{
 function findOrCreateDefaultBlock(){
   let block = state.noteBlocks.find(b=>b.name==='Geral');
   if(!block){
-    block = {id:'blk-'+Date.now()+'-'+Math.random().toString(36).slice(2,7), name:'Geral', createdDate:new Date().toLocaleDateString('pt-BR'), notes:[]};
+    block = {id:'blk-'+Date.now()+'-'+Math.random().toString(36).slice(2,7), name:'Geral', createdDate:new Date().toLocaleDateString('pt-BR'), notes:[], dbId:null};
     state.noteBlocks.push(block);
   }
   return block;
 }
+async function garantirBlocoNoBanco(block){
+  if(block.dbId || !state.sessionToken) return;
+  const { data, error } = await db.rpc('criar_bloco_notas', { p_token: state.sessionToken, p_nome: block.name });
+  if(error){ console.error('Erro ao criar bloco de notas:', error); return; }
+  block.dbId = data;
+}
 // Compatível com chamadas existentes addNote(tag, text) vindas do leitor bíblico e do devocional —
 // elas caem no bloco "Geral", que é criado automaticamente se ainda não existir.
-function addNote(tag, text){
+async function addNote(tag, text){
   const block = findOrCreateDefaultBlock();
-  block.notes.unshift({tag: tag || 'Geral', text: text || '', date: new Date().toLocaleDateString('pt-BR')});
+  const note = {tag: tag || 'Geral', text: text || '', date: new Date().toLocaleDateString('pt-BR'), id: null};
+  block.notes.unshift(note);
   state.openBlockId = block.id;
   renderNoteBlocks();
+
+  if(!state.sessionToken) return;
+  await garantirBlocoNoBanco(block);
+  if(!block.dbId) return;
+  const { data, error } = await db.rpc('salvar_anotacao', {
+    p_token: state.sessionToken, p_bloco_id: block.dbId, p_tag: note.tag, p_texto: note.text
+  });
+  if(error){ console.error('Erro ao salvar anotação:', error); return; }
+  note.id = data;
 }
-function addNoteBlock(name){
-  const block = {id:'blk-'+Date.now()+'-'+Math.random().toString(36).slice(2,7), name: name, createdDate:new Date().toLocaleDateString('pt-BR'), notes:[]};
+async function addNoteBlock(name){
+  const block = {id:'blk-'+Date.now()+'-'+Math.random().toString(36).slice(2,7), name: name, createdDate:new Date().toLocaleDateString('pt-BR'), notes:[], dbId:null};
   state.noteBlocks.unshift(block);
   state.openBlockId = block.id;
   renderNoteBlocks();
+  if(state.sessionToken) await garantirBlocoNoBanco(block);
 }
-function addNoteToBlock(blockId, tag, text){
+async function addNoteToBlock(blockId, tag, text){
   const block = state.noteBlocks.find(b=>b.id===blockId);
   if(!block) return;
-  block.notes.unshift({tag: tag || 'Geral', text: text || '', date: new Date().toLocaleDateString('pt-BR')});
+  const note = {tag: tag || 'Geral', text: text || '', date: new Date().toLocaleDateString('pt-BR'), id: null};
+  block.notes.unshift(note);
   renderNoteBlocks();
+
+  if(!state.sessionToken) return;
+  await garantirBlocoNoBanco(block);
+  if(!block.dbId) return;
+  const { data, error } = await db.rpc('salvar_anotacao', {
+    p_token: state.sessionToken, p_bloco_id: block.dbId, p_tag: note.tag, p_texto: note.text
+  });
+  if(error){ console.error('Erro ao salvar anotação:', error); return; }
+  note.id = data;
 }
-function deleteNoteFromBlock(blockId, idx){
+async function deleteNoteFromBlock(blockId, idx){
   const block = state.noteBlocks.find(b=>b.id===blockId);
   if(!block) return;
+  const note = block.notes[idx];
   block.notes.splice(idx, 1);
   if(state.editingNote && state.editingNote.blockId===blockId && state.editingNote.idx===idx) state.editingNote = null;
   renderNoteBlocks();
+  if(note && note.id && state.sessionToken){
+    const { error } = await db.rpc('excluir_anotacao', { p_token: state.sessionToken, p_anotacao_id: note.id });
+    if(error) console.error('Erro ao excluir anotação:', error);
+  }
 }
-function saveEditNote(blockId, idx, tag, text){
+async function saveEditNote(blockId, idx, tag, text){
   const block = state.noteBlocks.find(b=>b.id===blockId);
   if(!block || !block.notes[idx]) return;
   block.notes[idx].tag = tag || 'Geral';
@@ -4599,11 +4732,23 @@ function saveEditNote(blockId, idx, tag, text){
   block.notes[idx].editedDate = new Date().toLocaleDateString('pt-BR');
   state.editingNote = null;
   renderNoteBlocks();
+  const noteId = block.notes[idx].id;
+  if(noteId && state.sessionToken){
+    const { error } = await db.rpc('editar_anotacao', {
+      p_token: state.sessionToken, p_anotacao_id: noteId, p_tag: block.notes[idx].tag, p_texto: text
+    });
+    if(error) console.error('Erro ao editar anotação:', error);
+  }
 }
-function deleteNoteBlock(blockId){
+async function deleteNoteBlock(blockId){
+  const block = state.noteBlocks.find(b=>b.id===blockId);
   state.noteBlocks = state.noteBlocks.filter(b=>b.id!==blockId);
   if(state.editingNote && state.editingNote.blockId===blockId) state.editingNote = null;
   renderNoteBlocks();
+  if(block && block.dbId && state.sessionToken){
+    const { error } = await db.rpc('excluir_bloco_notas', { p_token: state.sessionToken, p_bloco_id: block.dbId });
+    if(error) console.error('Erro ao excluir bloco de notas:', error);
+  }
 }
 
 function renderNoteBlocks(){
@@ -5502,8 +5647,21 @@ function syncDashSurpriseFavBtn(){
           localStorage.removeItem('ipge_token');
           state.sessionToken = null;
           state.favorites = [];
+          state.devoNoteBlocks = [];
+          state.planProgress = {};
+          state.currentPlanKey = null;
+          Object.keys(PLAN_LIBRARY).filter(k => k.startsWith('personalizado-')).forEach(k => delete PLAN_LIBRARY[k]);
+          state.lastCustomPlanKey = null;
+          state.perfil = null;
+          state.lastVisitedView = null;
+          state.completedStudies = new Set();
+          state.noteBlocks = [];
+          if(typeof renderNoteBlocks === 'function') renderNoteBlocks();
+          if(typeof renderStudies === 'function') renderStudies(state.studyFilter || 'Todos');
+          if(typeof atualizarSaudacao === 'function') atualizarSaudacao();
           if(typeof renderFavorites === 'function') renderFavorites();
           if(typeof renderDashFavorites === 'function') renderDashFavorites();
+          if(typeof renderDevoNoteBlocks === 'function') renderDevoNoteBlocks();
           document.body.classList.add('show-auth');
           toast('Você saiu da sua conta.', '👋');
         }
@@ -5562,6 +5720,11 @@ async function carregarDadosDoUsuario(){
     return;
   }
   state.perfil = perfil;
+  if(typeof atualizarSaudacao === 'function') atualizarSaudacao();
+  if(perfil.ultima_tela && typeof CONTINUE_MAP !== 'undefined' && CONTINUE_MAP[perfil.ultima_tela]){
+    state.lastVisitedView = perfil.ultima_tela;
+    if(typeof renderHomeContinue === 'function') renderHomeContinue();
+  }
 
   const { data: favoritos, error: errFav } = await db.rpc('listar_favoritos', { p_token: state.sessionToken });
   if(errFav){
@@ -5571,6 +5734,99 @@ async function carregarDadosDoUsuario(){
     if(typeof renderFavorites === 'function') renderFavorites();
     if(typeof renderDashFavorites === 'function') renderDashFavorites();
     if(state.view === 'bible' && typeof renderReader === 'function') renderReader();
+  }
+
+  const { data: devocional, error: errDevo } = await db.rpc('listar_devocional', { p_token: state.sessionToken });
+  if(errDevo){
+    console.error('Não foi possível carregar o devocional:', errDevo);
+  } else {
+    const blocksMap = new Map();
+    (devocional || []).forEach(row => {
+      if(!blocksMap.has(row.bloco_id)){
+        blocksMap.set(row.bloco_id, {
+          id: 'devo-blk-' + row.bloco_id,
+          dbId: row.bloco_id,
+          dateKey: row.data_chave,
+          dateLabel: row.data_label,
+          notes: []
+        });
+      }
+      if(row.anotacao_id){
+        blocksMap.get(row.bloco_id).notes.push({
+          id: row.anotacao_id,
+          text: row.texto,
+          date: new Date(row.criado_em).toLocaleDateString('pt-BR'),
+          editedDate: row.editado_em ? new Date(row.editado_em).toLocaleDateString('pt-BR') : undefined
+        });
+      }
+    });
+    const blocks = Array.from(blocksMap.values());
+    blocks.forEach(b => b.notes.reverse()); // mais recentes primeiro
+    state.devoNoteBlocks = blocks;
+    if(typeof renderDevoNoteBlocks === 'function') renderDevoNoteBlocks();
+  }
+
+  const { data: planosPersonalizados, error: errPlanos } = await db.rpc('listar_planos_personalizados', { p_token: state.sessionToken });
+  if(errPlanos){
+    console.error('Não foi possível carregar os planos personalizados:', errPlanos);
+  } else if(planosPersonalizados && planosPersonalizados.length && typeof construirPlanoPersonalizado === 'function'){
+    // já vem ordenado por criado_em desc — o primeiro é o mais recente
+    planosPersonalizados.forEach(p => construirPlanoPersonalizado(p.chave, p.nome, p.escopo_chave, p.dias));
+    state.lastCustomPlanKey = planosPersonalizados[0].chave;
+  }
+
+  const { data: progressoTodo, error: errProgresso } = await db.rpc('listar_todo_progresso_planos', { p_token: state.sessionToken });
+  if(errProgresso){
+    console.error('Não foi possível carregar o progresso dos planos:', errProgresso);
+  } else {
+    const agrupado = {};
+    (progressoTodo || []).forEach(r => {
+      if(!agrupado[r.plano_chave]) agrupado[r.plano_chave] = new Set();
+      agrupado[r.plano_chave].add(r.dia_indice);
+    });
+    state.planProgress = agrupado;
+  }
+  if(typeof renderPlans === 'function') renderPlans();
+  if(state.currentPlanKey && typeof renderPlanDetail === 'function') renderPlanDetail();
+
+  const { data: estudos, error: errEstudos } = await db.rpc('listar_estudos_concluidos', { p_token: state.sessionToken });
+  if(errEstudos){
+    console.error('Não foi possível carregar os estudos concluídos:', errEstudos);
+  } else {
+    state.completedStudies = new Set((estudos || []).map(e => e.titulo_estudo));
+    if(typeof renderStudies === 'function') renderStudies(state.studyFilter || 'Todos');
+    if(state.view === 'study-detail' && typeof renderStudyDetail === 'function') renderStudyDetail();
+  }
+
+  const { data: notas, error: errNotas } = await db.rpc('listar_notas_completo', { p_token: state.sessionToken });
+  if(errNotas){
+    console.error('Não foi possível carregar as anotações:', errNotas);
+  } else {
+    const blocksMap = new Map();
+    (notas || []).forEach(row => {
+      if(!blocksMap.has(row.bloco_id)){
+        blocksMap.set(row.bloco_id, {
+          id: 'blk-' + row.bloco_id,
+          dbId: row.bloco_id,
+          name: row.nome,
+          createdDate: new Date(row.criado_em_bloco).toLocaleDateString('pt-BR'),
+          notes: []
+        });
+      }
+      if(row.anotacao_id){
+        blocksMap.get(row.bloco_id).notes.push({
+          id: row.anotacao_id,
+          tag: row.tag,
+          text: row.texto,
+          date: new Date(row.criado_em).toLocaleDateString('pt-BR'),
+          editedDate: row.editado_em ? new Date(row.editado_em).toLocaleDateString('pt-BR') : undefined
+        });
+      }
+    });
+    const blocks = Array.from(blocksMap.values());
+    blocks.forEach(b => b.notes.reverse()); // mais recentes primeiro
+    state.noteBlocks = blocks;
+    if(typeof renderNoteBlocks === 'function') renderNoteBlocks();
   }
 }
 
