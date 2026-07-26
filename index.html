@@ -1359,14 +1359,12 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
         <h1 class="auth-title">Entrar na sua conta</h1>
         <p class="auth-sub">Continue sua caminhada de leitura, devocionais e estudos.</p>
 
-        <div class="auth-demo-note">🧪 Ambiente de demonstração — ainda sem banco de dados. Qualquer e-mail e senha entram.</div>
-
         <div class="auth-form">
           <div class="auth-field">
-            <label class="field-label">E-mail ou nome de usuário</label>
+            <label class="field-label">Nome de usuário</label>
             <div class="auth-field-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z" opacity="0"/><path d="M3 6.5l9 6 9-6"/><rect x="3" y="4.5" width="18" height="15" rx="2.5"/></svg>
-              <input type="text" class="field-input" id="auth-login-email" placeholder="camila@exemplo.com" value="camila@exemplo.com">
+              <input type="text" class="field-input" id="auth-login-user" placeholder="camila.leitura" autocomplete="username">
             </div>
           </div>
           <div class="auth-field">
@@ -1380,9 +1378,10 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
             </div>
           </div>
           <div class="auth-row-between">
-            <label class="auth-check"><input type="checkbox" checked> Manter conectado</label>
+            <label class="auth-check"><input type="checkbox" id="auth-login-remember" checked> Manter conectado</label>
             <button type="button" class="auth-link-btn" data-auth-goto="forgot">Esqueci minha senha</button>
           </div>
+          <div class="auth-error" id="auth-login-error" style="display:none;color:#B8695A;font-size:.85rem;margin-top:-6px;"></div>
           <button type="button" class="btn auth-submit" id="auth-login-btn">Entrar</button>
         </div>
       </div>
@@ -1397,23 +1396,23 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
           <div class="auth-2col">
             <div class="auth-field">
               <label class="field-label">Nome de exibição</label>
-              <input type="text" class="field-input" placeholder="Camila">
+              <input type="text" class="field-input" id="auth-signup-nome" placeholder="Camila">
             </div>
             <div class="auth-field">
               <label class="field-label">Nome de usuário</label>
-              <input type="text" class="field-input" placeholder="camila.leitura">
+              <input type="text" class="field-input" id="auth-signup-user" placeholder="camila.leitura" autocomplete="username">
             </div>
           </div>
           <div class="auth-field">
-            <label class="field-label">E-mail</label>
+            <label class="field-label">E-mail (opcional)</label>
             <div class="auth-field-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6.5l9 6 9-6"/><rect x="3" y="4.5" width="18" height="15" rx="2.5"/></svg>
-              <input type="email" class="field-input" placeholder="camila@exemplo.com">
+              <input type="email" class="field-input" id="auth-signup-email" placeholder="camila@exemplo.com">
             </div>
           </div>
           <div class="auth-field">
             <label class="field-label">Congregação</label>
-            <select class="field-input">
+            <select class="field-input" id="auth-signup-congregacao">
               <option>IPGE Church — Sede</option>
               <option>IPGE Church — Zona Norte</option>
               <option>IPGE Church — Zona Sul</option>
@@ -1440,7 +1439,8 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
               </div>
             </div>
           </div>
-          <label class="auth-check"><input type="checkbox" checked> Aceito os termos de uso e a política de privacidade</label>
+          <label class="auth-check"><input type="checkbox" id="auth-signup-terms" checked> Aceito os termos de uso e a política de privacidade</label>
+          <div class="auth-error" id="auth-signup-error" style="display:none;color:#B8695A;font-size:.85rem;"></div>
           <button type="button" class="btn auth-submit" id="auth-signup-btn">Concluir cadastro</button>
         </div>
       </div>
@@ -1450,14 +1450,14 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
         <button type="button" class="auth-back" data-auth-goto="login">← Voltar para o login</button>
         <div class="auth-eyebrow">Recuperar acesso</div>
         <h1 class="auth-title">Alterar senha</h1>
-        <p class="auth-sub">Informe seu e-mail e defina uma nova senha para acessar sua conta.</p>
+        <p class="auth-sub">Informe seu nome de usuário e defina uma nova senha para acessar sua conta.</p>
 
         <div class="auth-form">
           <div class="auth-field">
-            <label class="field-label">E-mail</label>
+            <label class="field-label">Nome de usuário</label>
             <div class="auth-field-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6.5l9 6 9-6"/><rect x="3" y="4.5" width="18" height="15" rx="2.5"/></svg>
-              <input type="email" class="field-input" placeholder="camila@exemplo.com" value="camila@exemplo.com">
+              <input type="text" class="field-input" id="auth-forgot-user" placeholder="camila.leitura" autocomplete="username">
             </div>
           </div>
           <div class="auth-field">
@@ -1480,6 +1480,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
               </button>
             </div>
           </div>
+          <div class="auth-error" id="auth-forgot-error" style="display:none;color:#B8695A;font-size:.85rem;"></div>
           <button type="button" class="btn auth-submit" id="auth-forgot-btn">Alterar</button>
         </div>
       </div>
@@ -2428,14 +2429,48 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 (function(){
 "use strict";
 
 /* =========================================================
-   STATE (in-memory only — resets on reload, no localStorage)
+   SUPABASE — conexão com o Banco IPGE
+   Troque SUPABASE_URL e SUPABASE_ANON_KEY pelos valores do
+   seu projeto (Project Settings → API no painel do Supabase).
+   ========================================================= */
+const SUPABASE_URL = "https://ihfssxwhnhlfhtxpvsal.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_3kFblfwUj7ZHp_WsqtBr-g_0vM5g9Aq";
+let db;
+try {
+  if(!/^https:\/\/.+\.supabase\.co\/?$/.test(SUPABASE_URL)){
+    throw new Error('Configure SUPABASE_URL e SUPABASE_ANON_KEY no topo do arquivo.');
+  }
+  db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} catch(e){
+  console.warn('[IPGE] Supabase ainda não configurado:', e.message);
+  // Cliente "vazio": deixa o app funcionar (telas, navegação) mesmo sem
+  // as chaves configuradas ainda. Toda chamada ao banco vai falhar com
+  // uma mensagem clara em vez de travar o app inteiro.
+  db = {
+    rpc: async () => ({ data: null, error: { message: 'Supabase não configurado ainda.' } })
+  };
+  window.addEventListener('DOMContentLoaded', ()=>{
+    if(typeof toast === 'function'){
+      toast('Supabase ainda não configurado — cole suas chaves no topo do arquivo.', '⚠️');
+    }
+  });
+  if(document.readyState !== 'loading' && typeof toast === 'function'){
+    toast('Supabase ainda não configurado — cole suas chaves no topo do arquivo.', '⚠️');
+  }
+}
+
+/* =========================================================
+   STATE (sessão/token fica em localStorage; o resto continua
+   em memória e é carregado do banco após o login)
    ========================================================= */
 const state = {
+  sessionToken: localStorage.getItem('ipge_token') || null,
   view: 'home',
   theme: 'light',
   fontScale: 1,
@@ -3657,12 +3692,43 @@ function updateFavoriteChapterBtn(){
   btn.classList.toggle('is-favorited', isFav);
 }
 
-function toggleFavorite(ref, text){
+async function toggleFavorite(ref, text){
   const idx = state.favorites.findIndex(f=>f.ref===ref);
-  if(idx>=0){ state.favorites.splice(idx,1); toast('Removido dos favoritos', '💔'); }
-  else { state.favorites.push({ref, text}); toast('Adicionado aos favoritos', '❤️'); }
+  if(idx>=0){
+    await removerFavoritoPorRef(ref);
+    return;
+  }
+  const entry = { ref, text, id: null };
+  state.favorites.push(entry);
+  toast('Adicionado aos favoritos', '❤️');
   renderFavorites();
   renderDashFavorites();
+  if(!state.sessionToken) return;
+  const { data, error } = await db.rpc('favoritar_versiculo', {
+    p_token: state.sessionToken,
+    p_referencia: ref,
+    p_texto: text
+  });
+  if(error){
+    console.error('Erro ao salvar favorito:', error);
+    return;
+  }
+  entry.id = data;
+}
+
+async function removerFavoritoPorRef(ref){
+  const idx = state.favorites.findIndex(f=>f.ref===ref);
+  if(idx<0) return;
+  const entry = state.favorites[idx];
+  state.favorites.splice(idx,1);
+  toast('Removido dos favoritos', '💔');
+  renderFavorites();
+  renderDashFavorites();
+  if(state.view==='bible') renderReader();
+  if(entry.id && state.sessionToken){
+    const { error } = await db.rpc('remover_favorito', { p_token: state.sessionToken, p_favorito_id: entry.id });
+    if(error) console.error('Erro ao remover favorito:', error);
+  }
 }
 
 // Interpreta uma referência como "Salmos 23:1" (versículo) ou "Gênesis 1" (capítulo)
@@ -4781,14 +4847,7 @@ function renderFavorites(){
         text: `Deseja remover "${ref}" dos seus favoritos? Essa ação não pode ser desfeita.`,
         confirmLabel: 'Remover',
         cancelLabel: 'Manter favorito',
-        onConfirm: ()=>{
-          const idx = state.favorites.findIndex(f=>f.ref===ref);
-          if(idx>=0) state.favorites.splice(idx,1);
-          toast('Removido dos favoritos', '💔');
-          renderFavorites();
-          renderDashFavorites();
-          if(state.view==='bible') renderReader();
-        }
+        onConfirm: ()=> removerFavoritoPorRef(ref)
       });
     });
   });
@@ -5436,7 +5495,18 @@ function syncDashSurpriseFavBtn(){
         text:'Você precisará entrar novamente para acessar seu progresso.',
         confirmLabel:'Sair',
         cancelLabel:'Cancelar',
-        onConfirm:()=> toast('Isso será ativado quando o login estiver conectado.', '👋')
+        onConfirm: async ()=>{
+          if(state.sessionToken){
+            await db.rpc('sair', { p_token: state.sessionToken });
+          }
+          localStorage.removeItem('ipge_token');
+          state.sessionToken = null;
+          state.favorites = [];
+          if(typeof renderFavorites === 'function') renderFavorites();
+          if(typeof renderDashFavorites === 'function') renderDashFavorites();
+          document.body.classList.add('show-auth');
+          toast('Você saiu da sua conta.', '👋');
+        }
       });
     });
   }
@@ -5479,6 +5549,31 @@ function renderCampaignHero(campaign){
     </article>`;
 }
 
+/* =========================================================
+   Carrega os dados do usuário logado do banco.
+   Por enquanto busca o perfil; favoritos, notas, devocional,
+   orações, plano de leitura e estudos entram nas próximas etapas.
+   ========================================================= */
+async function carregarDadosDoUsuario(){
+  if(!state.sessionToken) return;
+  const { data: perfil, error } = await db.rpc('buscar_perfil', { p_token: state.sessionToken });
+  if(error || !perfil){
+    console.error('Não foi possível carregar o perfil:', error);
+    return;
+  }
+  state.perfil = perfil;
+
+  const { data: favoritos, error: errFav } = await db.rpc('listar_favoritos', { p_token: state.sessionToken });
+  if(errFav){
+    console.error('Não foi possível carregar os favoritos:', errFav);
+  } else {
+    state.favorites = (favoritos || []).map(f => ({ id: f.id, ref: f.referencia, text: f.texto }));
+    if(typeof renderFavorites === 'function') renderFavorites();
+    if(typeof renderDashFavorites === 'function') renderDashFavorites();
+    if(state.view === 'bible' && typeof renderReader === 'function') renderReader();
+  }
+}
+
 (function initAuth(){
   const tabs = document.getElementById('auth-tabs');
   const glass = document.getElementById('auth-glass');
@@ -5509,29 +5604,156 @@ function renderCampaignHero(campaign){
     });
   });
 
+  function showAuthError(id, msg){
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.textContent = msg;
+    el.style.display = msg ? 'block' : 'none';
+  }
+
+  function setBtnLoading(btn, loading, textoNormal){
+    if(!btn) return;
+    btn.disabled = loading;
+    btn.textContent = loading ? 'Aguarde…' : textoNormal;
+  }
+
+  // Depois de logar/cadastrar com sucesso: guarda o token, carrega os
+  // dados do usuário do banco e libera a tela principal do app.
+  async function entrarNoApp(token, manterConectado){
+    state.sessionToken = token;
+    if(manterConectado){
+      localStorage.setItem('ipge_token', token);
+    } else {
+      localStorage.removeItem('ipge_token');
+    }
+    if(typeof carregarDadosDoUsuario === 'function'){
+      await carregarDadosDoUsuario();
+    }
+    document.body.classList.remove('show-auth');
+    switchView('home');
+  }
+
   const loginBtn = document.getElementById('auth-login-btn');
   if(loginBtn){
-    loginBtn.addEventListener('click', ()=>{
-      // Sem validação por enquanto: qualquer entrada libera o acesso.
-      document.body.classList.remove('show-auth');
-      switchView('home');
+    loginBtn.addEventListener('click', async ()=>{
+      showAuthError('auth-login-error', '');
+      const usuario = (document.getElementById('auth-login-user').value || '').trim();
+      const senha = document.getElementById('auth-login-pass').value || '';
+      const manter = document.getElementById('auth-login-remember').checked;
+
+      if(!usuario || !senha){
+        showAuthError('auth-login-error', 'Preencha o nome de usuário e a senha.');
+        return;
+      }
+
+      setBtnLoading(loginBtn, true, 'Entrar');
+      const { data, error } = await db.rpc('login', { p_nome_usuario: usuario, p_senha: senha });
+      setBtnLoading(loginBtn, false, 'Entrar');
+
+      if(error){
+        showAuthError('auth-login-error', 'Usuário ou senha inválidos.');
+        return;
+      }
+      await entrarNoApp(data, manter);
+      toast('Bem-vindo de volta!', '👋');
     });
   }
 
   const signupBtn = document.getElementById('auth-signup-btn');
   if(signupBtn){
-    signupBtn.addEventListener('click', ()=>{
-      switchAuth('login');
-      toast('Cadastro concluído! Agora é só entrar.', '🎉');
+    signupBtn.addEventListener('click', async ()=>{
+      showAuthError('auth-signup-error', '');
+      const nome = (document.getElementById('auth-signup-nome').value || '').trim();
+      const usuario = (document.getElementById('auth-signup-user').value || '').trim();
+      const senha = document.getElementById('auth-signup-pass').value || '';
+      const senhaConfirm = document.getElementById('auth-signup-pass-confirm').value || '';
+      const termos = document.getElementById('auth-signup-terms').checked;
+
+      if(!nome || !usuario || !senha){
+        showAuthError('auth-signup-error', 'Preencha nome, usuário e senha.');
+        return;
+      }
+      if(senha.length < 6){
+        showAuthError('auth-signup-error', 'A senha precisa ter pelo menos 6 caracteres.');
+        return;
+      }
+      if(senha !== senhaConfirm){
+        showAuthError('auth-signup-error', 'As senhas não coincidem.');
+        return;
+      }
+      if(!termos){
+        showAuthError('auth-signup-error', 'É preciso aceitar os termos de uso.');
+        return;
+      }
+
+      setBtnLoading(signupBtn, true, 'Concluir cadastro');
+      const { data, error } = await db.rpc('cadastrar_usuario', {
+        p_nome_usuario: usuario,
+        p_senha: senha,
+        p_nome_exibicao: nome
+      });
+      setBtnLoading(signupBtn, false, 'Concluir cadastro');
+
+      if(error){
+        showAuthError('auth-signup-error', error.message.includes('em uso')
+          ? 'Esse nome de usuário já está em uso.'
+          : 'Não foi possível concluir o cadastro. Tente outro nome de usuário.');
+        return;
+      }
+      await entrarNoApp(data, true);
+      toast('Cadastro concluído! Bem-vindo à IPGE Church.', '🎉');
     });
   }
 
   const forgotBtn = document.getElementById('auth-forgot-btn');
   if(forgotBtn){
-    forgotBtn.addEventListener('click', ()=>{
+    forgotBtn.addEventListener('click', async ()=>{
+      showAuthError('auth-forgot-error', '');
+      const usuario = (document.getElementById('auth-forgot-user').value || '').trim();
+      const novaSenha = document.getElementById('auth-forgot-pass').value || '';
+      const confirmSenha = document.getElementById('auth-forgot-pass-confirm').value || '';
+
+      if(!usuario || !novaSenha){
+        showAuthError('auth-forgot-error', 'Preencha o nome de usuário e a nova senha.');
+        return;
+      }
+      if(novaSenha.length < 6){
+        showAuthError('auth-forgot-error', 'A senha precisa ter pelo menos 6 caracteres.');
+        return;
+      }
+      if(novaSenha !== confirmSenha){
+        showAuthError('auth-forgot-error', 'As senhas não coincidem.');
+        return;
+      }
+
+      setBtnLoading(forgotBtn, true, 'Alterar');
+      const { error } = await db.rpc('redefinir_senha', {
+        p_nome_usuario: usuario,
+        p_senha_nova: novaSenha
+      });
+      setBtnLoading(forgotBtn, false, 'Alterar');
+
+      if(error){
+        showAuthError('auth-forgot-error', 'Não encontramos esse nome de usuário.');
+        return;
+      }
       switchAuth('login');
       toast('Senha alterada! Entre com sua nova senha.', '🔒');
     });
+  }
+
+  // Se já existe um token salvo (de "manter conectado"), tenta entrar direto.
+  if(state.sessionToken){
+    (async ()=>{
+      const { error } = await db.rpc('buscar_perfil', { p_token: state.sessionToken });
+      if(error){
+        // token expirado/inválido — volta para a tela de login normalmente
+        localStorage.removeItem('ipge_token');
+        state.sessionToken = null;
+        return;
+      }
+      await entrarNoApp(state.sessionToken, true);
+    })();
   }
 
   /* ---- Tela pública de campanha (visitante sem login) ---- */
