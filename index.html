@@ -2720,6 +2720,24 @@ function todayDevoStorageKey(){
   return 'ipge_devo_' + d.getFullYear() + '_' + String(d.getMonth()+1).padStart(2,'0') + '_' + String(d.getDate()).padStart(2,'0');
 }
 
+/* Foto congelada do devocional no dia em que a 1ª anotação foi salva.
+   Depois de congelado, o texto do bloco nunca mais muda, mesmo que a IA
+   gere um devocional diferente em uma recarga posterior no mesmo dia. */
+function devoBlockSnapshotKey(dateKey){
+  return 'ipge_devo_bloco_' + dateKey;
+}
+function getDevoBlockSnapshot(dateKey){
+  try {
+    const raw = localStorage.getItem(devoBlockSnapshotKey(dateKey));
+    if(raw) return JSON.parse(raw);
+  } catch(e){}
+  return null;
+}
+function saveDevoBlockSnapshot(dateKey, devoContent){
+  if(!devoContent) return;
+  try { localStorage.setItem(devoBlockSnapshotKey(dateKey), JSON.stringify(devoContent)); } catch(e){}
+}
+
 const DEVO_FALLBACK = {
   verse: '"Não estejais ansiosos por coisa alguma… e a paz de Deus guardará os vossos corações."',
   ref: 'Filipenses 4:6-7',
@@ -2806,7 +2824,10 @@ function applyDevoToPage(devo){
     const key = typeof todayDevoKey === 'function' ? todayDevoKey() : '';
     const block = state.devoNoteBlocks.find(b => b.dateKey === key);
     if(block && !block.devoContent){
-      block.devoContent = { verse:devo.verse, ref:devo.ref, reflection:devo.reflection, application:devo.application, question:devo.question, prayer:devo.prayer };
+      const frozen = getDevoBlockSnapshot(key);
+      const dc = frozen || { verse:devo.verse, ref:devo.ref, reflection:devo.reflection, application:devo.application, question:devo.question, prayer:devo.prayer };
+      block.devoContent = dc;
+      if(!frozen) saveDevoBlockSnapshot(key, dc);
       if(typeof renderDevoNoteBlocks === 'function') renderDevoNoteBlocks();
     }
   }
@@ -4104,18 +4125,21 @@ function findOrCreateTodayDevoBlock(){
   const key = todayDevoKey();
   let block = state.devoNoteBlocks.find(b=>b.dateKey===key);
   if(!block){
+    const frozen = getDevoBlockSnapshot(key);
+    const dc = frozen || (todayDevo ? {
+      verse: todayDevo.verse,
+      ref: todayDevo.ref,
+      reflection: todayDevo.reflection,
+      application: todayDevo.application,
+      question: todayDevo.question,
+      prayer: todayDevo.prayer
+    } : null);
+    if(dc && !frozen) saveDevoBlockSnapshot(key, dc);
     block = {
       id: 'devo-blk-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),
       dateKey: key,
       dateLabel: new Date().toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long'}),
-      devoContent: todayDevo ? {
-        verse: todayDevo.verse,
-        ref: todayDevo.ref,
-        reflection: todayDevo.reflection,
-        application: todayDevo.application,
-        question: todayDevo.question,
-        prayer: todayDevo.prayer
-      } : null,
+      devoContent: dc,
       notes: []
     };
     state.devoNoteBlocks.unshift(block);
@@ -4215,6 +4239,7 @@ function renderDevoNoteBlocks(){
               <span class="note-item-meta">
                 <span class="muted" style="font-size:.75rem;">${n.editedDate ? 'editado em ' + n.editedDate : n.date}</span>
                 <button class="note-item-edit" data-devo-editblock="${block.id}" data-devo-editidx="${idx}" title="Editar anotação">✏️</button>
+                <button class="note-item-del" data-devo-block="${block.id}" data-devo-idx="${idx}" title="Excluir anotação">✕</button>
               </span>
             </div>
             <p style="margin-top:10px;line-height:1.7;">${n.text ? escapeHtml(n.text).replace(/\n/g,'<br>') : '<i class="muted">(sem texto ainda)</i>'}</p>
@@ -4300,7 +4325,18 @@ function renderDevoNoteBlocks(){
   list.querySelectorAll('.note-item-del[data-devo-block]').forEach(el=>{
     el.addEventListener('click', (e)=>{
       e.stopPropagation();
-      deleteDevoNoteFromBlock(el.dataset.devoBlock, parseInt(el.dataset.devoIdx, 10));
+      const blockId = el.dataset.devoBlock;
+      const idx = parseInt(el.dataset.devoIdx, 10);
+      openConfirm({
+        title: 'Excluir anotação?',
+        text: 'Tem certeza que deseja excluir esta anotação? Essa ação não pode ser desfeita.',
+        confirmLabel: 'Excluir anotação',
+        cancelLabel: 'Continuar com a anotação',
+        onConfirm: ()=>{
+          deleteDevoNoteFromBlock(blockId, idx);
+          toast('Anotação excluída', '🗑️');
+        }
+      });
     });
   });
   list.querySelectorAll('[data-devo-delblock]').forEach(el=>{
@@ -5942,13 +5978,21 @@ async function carregarDadosDoUsuario(){
     const blocksMap = new Map();
     (devocional || []).forEach(row => {
       if(!blocksMap.has(row.bloco_id)){
-        // Para o bloco de hoje usa o devocional gerado pela IA; para dias anteriores não temos o conteúdo original
+        // Para o bloco de hoje, usa a foto do devocional congelada no localStorage
+        // (salva assim que a 1ª anotação do dia foi feita) — nunca o texto gerado
+        // "agora" pela IA, para o devocional já anotado não mudar.
         const isToday = (typeof todayDevoKey === 'function') && row.data_chave === todayDevoKey();
-        const dc = (isToday && todayDevo) ? {
-          verse: todayDevo.verse, ref: todayDevo.ref,
-          reflection: todayDevo.reflection, application: todayDevo.application,
-          question: todayDevo.question, prayer: todayDevo.prayer
-        } : null;
+        let dc = null;
+        if(isToday){
+          dc = getDevoBlockSnapshot(row.data_chave);
+          if(!dc && todayDevo){
+            dc = {
+              verse: todayDevo.verse, ref: todayDevo.ref,
+              reflection: todayDevo.reflection, application: todayDevo.application,
+              question: todayDevo.question, prayer: todayDevo.prayer
+            };
+          }
+        }
         blocksMap.set(row.bloco_id, {
           id: 'devo-blk-' + row.bloco_id,
           dbId: row.bloco_id,
