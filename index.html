@@ -6173,7 +6173,7 @@ function renderSessions(lista){
     <div class="session-item">
       <div class="session-ic">${s.sessao_atual ? '💻' : '📱'}</div>
       <div class="session-info">
-        <div class="session-name">${escapeHtml(s.dispositivo || 'Dispositivo desconhecido')}</div>
+        <div class="session-name">${escapeHtml(s.dispositivo || 'Dispositivo Atual')}</div>
         <div class="session-meta">${s.sessao_atual ? 'Sessão atual' : 'Conectado ' + formatarTempoRelativo(s.criado_em)}</div>
       </div>
       ${s.sessao_atual
