@@ -3399,8 +3399,8 @@ const QUIZ_ACHIEVEMENTS = [
   {emoji:"🌟", name:"Centena de XP", desc:"Alcançou 100 XP em uma única sessão", test: s => s.quizXp >= 100}
 ];
 
-const QUIZ_QUESTIONS = [
-  // Fácil
+// Banco inicial de perguntas — usado imediatamente enquanto a IA gera novas
+const QUIZ_QUESTIONS_BASE = [
   {level:"Fácil", q:"Quem construiu a arca antes do dilúvio?", options:["Abraão","Noé","Moisés","Davi"], correct:1},
   {level:"Fácil", q:"Em qual livro encontramos os Dez Mandamentos?", options:["Gênesis","Levítico","Êxodo","Números"], correct:2},
   {level:"Fácil", q:"Quem foi o primeiro homem criado por Deus, segundo a Bíblia?", options:["Caim","Set","Adão","Abel"], correct:2},
@@ -3415,9 +3415,7 @@ const QUIZ_QUESTIONS = [
   {level:"Fácil", q:"Qual mar Moisés abriu para o povo de Israel atravessar?", options:["Mar Morto","Mar da Galileia","Mar Vermelho","Mar Mediterrâneo"], correct:2},
   {level:"Fácil", q:"Quem matou o gigante Golias?", options:["Saul","Davi","Jônatas","Samuel"], correct:1},
   {level:"Fácil", q:"Em qual monte Moisés recebeu os Dez Mandamentos?", options:["Monte Sinai","Monte Carmelo","Monte das Oliveiras","Monte Ararate"], correct:0},
-  {level:"Fácil", q:"Quantos filhos Jacó teve, que se tornaram as doze tribos de Israel?", options:["10","11","12","13"], correct:2},
   {level:"Fácil", q:"Qual é o primeiro livro da Bíblia?", options:["Êxodo","Gênesis","Levítico","Números"], correct:1},
-  // Médio
   {level:"Médio", q:"Quantos discípulos Jesus escolheu como apóstolos?", options:["7","10","12","14"], correct:2},
   {level:"Médio", q:"Quem foi jogado na cova dos leões?", options:["Daniel","Jonas","Elias","José"], correct:0},
   {level:"Médio", q:"Quem foi o rei de Israel conhecido por sua sabedoria e autor de Provérbios?", options:["Davi","Salomão","Roboão","Josafá"], correct:1},
@@ -3433,25 +3431,87 @@ const QUIZ_QUESTIONS = [
   {level:"Médio", q:"Qual cidade foi destruída junto com Sodoma?", options:["Nínive","Gomorra","Jericó","Babilônia"], correct:1},
   {level:"Médio", q:"Quem traiu Sansão ao cortar seus cabelos enquanto ele dormia?", options:["Dalila","Jezabel","Rute","Ester"], correct:0},
   {level:"Médio", q:"Qual era a profissão de Pedro antes de seguir Jesus?", options:["Cobrador de impostos","Pescador","Carpinteiro","Pastor de ovelhas"], correct:1},
-  {level:"Médio", q:"Em qual ilha o apóstolo João escreveu o livro de Apocalipse, estando exilado?", options:["Creta","Chipre","Patmos","Rodes"], correct:2},
-  // Difícil
   {level:"Difícil", q:"Qual é o penúltimo livro do Antigo Testamento?", options:["Malaquias","Ageu","Zacarias","Sofonias"], correct:2},
   {level:"Difícil", q:"Quem escreveu a maior parte das cartas do Novo Testamento?", options:["Pedro","Paulo","João","Tiago"], correct:1},
-  {level:"Difícil", q:"Qual é considerado o menor livro do Antigo Testamento em número de versículos?", options:["Obadias","Ageu","Naum","Rute"], correct:0},
   {level:"Difícil", q:"Quantos capítulos tem o livro de Salmos?", options:["100","120","150","176"], correct:2},
   {level:"Difícil", q:"Quem foi o profeta que ungiu Davi como rei de Israel?", options:["Natã","Samuel","Gade","Eli"], correct:1},
   {level:"Difícil", q:"Qual livro da Bíblia tem o maior número de capítulos?", options:["Isaías","Jeremias","Salmos","Gênesis"], correct:2},
-  {level:"Difícil", q:"Quem foi o general israelita que, com a profetisa Débora, derrotou os cananeus?", options:["Baraque","Gideão","Otniel","Jefté"], correct:0},
   {level:"Difícil", q:"Em qual cidade Paulo teve sua conversão, no caminho para lá?", options:["Antioquia","Damasco","Éfeso","Corinto"], correct:1},
-  {level:"Difícil", q:"Qual rei de Israel perdeu o reino por não destruir totalmente os amalequitas, como Deus ordenara?", options:["Saul","Acabe","Jeroboão","Roboão"], correct:0},
   {level:"Difícil", q:"Segundo Gênesis, quantos anos viveu Matusalém, o homem mais velho da Bíblia?", options:["777","888","930","969"], correct:3},
-  {level:"Difícil", q:"Qual profeta menor descreveu uma praga de gafanhotos como sinal de julgamento?", options:["Joel","Obadias","Miquéias","Naum"], correct:0},
   {level:"Difícil", q:"Quem foi o primeiro mártir cristão registrado no livro de Atos?", options:["Tiago","Estêvão","Barnabé","Timóteo"], correct:1},
-  {level:"Difícil", q:"Qual foi o nome do servo de Abraão enviado para buscar uma esposa para Isaque?", options:["Eliezer","Eleazar","Efraim","Elimeleque"], correct:0},
   {level:"Difícil", q:"Quantas pragas Deus enviou sobre o Egito antes que Faraó libertasse o povo de Israel?", options:["7","9","10","12"], correct:2},
   {level:"Difícil", q:"Em que língua foi originalmente escrita a maior parte do Antigo Testamento?", options:["Aramaico","Grego","Hebraico","Latim"], correct:2},
   {level:"Difícil", q:"Qual foi o nome dado ao lugar onde Jesus foi crucificado, que significa 'lugar da caveira'?", options:["Getsêmani","Gólgota","Siloé","Betesda"], correct:1}
 ];
+
+// Pool dinâmico: começa com as perguntas base e cresce com as geradas por IA
+let QUIZ_QUESTIONS = QUIZ_QUESTIONS_BASE.slice();
+let quizAiGenerating = false; // evita chamadas simultâneas
+
+async function generateQuizQuestions(){
+  if(quizAiGenerating) return;
+  quizAiGenerating = true;
+
+  // Envia os enunciados já existentes para a IA não repetir
+  const existing = QUIZ_QUESTIONS.map(q => q.q);
+
+  const prompt = `Você é um especialista em Bíblia. Gere 15 perguntas de quiz bíblico em português do Brasil, sendo 5 de nível Fácil, 5 de nível Médio e 5 de nível Difícil.
+
+IMPORTANTE: Não repita nenhuma destas perguntas já existentes:
+${existing.map((q,i) => `${i+1}. ${q}`).join('\n')}
+
+Responda APENAS com um array JSON válido, sem markdown, sem texto antes ou depois. Cada item deve ter exatamente este formato:
+[
+  {"level":"Fácil","q":"pergunta aqui?","options":["opção A","opção B","opção C","opção D"],"correct":0},
+  ...
+]
+
+O campo "correct" é o índice (0 a 3) da opção correta no array "options".
+Todas as respostas devem ser biblicamente precisas e verificáveis nas Escrituras.`;
+
+  for(const model of MODELS_FALLBACK){
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+          'HTTP-Referer': 'https://ipgechurch.local',
+          'X-Title': 'IPGE Church'
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 2000
+        })
+      });
+      const data = await response.json();
+      if(data.error) throw new Error(data.error.message);
+      const text = data.choices?.[0]?.message?.content || '';
+      const clean = text.replace(/```json|```/g, '').trim();
+      const novas = JSON.parse(clean);
+      if(Array.isArray(novas) && novas.length > 0){
+        // Valida cada pergunta antes de adicionar
+        const validas = novas.filter(q =>
+          q.q && q.options && q.options.length === 4 &&
+          typeof q.correct === 'number' && q.correct >= 0 && q.correct <= 3 &&
+          ['Fácil','Médio','Difícil'].includes(q.level)
+        );
+        if(validas.length > 0){
+          QUIZ_QUESTIONS = QUIZ_QUESTIONS.concat(validas);
+          console.log(`Quiz: ${validas.length} novas perguntas adicionadas via IA. Total: ${QUIZ_QUESTIONS.length}`);
+        }
+        break;
+      }
+    } catch(e){
+      console.warn('Quiz IA — modelo indisponível (' + model + '):', e.message || e);
+    }
+  }
+  quizAiGenerating = false;
+}
+
+// Gera novas perguntas em segundo plano ao carregar o app
+generateQuizQuestions();
 
 
 /* =========================================================
@@ -5239,6 +5299,10 @@ function shuffleQuestion(q){
   };
 }
 function buildQuizDeck(){
+  // Quando restar menos de 20 perguntas no pool, gera mais em segundo plano
+  if(QUIZ_QUESTIONS.length < 20 || (state.quizPos > 0 && QUIZ_QUESTIONS.length - state.quizPos < 15)){
+    generateQuizQuestions();
+  }
   return shuffleArray(QUIZ_QUESTIONS).map(shuffleQuestion);
 }
 // Reinicia totalmente a sessão do quiz: XP, acertos, erros, sequência e conquistas voltam a 0
