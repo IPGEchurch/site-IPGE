@@ -808,6 +808,8 @@ textarea.notes-area:focus{border-color:var(--gold);}
 .quiz-option.correct{background:var(--sage-soft);border-color:var(--sage);font-weight:600;}
 .quiz-option.wrong{background:#F3DCD8;border-color:var(--rose);}
 [data-theme="dark"] .quiz-option.wrong{background:#3A2422;}
+.quiz-next-timer-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);display:inline-block;animation:quiz-timer-pulse 1s ease-in-out infinite;}
+@keyframes quiz-timer-pulse{0%,100%{opacity:.35;}50%{opacity:1;}}
 
 /* ---------------- Media library ---------------- */
 .media-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:18px;flex-wrap:wrap;}
@@ -1961,7 +1963,10 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
           <div class="pill pill-sage" id="quiz-difficulty">Fácil</div>
           <h3 style="margin-top:14px;font-size:1.15rem;" id="quiz-question"></h3>
           <div id="quiz-options" style="margin-top:18px;"></div>
-          <button class="btn btn-ghost" id="quiz-next" style="margin-top:8px;display:none;">Próxima pergunta →</button>
+          <div class="quiz-next-timer" id="quiz-next-timer" style="margin-top:8px;display:none;align-items:center;gap:8px;">
+            <span class="quiz-next-timer-dot"></span>
+            <span class="muted" id="quiz-next-timer-text" style="font-size:.85rem;">Próxima pergunta em 2s…</span>
+          </div>
         </div>
 
         <div class="sec-row"><h2>Conquistas do quiz</h2></div>
@@ -3567,7 +3572,7 @@ function switchView(view){
   if(view==='studies') renderStudies(state.studyFilter || 'Todos');
   if(previousView==='media' && view!=='media' && typeof closeMediaPlayer === 'function') closeMediaPlayer();
   // Saiu da tela do Quiz bíblico: reinicia XP, acertos, erros e conquistas da sessão
-  if(previousView==='quiz' && view!=='quiz') resetQuizSession();
+  if(previousView==='quiz' && view!=='quiz'){ if(typeof clearQuizNextTimer === 'function') clearQuizNextTimer(); resetQuizSession(); }
   // Guarda a última seção visitada (fora da home) para o card "Continue de onde parou"
   if(view!=='home'){
     state.lastVisitedView = view;
@@ -5334,6 +5339,30 @@ function shuffleQuestion(q){
     correct: order.indexOf(q.correct)
   };
 }
+let quizNextTimerId = null;
+function clearQuizNextTimer(){
+  if(quizNextTimerId){ clearInterval(quizNextTimerId); quizNextTimerId = null; }
+  const timerEl = document.getElementById('quiz-next-timer');
+  if(timerEl) timerEl.style.display = 'none';
+}
+function startQuizNextCountdown(){
+  clearQuizNextTimer();
+  let secondsLeft = 2;
+  const timerEl = document.getElementById('quiz-next-timer');
+  const textEl = document.getElementById('quiz-next-timer-text');
+  if(textEl) textEl.textContent = `Próxima pergunta em ${secondsLeft}s…`;
+  if(timerEl) timerEl.style.display = 'flex';
+  quizNextTimerId = setInterval(()=>{
+    secondsLeft -= 1;
+    if(secondsLeft <= 0){
+      clearQuizNextTimer();
+      state.quizPos += 1;
+      renderQuiz();
+    } else if(textEl){
+      textEl.textContent = `Próxima pergunta em ${secondsLeft}s…`;
+    }
+  }, 1000);
+}
 function buildQuizDeck(){
   // Quando restar menos de 20 perguntas no pool, gera mais em segundo plano
   if(QUIZ_QUESTIONS.length < 20 || (state.quizPos > 0 && QUIZ_QUESTIONS.length - state.quizPos < 15)){
@@ -5352,6 +5381,7 @@ function resetQuizSession(){
   state.quizDeck = buildQuizDeck();
   state.quizPos = 0;
   state.quizAnswered = false;
+  clearQuizNextTimer();
   document.getElementById('quiz-xp').textContent = state.quizXp;
   document.getElementById('quiz-score').textContent = state.quizScore;
   renderQuiz();
@@ -5369,7 +5399,7 @@ function renderQuiz(){
   const optsEl = document.getElementById('quiz-options');
   optsEl.innerHTML = '';
   state.quizAnswered = false;
-  document.getElementById('quiz-next').style.display = 'none';
+  clearQuizNextTimer();
   q.options.forEach((opt, i)=>{
     const b = document.createElement('button');
     b.className = 'quiz-option';
@@ -5397,15 +5427,11 @@ function renderQuiz(){
         toast('Quase! A resposta certa está em verde. -5 XP', '📖');
       }
       renderAchievements();
-      document.getElementById('quiz-next').style.display = 'inline-flex';
+      startQuizNextCountdown();
     });
     optsEl.appendChild(b);
   });
 }
-document.getElementById('quiz-next').addEventListener('click', ()=>{
-  state.quizPos += 1;
-  renderQuiz();
-});
 resetQuizSession();
 
 function renderAchievements(){
