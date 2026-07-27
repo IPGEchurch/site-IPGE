@@ -2020,8 +2020,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
             <div class="settings-profile-name">Camila</div>
             <div class="settings-profile-email">@camila.leitura</div>
             <div class="settings-profile-meta">
-              <span class="pill pill-gold">Membro desde mar/2024</span>
-              <span class="pill pill-gold">IPGE Church — Sede</span>
+              <span class="pill pill-gold" id="settings-profile-membro-desde">Membro desde —</span>
             </div>
           </div>
         </div>
@@ -2105,46 +2104,28 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
                 <div class="settings-form-row">
                   <div class="settings-field">
                     <label class="field-label">Nome de exibição</label>
-                    <input type="text" class="field-input" value="camila">
+                    <input type="text" class="field-input" id="settings-nome-exibicao" value="camila">
                   </div>
                   <div class="settings-field">
                     <label class="field-label">Nome de usuário</label>
-                    <input type="text" class="field-input" value="camila.leitura">
+                    <input type="text" class="field-input" id="settings-nome-usuario" value="camila.leitura">
                   </div>
                 </div>
                 <div class="settings-form-row">
                   <div class="settings-field">
-                    <label class="field-label">Telefone (opcional)</label>
-                    <input type="tel" class="field-input" placeholder="(00) 00000-0000">
+                    <label class="field-label">Membro desde</label>
+                    <input type="date" class="field-input" id="settings-membro-desde">
                   </div>
                 </div>
                 <div class="settings-form-row full">
                   <div class="settings-field">
                     <label class="field-label">Sobre mim / testemunho</label>
-                    <textarea class="field-input" placeholder="Conte um pouco da sua caminhada com a Palavra…">Buscando crescer um capítulo por dia. 📖✨</textarea>
-                  </div>
-                </div>
-                <div class="settings-form-row">
-                  <div class="settings-field">
-                    <label class="field-label">Congregação</label>
-                    <select class="field-input">
-                      <option>IPGE Church — Sede</option>
-                      <option>IPGE Church — Zona Norte</option>
-                      <option>IPGE Church — Zona Sul</option>
-                    </select>
-                  </div>
-                  <div class="settings-field">
-                    <label class="field-label">Fuso horário</label>
-                    <select class="field-input">
-                      <option>Brasília (GMT-3)</option>
-                      <option>Manaus (GMT-4)</option>
-                      <option>Fernando de Noronha (GMT-2)</option>
-                    </select>
+                    <textarea class="field-input" id="settings-sobre-mim" placeholder="Conte um pouco da sua caminhada com a Palavra…">Buscando crescer um capítulo por dia. 📖✨</textarea>
                   </div>
                 </div>
                 <div class="settings-form-actions">
-                  <button class="btn btn-primary" data-settings-save>Salvar alterações</button>
-                  <button class="btn btn-ghost" data-settings-discard>Descartar</button>
+                  <button class="btn btn-primary" id="perfil-save-btn">Salvar alterações</button>
+                  <button class="btn btn-ghost" id="perfil-discard-btn">Descartar</button>
                 </div>
               </div>
             </div>
@@ -2187,8 +2168,9 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
                     </div>
                   </div>
                 </div>
+                <div class="settings-error" id="seguranca-senha-error" style="display:none;color:#B8695A;font-size:.85rem;margin-top:-6px;"></div>
                 <div class="settings-form-actions">
-                  <button class="btn btn-primary" data-settings-save>Atualizar senha</button>
+                  <button class="btn btn-primary" id="seguranca-save-btn">Atualizar senha</button>
                 </div>
               </div>
 
@@ -2197,22 +2179,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
                   <div class="settings-card-title">Sessões ativas</div>
                   <div class="settings-card-sub">Dispositivos onde sua conta está conectada atualmente.</div>
                 </div>
-                <div class="session-item">
-                  <div class="session-ic">💻</div>
-                  <div class="session-info">
-                    <div class="session-name">Este dispositivo — Navegador web</div>
-                    <div class="session-meta">Nova Iguaçu, RJ · sessão atual</div>
-                  </div>
-                  <span class="pill pill-sage">Ativa</span>
-                </div>
-                <div class="session-item">
-                  <div class="session-ic">📱</div>
-                  <div class="session-info">
-                    <div class="session-name">iPhone — App IPGE Church</div>
-                    <div class="session-meta">Último acesso há 2 dias</div>
-                  </div>
-                  <button class="btn btn-ghost btn-sm" data-settings-save>Encerrar</button>
-                </div>
+                <div id="sessions-list"></div>
               </div>
             </div>
 
@@ -5889,6 +5856,133 @@ function syncDashSurpriseFavBtn(){
     discardBtn.addEventListener('click', ()=> toast('Alterações descartadas.', '↩️'));
   }
 
+  /* ===== Painel Perfil: salvar/descartar de verdade no banco ===== */
+  async function salvarPerfil(){
+    if(!state.sessionToken){ toast('Faça login para salvar suas alterações', '⚠️'); return; }
+
+    const nomeExibicaoEl = document.getElementById('settings-nome-exibicao');
+    const nomeUsuarioEl = document.getElementById('settings-nome-usuario');
+    const sobreMimEl = document.getElementById('settings-sobre-mim');
+    const membroDesdeEl = document.getElementById('settings-membro-desde');
+
+    const novoNomeExibicao = nomeExibicaoEl.value.trim();
+    const novoNomeUsuario = nomeUsuarioEl.value.trim();
+    const novoSobreMim = sobreMimEl.value;
+    const novoMembroDesde = membroDesdeEl.value || null;
+
+    if(!novoNomeExibicao){ toast('O nome de exibição não pode ficar em branco', '⚠️'); return; }
+    if(!novoNomeUsuario){ toast('O nome de usuário não pode ficar em branco', '⚠️'); return; }
+
+    const usuarioMudou = state.perfil && novoNomeUsuario.toLowerCase() !== (state.perfil.nome_usuario || '').toLowerCase();
+
+    const salvarRestante = async ()=>{
+      const avatarPreviewEl = document.getElementById('settings-avatar-preview');
+      const emoji = avatarPreviewEl ? avatarPreviewEl.textContent.trim() : (state.perfil && state.perfil.avatar_emoji) || 'A';
+      const gradient = avatarPreviewEl ? avatarPreviewEl.style.background : ((state.perfil && state.perfil.avatar_gradient) || '');
+
+      const { error } = await db.rpc('atualizar_perfil', {
+        p_token: state.sessionToken,
+        p_nome_exibicao: novoNomeExibicao,
+        p_sobre_mim: novoSobreMim,
+        p_membro_desde: novoMembroDesde,
+        p_avatar_emoji: emoji,
+        p_avatar_gradient: gradient
+      });
+      if(error){
+        console.error('Erro ao salvar perfil:', error);
+        toast('Não foi possível salvar as alterações', '⚠️');
+        return;
+      }
+      state.perfil.nome_exibicao = novoNomeExibicao;
+      state.perfil.sobre_mim = novoSobreMim;
+      state.perfil.membro_desde = novoMembroDesde;
+      state.perfil.avatar_emoji = emoji;
+      state.perfil.avatar_gradient = gradient;
+
+      if(typeof atualizarSaudacao === 'function') atualizarSaudacao();
+      if(typeof atualizarNomeConta === 'function') atualizarNomeConta();
+      if(typeof atualizarPillMembroDesde === 'function') atualizarPillMembroDesde();
+      toast('Alterações salvas com sucesso', '✅');
+    };
+
+    if(usuarioMudou){
+      openConfirm({
+        title: 'Trocar nome de usuário?',
+        text: `Deseja realmente trocar o nome de usuário para "${novoNomeUsuario}"? Você vai precisar usar esse novo nome para entrar da próxima vez.`,
+        confirmLabel: 'Trocar',
+        cancelLabel: 'Cancelar',
+        onConfirm: async ()=>{
+          const { error } = await db.rpc('alterar_nome_usuario', { p_token: state.sessionToken, p_novo_usuario: novoNomeUsuario });
+          if(error){
+            console.error('Erro ao trocar nome de usuário:', error);
+            toast(error.message && error.message.includes('em uso') ? 'Esse nome de usuário já está em uso' : 'Não foi possível trocar o nome de usuário', '⚠️');
+            nomeUsuarioEl.value = state.perfil.nome_usuario;
+            return;
+          }
+          state.perfil.nome_usuario = novoNomeUsuario.toLowerCase();
+          if(typeof atualizarNomeConta === 'function') atualizarNomeConta();
+          await salvarRestante();
+        }
+      });
+    } else {
+      await salvarRestante();
+    }
+  }
+
+  const perfilSaveBtn = document.getElementById('perfil-save-btn');
+  if(perfilSaveBtn) perfilSaveBtn.addEventListener('click', salvarPerfil);
+
+  const perfilDiscardBtn = document.getElementById('perfil-discard-btn');
+  if(perfilDiscardBtn){
+    perfilDiscardBtn.addEventListener('click', ()=>{
+      if(typeof preencherFormularioPerfil === 'function') preencherFormularioPerfil();
+      toast('Alterações descartadas.', '↩️');
+    });
+  }
+
+  /* ===== Painel Conta e segurança: trocar senha de verdade ===== */
+  function mostrarErroSenha(msg){
+    const el = document.getElementById('seguranca-senha-error');
+    if(!el) return;
+    el.textContent = msg;
+    el.style.display = msg ? 'block' : 'none';
+  }
+  const segurancaSaveBtn = document.getElementById('seguranca-save-btn');
+  if(segurancaSaveBtn){
+    segurancaSaveBtn.addEventListener('click', async ()=>{
+      mostrarErroSenha('');
+      if(!state.sessionToken){ toast('Faça login para trocar sua senha', '⚠️'); return; }
+
+      const atualEl = document.getElementById('settings-pass-current');
+      const novaEl = document.getElementById('settings-pass-new');
+      const confirmEl = document.getElementById('settings-pass-confirm');
+      const senhaAtual = atualEl.value;
+      const senhaNova = novaEl.value;
+      const senhaConfirm = confirmEl.value;
+
+      if(!senhaAtual || !senhaNova){ mostrarErroSenha('Preencha a senha atual e a nova senha.'); return; }
+      if(senhaNova.length < 6){ mostrarErroSenha('A nova senha precisa ter pelo menos 6 caracteres.'); return; }
+      if(senhaNova !== senhaConfirm){ mostrarErroSenha('As senhas não coincidem.'); return; }
+
+      segurancaSaveBtn.disabled = true;
+      segurancaSaveBtn.textContent = 'Aguarde…';
+      const { error } = await db.rpc('trocar_senha', {
+        p_token: state.sessionToken,
+        p_senha_atual: senhaAtual,
+        p_senha_nova: senhaNova
+      });
+      segurancaSaveBtn.disabled = false;
+      segurancaSaveBtn.textContent = 'Atualizar senha';
+
+      if(error){
+        mostrarErroSenha(error.message && error.message.includes('incorreta') ? 'Senha atual incorreta.' : 'Não foi possível trocar a senha.');
+        return;
+      }
+      atualEl.value = ''; novaEl.value = ''; confirmEl.value = '';
+      toast('Senha atualizada com sucesso', '🔒');
+    });
+  }
+
   /* Avatares temáticos do mundo bíblico */
   const avatarOptions = document.querySelectorAll('.avatar-option');
   const avatarPreview = document.getElementById('settings-avatar-preview');
@@ -5945,6 +6039,9 @@ function syncDashSurpriseFavBtn(){
           if(typeof renderStudies === 'function') renderStudies(state.studyFilter || 'Todos');
           if(typeof atualizarSaudacao === 'function') atualizarSaudacao();
           if(typeof atualizarNomeConta === 'function') atualizarNomeConta();
+          if(typeof atualizarPillMembroDesde === 'function') atualizarPillMembroDesde();
+          if(typeof preencherFormularioPerfil === 'function') preencherFormularioPerfil();
+          if(typeof renderSessions === 'function') renderSessions([]);
           if(typeof renderFavorites === 'function') renderFavorites();
           if(typeof renderDashFavorites === 'function') renderDashFavorites();
           if(typeof renderDevoNoteBlocks === 'function') renderDevoNoteBlocks();
@@ -5993,6 +6090,125 @@ function renderCampaignHero(campaign){
     </article>`;
 }
 
+/* Aplica o avatar salvo no banco (se houver) na sidebar e nas configurações */
+function aplicarAvatarSalvo(){
+  if(!state.perfil || !state.perfil.avatar_emoji) return;
+  const emoji = state.perfil.avatar_emoji;
+  const gradient = state.perfil.avatar_gradient;
+  const avatarSidebar = document.getElementById('sidebar-account-avatar');
+  const avatarConfig = document.getElementById('settings-avatar-preview');
+  [avatarSidebar, avatarConfig].forEach(el=>{
+    if(!el) return;
+    el.textContent = emoji;
+    if(gradient) el.style.background = gradient;
+  });
+  document.querySelectorAll('.avatar-option').forEach(opt=>{
+    opt.classList.toggle('selected', opt.dataset.avatarEmoji === emoji);
+  });
+}
+
+/* Formata e mostra o pill "Membro desde mês/ano" no topo das configurações */
+function atualizarPillMembroDesde(){
+  const el = document.getElementById('settings-profile-membro-desde');
+  if(!el) return;
+  const data = state.perfil && state.perfil.membro_desde;
+  if(!data){ el.textContent = 'Membro desde —'; return; }
+  const d = new Date(data + 'T00:00:00');
+  const meses = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  el.textContent = 'Membro desde ' + meses[d.getMonth()] + '/' + d.getFullYear();
+}
+
+/* Preenche os campos do formulário de perfil com os dados carregados do banco */
+function preencherFormularioPerfil(){
+  const p = state.perfil;
+  if(!p) return;
+  const nomeExibicaoEl = document.getElementById('settings-nome-exibicao');
+  const nomeUsuarioEl = document.getElementById('settings-nome-usuario');
+  const sobreMimEl = document.getElementById('settings-sobre-mim');
+  const membroDesdeEl = document.getElementById('settings-membro-desde');
+  if(nomeExibicaoEl) nomeExibicaoEl.value = p.nome_exibicao || '';
+  if(nomeUsuarioEl) nomeUsuarioEl.value = p.nome_usuario || '';
+  if(sobreMimEl) sobreMimEl.value = p.sobre_mim || '';
+  if(membroDesdeEl) membroDesdeEl.value = p.membro_desde ? String(p.membro_desde).slice(0,10) : '';
+}
+
+/* Identifica de forma simples o navegador/dispositivo, só para exibir em "Sessões ativas" */
+function detectarDispositivo(){
+  const ua = navigator.userAgent || '';
+  let nav = 'Navegador';
+  if(/Edg\//.test(ua)) nav = 'Edge';
+  else if(/Chrome\//.test(ua) && !/OPR|Brave/.test(ua)) nav = 'Chrome';
+  else if(/Firefox\//.test(ua)) nav = 'Firefox';
+  else if(/Safari\//.test(ua) && !/Chrome/.test(ua)) nav = 'Safari';
+
+  let so = '';
+  if(/iPhone|iPad/.test(ua)) so = 'iOS';
+  else if(/Android/.test(ua)) so = 'Android';
+  else if(/Mac OS X/.test(ua)) so = 'macOS';
+  else if(/Windows/.test(ua)) so = 'Windows';
+  else if(/Linux/.test(ua)) so = 'Linux';
+
+  return so ? `${nav} — ${so}` : nav;
+}
+
+function formatarTempoRelativo(dataIso){
+  const diffMs = Date.now() - new Date(dataIso).getTime();
+  const min = Math.floor(diffMs / 60000);
+  if(min < 1) return 'agora mesmo';
+  if(min < 60) return 'há ' + min + ' min';
+  const h = Math.floor(min / 60);
+  if(h < 24) return 'há ' + h + (h===1 ? ' hora' : ' horas');
+  const d = Math.floor(h / 24);
+  return 'há ' + d + (d===1 ? ' dia' : ' dias');
+}
+
+function renderSessions(lista){
+  const container = document.getElementById('sessions-list');
+  if(!container) return;
+  if(!lista || !lista.length){
+    container.innerHTML = '<p class="muted" style="font-size:.85rem;">Nenhuma sessão ativa encontrada.</p>';
+    return;
+  }
+  container.innerHTML = lista.map(s => `
+    <div class="session-item">
+      <div class="session-ic">${s.sessao_atual ? '💻' : '📱'}</div>
+      <div class="session-info">
+        <div class="session-name">${escapeHtml(s.dispositivo || 'Dispositivo desconhecido')}</div>
+        <div class="session-meta">${s.sessao_atual ? 'Sessão atual' : 'Conectado ' + formatarTempoRelativo(s.criado_em)}</div>
+      </div>
+      ${s.sessao_atual
+        ? '<span class="pill pill-sage">Ativa</span>'
+        : `<button class="btn btn-ghost btn-sm" data-end-session="${s.token}">Encerrar</button>`}
+    </div>
+  `).join('');
+
+  container.querySelectorAll('[data-end-session]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const sessaoToken = btn.dataset.endSession;
+      openConfirm({
+        title: 'Encerrar esta sessão?',
+        text: 'O dispositivo será desconectado e precisará entrar novamente para acessar a conta.',
+        confirmLabel: 'Encerrar',
+        cancelLabel: 'Cancelar',
+        onConfirm: async ()=>{
+          const { error } = await db.rpc('encerrar_sessao', { p_token: state.sessionToken, p_sessao_token: sessaoToken });
+          if(error){ console.error('Erro ao encerrar sessão:', error); toast('Não foi possível encerrar essa sessão', '⚠️'); return; }
+          toast('Sessão encerrada', '✅');
+          await carregarSessoes();
+        }
+      });
+    });
+  });
+}
+
+async function carregarSessoes(){
+  if(!state.sessionToken) return;
+  const { data, error } = await db.rpc('listar_sessoes', { p_token: state.sessionToken });
+  if(error){ console.error('Não foi possível carregar as sessões:', error); return; }
+  renderSessions(data);
+}
+
+
 /* =========================================================
    Carrega os dados do usuário logado do banco.
    Por enquanto busca o perfil; favoritos, notas, devocional,
@@ -6007,7 +6223,11 @@ async function carregarDadosDoUsuario(){
   }
   state.perfil = perfil;
   if(typeof atualizarSaudacao === 'function') atualizarSaudacao();
+  if(typeof aplicarAvatarSalvo === 'function') aplicarAvatarSalvo();
   if(typeof atualizarNomeConta === 'function') atualizarNomeConta();
+  if(typeof atualizarPillMembroDesde === 'function') atualizarPillMembroDesde();
+  if(typeof preencherFormularioPerfil === 'function') preencherFormularioPerfil();
+  if(typeof carregarSessoes === 'function') carregarSessoes();
   if(perfil.ultima_tela && typeof CONTINUE_MAP !== 'undefined' && CONTINUE_MAP[perfil.ultima_tela]){
     state.lastVisitedView = perfil.ultima_tela;
     if(typeof renderHomeContinue === 'function') renderHomeContinue();
@@ -6246,7 +6466,7 @@ async function carregarDadosDoUsuario(){
       }
 
       setBtnLoading(loginBtn, true, 'Entrar');
-      const { data, error } = await db.rpc('login', { p_nome_usuario: usuario, p_senha: senha });
+      const { data, error } = await db.rpc('login', { p_nome_usuario: usuario, p_senha: senha, p_dispositivo: detectarDispositivo() });
       setBtnLoading(loginBtn, false, 'Entrar');
 
       if(error){
@@ -6289,7 +6509,8 @@ async function carregarDadosDoUsuario(){
       const { data, error } = await db.rpc('cadastrar_usuario', {
         p_nome_usuario: usuario,
         p_senha: senha,
-        p_nome_exibicao: nome
+        p_nome_exibicao: nome,
+        p_dispositivo: detectarDispositivo()
       });
       setBtnLoading(signupBtn, false, 'Concluir cadastro');
 
