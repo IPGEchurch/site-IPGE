@@ -274,6 +274,7 @@ a{color:inherit;text-decoration:none;}
 .view{display:none;animation:riseIn .45s ease both;}
 .view.active{display:block;}
 @keyframes riseIn{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+@keyframes spin{ from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
 
 /* Typographic helpers */
 h1,h2,h3{font-family:var(--font-display);color:var(--ink);letter-spacing:-.01em;}
@@ -967,7 +968,7 @@ textarea.notes-area:focus{border-color:var(--gold);}
 .settings-panel.active{display:block;}
 .settings-panel .card + .card{margin-top:16px;}
 .settings-card-head{margin-bottom:18px;}
-.settings-card-title{font-family:var(--font-display);font-size:1.08rem;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px;}
+.settings-card-title{font-family:var(--font-display);font-size:1.08rem;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px;scroll-margin-top:90px;}
 .settings-card-sub{font-size:.82rem;color:var(--text-dim);margin-top:4px;line-height:1.5;}
 
 /* Seletor de avatares (mundo bíblico) */
@@ -1404,13 +1405,6 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
             </div>
           </div>
           <div class="auth-field">
-            <label class="field-label">E-mail (opcional)</label>
-            <div class="auth-field-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6.5l9 6 9-6"/><rect x="3" y="4.5" width="18" height="15" rx="2.5"/></svg>
-              <input type="email" class="field-input" id="auth-signup-email" placeholder="camila@exemplo.com">
-            </div>
-          </div>
-          <div class="auth-field">
             <label class="field-label">Congregação</label>
             <select class="field-input" id="auth-signup-congregacao">
               <option>IPGE Church — Sede</option>
@@ -1791,6 +1785,10 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
 
         <div class="grid grid-2" style="margin-top:22px;align-items:start;">
           <div class="card">
+            <div id="devo-loading" style="display:none;align-items:center;gap:10px;padding:10px 0 18px;color:var(--text-faint);font-size:.85rem;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite;flex-shrink:0;"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+              Gerando devocional de hoje…
+            </div>
             <div class="devo-block">
               <div class="devo-label">Versículo</div>
               <div class="devo-text" id="devo-verse" style="font-family:var(--font-display);font-style:italic;font-size:1.15rem;"></div>
@@ -2015,7 +2013,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
           </div>
           <div class="settings-profile-info">
             <div class="settings-profile-name">Camila</div>
-            <div class="settings-profile-email">camila@exemplo.com · @camila.leitura</div>
+            <div class="settings-profile-email">@camila.leitura</div>
             <div class="settings-profile-meta">
               <span class="pill pill-gold">Membro desde mar/2024</span>
               <span class="pill pill-gold">IPGE Church — Sede</span>
@@ -2110,10 +2108,6 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
                   </div>
                 </div>
                 <div class="settings-form-row">
-                  <div class="settings-field">
-                    <label class="field-label">E-mail</label>
-                    <input type="email" class="field-input" value="camila@exemplo.com">
-                  </div>
                   <div class="settings-field">
                     <label class="field-label">Telefone (opcional)</label>
                     <input type="tel" class="field-input" placeholder="(00) 00000-0000">
@@ -2718,24 +2712,105 @@ const VERSES_OF_DAY = [
 ];
 const todaysVerse = VERSES_OF_DAY[new Date().getDate() % VERSES_OF_DAY.length];
 
-const DEVOTIONALS = [
-  {verse:"\u201cN\u00e3o estejais ansiosos por coisa alguma\u2026 e a paz de Deus guardar\u00e1 os vossos cora\u00e7\u00f5es.\u201d", ref:"Filipenses 4:6-7",
-   reflection:"A ansiedade nasce de tentar carregar sozinho aquilo que só Deus pode sustentar. Paulo não promete a ausência de problemas, mas uma paz que os atravessa.",
-   application:"Hoje, escreva uma preocupação específica em suas anotações e entregue-a a Deus em oração, palavra por palavra.",
-   question:"O que você está carregando que poderia entregar a Deus hoje?",
-   prayer:"Senhor, ensina-me a trocar a ansiedade por confiança. Guarda meu coração e minha mente em Cristo Jesus. Amém."},
-  {verse:"\u201cConfia no Senhor de todo o teu cora\u00e7\u00e3o, e n\u00e3o te estribes no teu pr\u00f3prio entendimento.\u201d", ref:"Provérbios 3:5",
-   reflection:"Confiar totalmente é difícil quando queremos entender cada passo antes de dá-lo. Deus pede confiança, não certeza plena do caminho.",
-   application:"Identifique uma decisão em que você está tentando controlar tudo sozinho, e ore pedindo direção.",
-   question:"Em que área da vida você tem confiado mais em si mesmo do que em Deus?",
-   prayer:"Pai, ajuda-me a soltar o controle e caminhar em fé, mesmo sem ver todo o caminho. Amém."},
-  {verse:"\u201cBem-aventurados os que t\u00eam fome e sede de justi\u00e7a, porque eles ser\u00e3o fartos.\u201d", ref:"Mateus 5:6",
-   reflection:"Jesus abençoa quem deseja profundamente viver de forma reta — não uma justiça própria, mas uma fome por se parecer mais com Ele.",
-   application:"Escolha uma atitude concreta hoje que reflita mais o caráter de Cristo em sua rotina.",
-   question:"O que alimenta essa fome espiritual em você?",
-   prayer:"Senhor, aumenta em mim a fome pela tua justiça e pela tua presença. Amém."}
-];
-const todayDevo = DEVOTIONALS[new Date().getDate() % DEVOTIONALS.length];
+/* Devocional do dia — gerado por IA e cacheado por 24h no localStorage */
+const DEVOTIONALS = []; // mantido vazio; usado apenas como fallback de emergência
+
+function todayDevoStorageKey(){
+  const d = new Date();
+  return 'ipge_devo_' + d.getFullYear() + '_' + String(d.getMonth()+1).padStart(2,'0') + '_' + String(d.getDate()).padStart(2,'0');
+}
+
+const DEVO_FALLBACK = {
+  verse: '"Não estejais ansiosos por coisa alguma… e a paz de Deus guardará os vossos corações."',
+  ref: 'Filipenses 4:6-7',
+  reflection: 'A ansiedade nasce de tentar carregar sozinho aquilo que só Deus pode sustentar. Paulo não promete a ausência de problemas, mas uma paz que os atravessa.',
+  application: 'Hoje, escreva uma preocupação específica em suas anotações e entregue-a a Deus em oração, palavra por palavra.',
+  question: 'O que você está carregando que poderia entregar a Deus hoje?',
+  prayer: 'Senhor, ensina-me a trocar a ansiedade por confiança. Guarda meu coração e minha mente em Cristo Jesus. Amém.'
+};
+
+let todayDevo = (() => {
+  try {
+    const cached = localStorage.getItem(todayDevoStorageKey());
+    if(cached) return JSON.parse(cached);
+  } catch(e){}
+  return null; // será preenchido async
+})();
+
+async function generateDevoWithAI(){
+  const dateStr = new Date().toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  const prompt = `Você é um pastor evangélico reformado de tradição presbiteriana. Gere um devocional diário completo em português brasileiro para hoje (${dateStr}).
+
+Escolha um versículo bíblico diferente a cada vez — pode ser do Antigo ou Novo Testamento, de qualquer livro. Varie os temas: fé, graça, esperança, perseverança, amor, arrependimento, adoração, missão, etc.
+
+Responda APENAS com um objeto JSON válido, sem markdown, sem texto antes ou depois:
+{
+  "verse": "texto do versículo entre aspas curvas",
+  "ref": "Livro capítulo:versículo",
+  "reflection": "reflexão de 2-3 frases sobre o versículo",
+  "application": "aplicação prática concreta para o dia de hoje",
+  "question": "uma pergunta para reflexão pessoal",
+  "prayer": "uma oração curta em primeira pessoa, terminando em Amém"
+}`;
+
+  for(const model of MODELS_FALLBACK){
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+          'HTTP-Referer': 'https://ipgechurch.local',
+          'X-Title': 'IPGE Church'
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 1000
+        })
+      });
+      const data = await response.json();
+      if(data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+      const text = data.choices?.[0]?.message?.content || '';
+      const clean = text.replace(/```json|```/g, '').trim();
+      const devo = JSON.parse(clean);
+      if(devo.verse && devo.ref && devo.reflection){
+        try { localStorage.setItem(todayDevoStorageKey(), JSON.stringify(devo)); } catch(e){}
+        return devo;
+      }
+    } catch(e){
+      console.warn('Devocional — modelo indisponível (' + model + '):', e.message || e);
+    }
+  }
+  return null;
+}
+
+function applyDevoToPage(devo){
+  if(!devo) return;
+  todayDevo = devo;
+  const verseEl = document.getElementById('devo-verse');
+  const reflEl  = document.getElementById('devo-reflection');
+  const applEl  = document.getElementById('devo-application');
+  const questEl = document.getElementById('devo-question');
+  const prayEl  = document.getElementById('devo-prayer');
+  const loadEl  = document.getElementById('devo-loading');
+  if(verseEl) verseEl.textContent = devo.verse + ' — ' + devo.ref;
+  if(reflEl)  reflEl.textContent  = devo.reflection;
+  if(applEl)  applEl.textContent  = devo.application;
+  if(questEl) questEl.textContent = devo.question;
+  if(prayEl)  prayEl.textContent  = devo.prayer;
+  if(loadEl)  loadEl.style.display = 'none';
+  document.querySelectorAll('.devo-block').forEach(b => b.style.opacity = '1');
+  // Atualiza devoContent no bloco de hoje caso tenha sido criado antes da IA responder
+  if(typeof state !== 'undefined' && state.devoNoteBlocks){
+    const key = typeof todayDevoKey === 'function' ? todayDevoKey() : '';
+    const block = state.devoNoteBlocks.find(b => b.dateKey === key);
+    if(block && !block.devoContent){
+      block.devoContent = { verse:devo.verse, ref:devo.ref, reflection:devo.reflection, application:devo.application, question:devo.question, prayer:devo.prayer };
+      if(typeof renderDevoNoteBlocks === 'function') renderDevoNoteBlocks();
+    }
+  }
+}
 
 /* =========================================================
    BIBLE CANON — os 66 livros com quantidade de capítulos,
@@ -3800,6 +3875,8 @@ const OPENROUTER_API_KEY = 'sk-or-v1-a7610dce6e8708be693ff76617bf6f0849ba156e903
 
 const SYSTEM_PROMPT = `IDIOMA OBRIGATÓRIO: Responda SEMPRE e EXCLUSIVAMENTE em português do Brasil, independentemente do idioma da pergunta do usuário. Nunca responda em inglês ou em qualquer outro idioma, em nenhuma hipótese.
 
+ORTOGRAFIA E GRAMÁTICA: Escreva sempre com ortografia perfeita em português brasileiro. Use corretamente todos os acentos (á, é, í, ó, ú, â, ê, ô, ã, õ, ç). Nunca omita acentos. Nunca escreva palavras em inglês no meio de frases em português. Use pontuação correta.
+
 Você é o assistente espiritual da IPGE Church, chamado Shalom. Você responde sempre em português do Brasil, com gentileza, calor pastoral e embasamento nas Escrituras. Suas respostas devem:
 - Explicar versículos bíblicos com profundidade e aplicação prática
 - Citar referências bíblicas relevantes ao tema perguntado
@@ -3809,10 +3886,10 @@ Você é o assistente espiritual da IPGE Church, chamado Shalom. Você responde 
 - Manter um tom pastoral, amoroso e edificante
 - Formatar as respostas usando **negrito** e linhas em branco para facilitar a leitura
 - Nunca inventar versículos — apenas citar os que realmente existem
-- Sempre que for porguntando sobre coisas que não entram no ambito religioso, como por exemplo: quem ganhou a copa do mundo?, quando vai ser o priximo show do zé neto e cristiano, espero que tenha entendido que não é para sair do âmbito religioso, vc sempre vai responder de forma educada e cristã que não pode responder essa pegurgunta.
+- Sempre que for perguntado sobre coisas que não entram no âmbito religioso, como por exemplo: quem ganhou a copa do mundo?, quando vai ser o próximo show do Zé Neto e Cristiano — responda de forma educada e cristã que não pode responder essa pergunta.
 Você está inserido no aplicativo de estudos bíblicos IPGE Church e representa a palavra de Deus com fidelidade e amor.
 
-LEMBRETE FINAL: toda a sua resposta, do início ao fim, deve estar 100% em português do Brasil, sem nenhuma palavra em outro idioma.`;
+LEMBRETE FINAL: toda a sua resposta, do início ao fim, deve estar 100% em português do Brasil, com ortografia perfeita, sem nenhuma palavra em outro idioma.`;
 
 /* =========================================================
    AI CHAT — OpenRouter
@@ -3822,9 +3899,10 @@ LEMBRETE FINAL: toda a sua resposta, do início ao fim, deve estar 100% em portu
    sai do catálogo :free da OpenRouter (isso muda com frequência).
    ========================================================= */
 const MODELS_FALLBACK = [
+  'google/gemini-2.0-flash-exp:free',
+  'google/gemma-3-27b-it:free',
   'meta-llama/llama-3.3-70b-instruct:free',
   'qwen/qwen3-235b-a22b:free',
-  'google/gemma-3-27b-it:free',
   'openrouter/free'
 ];
 
@@ -3929,14 +4007,24 @@ document.querySelectorAll('.sugg').forEach(s=>s.addEventListener('click', ()=>se
 
 
 /* =========================================================
-   DEVOTIONAL
+   DEVOTIONAL — gerado por IA diariamente
    ========================================================= */
 document.getElementById('devo-date').textContent = new Date().toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long'});
-document.getElementById('devo-verse').textContent = todayDevo.verse + ' — ' + todayDevo.ref;
-document.getElementById('devo-reflection').textContent = todayDevo.reflection;
-document.getElementById('devo-application').textContent = todayDevo.application;
-document.getElementById('devo-question').textContent = todayDevo.question;
-document.getElementById('devo-prayer').textContent = todayDevo.prayer;
+
+// Esconde os blocos enquanto carrega
+document.querySelectorAll('.devo-block').forEach(b => b.style.opacity = '0.3');
+
+if(todayDevo){
+  // Cache do dia já existe — aplica imediatamente
+  applyDevoToPage(todayDevo);
+} else {
+  // Mostra spinner e gera novo devocional via IA
+  const loadEl = document.getElementById('devo-loading');
+  if(loadEl) loadEl.style.display = 'flex';
+  generateDevoWithAI().then(devo => {
+    applyDevoToPage(devo || DEVO_FALLBACK);
+  });
+}
 document.getElementById('devo-save-note').addEventListener('click', ()=>{
   const val = document.getElementById('devo-notes').value;
   if(!val.trim()) return toast('Escreva algo antes de salvar', '⚠️');
@@ -3960,6 +4048,14 @@ function findOrCreateTodayDevoBlock(){
       id: 'devo-blk-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),
       dateKey: key,
       dateLabel: new Date().toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long'}),
+      devoContent: todayDevo ? {
+        verse: todayDevo.verse,
+        ref: todayDevo.ref,
+        reflection: todayDevo.reflection,
+        application: todayDevo.application,
+        question: todayDevo.question,
+        prayer: todayDevo.prayer
+      } : null,
       notes: []
     };
     state.devoNoteBlocks.unshift(block);
@@ -4059,13 +4155,26 @@ function renderDevoNoteBlocks(){
               <span class="note-item-meta">
                 <span class="muted" style="font-size:.75rem;">${n.editedDate ? 'editado em ' + n.editedDate : n.date}</span>
                 <button class="note-item-edit" data-devo-editblock="${block.id}" data-devo-editidx="${idx}" title="Editar anotação">✏️</button>
-                <button class="note-item-del" data-devo-block="${block.id}" data-devo-idx="${idx}" title="Excluir anotação">✕</button>
               </span>
             </div>
             <p style="margin-top:10px;line-height:1.7;">${n.text ? escapeHtml(n.text).replace(/\n/g,'<br>') : '<i class="muted">(sem texto ainda)</i>'}</p>
           </div>`;
         }).join('')
       : '<div class="note-block-empty">Nenhuma anotação neste bloco ainda.</div>';
+
+    const dc = block.devoContent;
+    const devoSummaryHtml = (isOpen && dc) ? `
+      <div style="background:var(--parchment-dim);border-radius:var(--radius-sm);padding:16px 18px;margin-bottom:18px;border-left:3px solid var(--gold);">
+        <div style="font-family:var(--font-display);font-style:italic;font-size:1.05rem;color:var(--ink);line-height:1.5;margin-bottom:6px;">${escapeHtml(dc.verse)}</div>
+        <div style="font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;color:var(--gold);text-transform:uppercase;margin-bottom:14px;">${escapeHtml(dc.ref)}</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div><span style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);">Reflexão</span><p style="margin-top:4px;font-size:.88rem;color:var(--text-dim);line-height:1.6;">${escapeHtml(dc.reflection)}</p></div>
+          <div><span style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);">Aplicação prática</span><p style="margin-top:4px;font-size:.88rem;color:var(--text-dim);line-height:1.6;">${escapeHtml(dc.application)}</p></div>
+          <div><span style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);">Pergunta para reflexão</span><p style="margin-top:4px;font-size:.88rem;color:var(--text-dim);line-height:1.6;">${escapeHtml(dc.question)}</p></div>
+          <div><span style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);">Oração sugerida</span><p style="margin-top:4px;font-size:.88rem;color:var(--text-dim);font-style:italic;line-height:1.6;">${escapeHtml(dc.prayer)}</p></div>
+        </div>
+      </div>
+      <div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:10px;">Minhas anotações</div>` : '';
 
     wrap.innerHTML = `
       <div class="note-block-head" data-devo-toggle="${block.id}">
@@ -4075,6 +4184,7 @@ function renderDevoNoteBlocks(){
         <button class="note-block-del" data-devo-delblock="${block.id}" title="Excluir bloco de notas">🗑️</button>
       </div>
       <div class="note-block-body">
+        ${devoSummaryHtml}
         <div style="display:flex;flex-direction:column;">${notesHtml}</div>
       </div>`;
     list.appendChild(wrap);
@@ -5060,6 +5170,10 @@ function renderPrayers(){
       p.answered = true;
       renderPrayers();
       toast('Glória a Deus! Oração respondida 🎉', '🙌');
+      if(p.dbId && state.sessionToken){
+        db.rpc('marcar_oracao_respondida', { p_token: state.sessionToken, p_oracao_id: p.dbId, p_respondida: true })
+          .then(({error})=>{ if(error) console.error('Erro ao marcar oração respondida:', error); });
+      }
     });
   });
   [active, answered].forEach(container=>{
@@ -5077,19 +5191,29 @@ function renderPrayers(){
             state.prayers = state.prayers.filter(pr=>pr.id!==id);
             renderPrayers();
             toast('Excluído', '🗑️');
+            if(p.dbId && state.sessionToken){
+              db.rpc('excluir_oracao', { p_token: state.sessionToken, p_oracao_id: p.dbId })
+                .then(({error})=>{ if(error) console.error('Erro ao excluir oração:', error); });
+            }
           }
         });
       });
     });
   });
 }
-document.getElementById('add-prayer-btn').addEventListener('click', ()=>{
+document.getElementById('add-prayer-btn').addEventListener('click', async ()=>{
   const val = document.getElementById('new-prayer-text').value;
   if(!val.trim()) return toast('Escreva um pedido antes de adicionar', '⚠️');
-  state.prayers.unshift({id:'pr-'+Date.now()+'-'+Math.random().toString(36).slice(2,7), text:val, date:new Date().toLocaleDateString('pt-BR'), answered:false});
+  const prayer = {id:'pr-'+Date.now()+'-'+Math.random().toString(36).slice(2,7), dbId:null, text:val, date:new Date().toLocaleDateString('pt-BR'), answered:false};
+  state.prayers.unshift(prayer);
   document.getElementById('new-prayer-text').value = '';
   renderPrayers();
   toast('Pedido de oração adicionado', '🕯️');
+
+  if(!state.sessionToken) return;
+  const { data, error } = await db.rpc('salvar_oracao', { p_token: state.sessionToken, p_texto: val });
+  if(error){ console.error('Erro ao salvar oração:', error); return; }
+  prayer.dbId = data;
 });
 renderPrayers();
 
@@ -5588,7 +5712,15 @@ function syncDashSurpriseFavBtn(){
       const tab = btn.dataset.settingsTab;
       nav.forEach(n=>n.classList.toggle('active', n===btn));
       panels.forEach(p=>p.classList.toggle('active', p.id === 'settings-panel-'+tab));
-      document.getElementById('content').scrollTo({top:0, behavior:'smooth'});
+      requestAnimationFrame(()=>{
+        const painelAtivo = document.getElementById('settings-panel-'+tab);
+        const titulo = painelAtivo ? painelAtivo.querySelector('.settings-card-title') : null;
+        if(titulo){
+          titulo.scrollIntoView({behavior:'smooth', block:'start'});
+        } else {
+          window.scrollTo({top:0, behavior:'smooth'});
+        }
+      });
     });
   });
 
@@ -5656,7 +5788,10 @@ function syncDashSurpriseFavBtn(){
           state.lastVisitedView = null;
           state.completedStudies = new Set();
           state.noteBlocks = [];
+          state.prayers = [];
           if(typeof renderNoteBlocks === 'function') renderNoteBlocks();
+          if(typeof renderPrayers === 'function') renderPrayers();
+          if(typeof renderDashboardStats === 'function') renderDashboardStats();
           if(typeof renderStudies === 'function') renderStudies(state.studyFilter || 'Todos');
           if(typeof atualizarSaudacao === 'function') atualizarSaudacao();
           if(typeof renderFavorites === 'function') renderFavorites();
@@ -5743,11 +5878,19 @@ async function carregarDadosDoUsuario(){
     const blocksMap = new Map();
     (devocional || []).forEach(row => {
       if(!blocksMap.has(row.bloco_id)){
+        // Para o bloco de hoje usa o devocional gerado pela IA; para dias anteriores não temos o conteúdo original
+        const isToday = (typeof todayDevoKey === 'function') && row.data_chave === todayDevoKey();
+        const dc = (isToday && todayDevo) ? {
+          verse: todayDevo.verse, ref: todayDevo.ref,
+          reflection: todayDevo.reflection, application: todayDevo.application,
+          question: todayDevo.question, prayer: todayDevo.prayer
+        } : null;
         blocksMap.set(row.bloco_id, {
           id: 'devo-blk-' + row.bloco_id,
           dbId: row.bloco_id,
           dateKey: row.data_chave,
           dateLabel: row.data_label,
+          devoContent: dc,
           notes: []
         });
       }
@@ -5828,6 +5971,21 @@ async function carregarDadosDoUsuario(){
     state.noteBlocks = blocks;
     if(typeof renderNoteBlocks === 'function') renderNoteBlocks();
   }
+
+  const { data: oracoes, error: errOracoes } = await db.rpc('listar_oracoes', { p_token: state.sessionToken });
+  if(errOracoes){
+    console.error('Não foi possível carregar as orações:', errOracoes);
+  } else {
+    state.prayers = (oracoes || []).map(o => ({
+      id: 'pr-' + o.id,
+      dbId: o.id,
+      text: o.texto,
+      date: new Date(o.criado_em).toLocaleDateString('pt-BR'),
+      answered: o.respondida
+    }));
+    if(typeof renderPrayers === 'function') renderPrayers();
+    if(typeof renderDashboardStats === 'function') renderDashboardStats();
+  }
 }
 
 (function initAuth(){
@@ -5850,6 +6008,31 @@ async function carregarDadosDoUsuario(){
   document.querySelectorAll('[data-auth-goto]').forEach(el=>{
     el.addEventListener('click', ()=> switchAuth(el.dataset.authGoto));
   });
+
+  // Impede espaços nos campos de usuário/senha — evita erro de digitação
+  // que uma pessoa idosa pode não perceber (espaço em branco invisível).
+  ['auth-login-user','auth-login-pass','auth-signup-user','auth-signup-pass','auth-signup-pass-confirm',
+   'auth-forgot-user','auth-forgot-pass','auth-forgot-pass-confirm'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.addEventListener('input', ()=>{
+      if(/\s/.test(el.value)) el.value = el.value.replace(/\s/g, '');
+    });
+  });
+
+  // Enter no teclado equivale a clicar no botão de cada tela
+  function ativarEnterNoPainel(painelId, botao){
+    const painel = document.getElementById(painelId);
+    if(!painel || !botao) return;
+    painel.querySelectorAll('input').forEach(inp=>{
+      inp.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter'){
+          e.preventDefault();
+          botao.click();
+        }
+      });
+    });
+  }
 
   // Botões de mostrar/ocultar senha
   document.querySelectorAll('[data-toggle-pass]').forEach(btn=>{
@@ -5997,6 +6180,10 @@ async function carregarDadosDoUsuario(){
       toast('Senha alterada! Entre com sua nova senha.', '🔒');
     });
   }
+
+  ativarEnterNoPainel('auth-login', loginBtn);
+  ativarEnterNoPainel('auth-signup', signupBtn);
+  ativarEnterNoPainel('auth-forgot', forgotBtn);
 
   // Se já existe um token salvo (de "manter conectado"), tenta entrar direto.
   if(state.sessionToken){
