@@ -1574,7 +1574,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
       <button class="account-btn" data-goto="settings" title="Configurações da conta" aria-label="Abrir configurações da conta">
         <span class="account-avatar" id="sidebar-account-avatar">C</span>
         <span class="account-info">
-          <span class="account-name">Camila</span>
+          <span class="account-name" id="sidebar-account-name">Camila</span>
         </span>
         <span class="account-gear" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -3730,6 +3730,30 @@ function atualizarSaudacao(){
   if(el) el.textContent = greet + (primeiroNome ? ', ' + primeiroNome : '') + '. Que a paz do Senhor esteja com você.';
 }
 atualizarSaudacao();
+
+/* Atualiza o nome e a inicial do avatar no botão da conta (sidebar) e nas configurações */
+function atualizarNomeConta(){
+  const nomeCompleto = state.perfil && state.perfil.nome_exibicao ? state.perfil.nome_exibicao.trim() : '';
+  const primeiroNome = nomeCompleto ? nomeCompleto.split(' ')[0] : 'Visitante';
+  const inicial = nomeCompleto ? nomeCompleto.charAt(0).toUpperCase() : '?';
+
+  const nomeSidebar = document.getElementById('sidebar-account-name');
+  if(nomeSidebar) nomeSidebar.textContent = primeiroNome;
+
+  const nomePerfilConfig = document.querySelector('.settings-profile-name');
+  if(nomePerfilConfig) nomePerfilConfig.textContent = nomeCompleto || 'Visitante';
+
+  const usuarioConfig = document.querySelector('.settings-profile-email');
+  if(usuarioConfig && state.perfil) usuarioConfig.textContent = '@' + state.perfil.nome_usuario;
+
+  // Só atualiza a letra-inicial se ainda não houver um avatar temático (emoji) escolhido —
+  // evita sobrescrever a escolha visual do usuário.
+  const avatarSidebar = document.getElementById('sidebar-account-avatar');
+  const avatarConfig = document.getElementById('settings-avatar-preview');
+  [avatarSidebar, avatarConfig].forEach(el=>{
+    if(el && el.textContent.trim().length <= 1) el.textContent = inicial;
+  });
+}
 
 /* =========================================================
    BIBLE READER
@@ -5920,6 +5944,7 @@ function syncDashSurpriseFavBtn(){
           if(typeof renderDashboardStats === 'function') renderDashboardStats();
           if(typeof renderStudies === 'function') renderStudies(state.studyFilter || 'Todos');
           if(typeof atualizarSaudacao === 'function') atualizarSaudacao();
+          if(typeof atualizarNomeConta === 'function') atualizarNomeConta();
           if(typeof renderFavorites === 'function') renderFavorites();
           if(typeof renderDashFavorites === 'function') renderDashFavorites();
           if(typeof renderDevoNoteBlocks === 'function') renderDevoNoteBlocks();
@@ -5982,6 +6007,7 @@ async function carregarDadosDoUsuario(){
   }
   state.perfil = perfil;
   if(typeof atualizarSaudacao === 'function') atualizarSaudacao();
+  if(typeof atualizarNomeConta === 'function') atualizarNomeConta();
   if(perfil.ultima_tela && typeof CONTINUE_MAP !== 'undefined' && CONTINUE_MAP[perfil.ultima_tela]){
     state.lastVisitedView = perfil.ultima_tela;
     if(typeof renderHomeContinue === 'function') renderHomeContinue();
