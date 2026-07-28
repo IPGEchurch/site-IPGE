@@ -78,7 +78,7 @@
 }
 
 *{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;overflow-anchor:none;height:100%;}
+html{scroll-behavior:smooth;overflow-anchor:none;height:100%;overflow-x:hidden;}
 body{
   font-family:var(--font-body);
   background:var(--parchment);
@@ -287,6 +287,7 @@ h1,h2,h3{font-family:var(--font-display);color:var(--ink);letter-spacing:-.01em;
   background:var(--paper);border:1px solid var(--line);
   border-radius:var(--radius-lg);padding:22px;
   box-shadow:var(--shadow-sm);
+  min-width:0;
 }
 .grid{display:grid;gap:18px;}
 .grid-4{grid-template-columns:repeat(4,1fr);}
@@ -686,7 +687,7 @@ body.show-public-campaign #app-shell{display:none;}
 /* Devotional */
 .devo-block{margin-bottom:22px;}
 .devo-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);font-weight:700;margin-bottom:8px;}
-.devo-text{line-height:1.85;font-size:1rem;color:var(--text);}
+.devo-text{line-height:1.85;font-size:1rem;color:var(--text);word-break:normal;overflow-wrap:break-word;}
 textarea.notes-area{
   width:100%;border:1px solid var(--line);border-radius:var(--radius-md);
   background:var(--parchment);color:var(--text);padding:14px 16px;font-family:inherit;
@@ -971,6 +972,11 @@ textarea.notes-area:focus{border-color:var(--gold);}
 .settings-panel .card + .card{margin-top:16px;}
 .settings-card-head{margin-bottom:18px;}
 .settings-card-title{font-family:var(--font-display);font-size:1.08rem;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px;scroll-margin-top:90px;}
+.streak-stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:6px;}
+.streak-stat{text-align:center;background:var(--paper-soft, var(--parchment));border:1px solid var(--line);border-radius:var(--radius-md);padding:18px 10px;}
+.streak-stat-num{font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--ink);line-height:1;}
+.streak-stat-label{font-size:.78rem;color:var(--text-dim);margin-top:6px;}
+@media(max-width:520px){.streak-stats-grid{grid-template-columns:1fr;}}
 .settings-card-sub{font-size:.82rem;color:var(--text-dim);margin-top:4px;line-height:1.5;}
 
 /* Seletor de avatares (mundo bíblico) */
@@ -2187,13 +2193,35 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
             <div class="settings-panel" id="settings-panel-leitura">
               <div class="card">
                 <div class="settings-card-head">
+                  <div class="settings-card-title">🔥 Sua sequência de leitura</div>
+                  <div class="settings-card-sub">Baseada nos dias em que você marcou alguma leitura do plano como concluída.</div>
+                </div>
+                <div class="streak-stats-grid">
+                  <div class="streak-stat">
+                    <div class="streak-stat-num" id="streak-atual">0</div>
+                    <div class="streak-stat-label">dias seguidos 🔥</div>
+                  </div>
+                  <div class="streak-stat">
+                    <div class="streak-stat-num" id="streak-recorde">0</div>
+                    <div class="streak-stat-label">recorde pessoal 🏆</div>
+                  </div>
+                  <div class="streak-stat">
+                    <div class="streak-stat-num" id="streak-total-dias">0</div>
+                    <div class="streak-stat-label">dias de leitura no total 📖</div>
+                  </div>
+                </div>
+                <p class="muted" id="streak-mensagem" style="font-size:.85rem;margin-top:14px;"></p>
+              </div>
+
+              <div class="card">
+                <div class="settings-card-head">
                   <div class="settings-card-title">Preferências de leitura</div>
                   <div class="settings-card-sub">Personalize sua experiência de estudo bíblico.</div>
                 </div>
                 <div class="settings-form-row">
                   <div class="settings-field">
                     <label class="field-label">Meta diária de leitura</label>
-                    <select class="field-input">
+                    <select class="field-input" id="settings-meta-leitura">
                       <option>1 capítulo por dia</option>
                       <option>2 capítulos por dia</option>
                       <option>3 capítulos por dia</option>
@@ -2201,21 +2229,15 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
                     </select>
                   </div>
                   <div class="settings-field">
-                    <label class="field-label">Horário do lembrete diário</label>
-                    <input type="time" class="field-input" value="07:00">
-                  </div>
-                </div>
-                <div class="settings-form-row full">
-                  <div class="settings-field">
                     <label class="field-label">Início da semana</label>
-                    <select class="field-input">
+                    <select class="field-input" id="settings-inicio-semana">
                       <option>Domingo</option>
                       <option>Segunda-feira</option>
                     </select>
                   </div>
                 </div>
                 <div class="settings-form-actions">
-                  <button class="btn btn-primary" data-settings-save>Salvar preferências</button>
+                  <button class="btn btn-primary" id="leitura-save-btn">Salvar preferências</button>
                 </div>
               </div>
             </div>
@@ -2275,7 +2297,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
                 </details>
                 <details class="help-faq">
                   <summary>Meus dados ficam salvos se eu trocar de aparelho?</summary>
-                  <div class="help-faq-body">Assim que a sincronização com o servidor da igreja estiver ativa, sim. Por enquanto o app funciona localmente neste dispositivo.</div>
+                  <div class="help-faq-body">Sim — seus dados ficam salvos na sua conta e aparecem em qualquer aparelho que você usar para entrar.</div>
                 </details>
                 <details class="help-faq">
                   <summary>Como falo com a liderança da igreja pelo app?</summary>
@@ -2291,7 +2313,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
                 <div class="settings-form-row full">
                   <div class="settings-field">
                     <label class="field-label">Assunto</label>
-                    <select class="field-input">
+                    <select class="field-input" id="settings-suporte-assunto">
                       <option>Dúvida sobre o app</option>
                       <option>Sugestão</option>
                       <option>Reportar um problema</option>
@@ -2302,11 +2324,11 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
                 <div class="settings-form-row full">
                   <div class="settings-field">
                     <label class="field-label">Mensagem</label>
-                    <textarea class="field-input" placeholder="Escreva aqui sua mensagem…"></textarea>
+                    <textarea class="field-input" id="settings-suporte-mensagem" placeholder="Escreva aqui sua mensagem…"></textarea>
                   </div>
                 </div>
                 <div class="settings-form-actions">
-                  <button class="btn btn-primary" data-settings-save>Enviar mensagem</button>
+                  <button class="btn btn-primary" id="suporte-save-btn">Enviar mensagem</button>
                 </div>
               </div>
 
@@ -2355,6 +2377,15 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
                     <div class="settings-danger-desc">Remove permanentemente seu perfil, progresso, anotações e favoritos.</div>
                   </div>
                   <button class="btn btn-danger btn-sm" id="settings-delete-account-btn">Excluir conta</button>
+                </div>
+                <div id="delete-account-confirm-box" style="display:none;padding:14px 0 4px;border-top:1px solid var(--line);margin-top:6px;">
+                  <label class="field-label">Digite sua senha para confirmar a exclusão</label>
+                  <input type="password" class="field-input" id="delete-account-password" placeholder="••••••••" style="max-width:280px;">
+                  <div class="settings-error" id="delete-account-error" style="display:none;color:#B8695A;font-size:.85rem;margin-top:6px;"></div>
+                  <div style="display:flex;gap:10px;margin-top:12px;">
+                    <button class="btn btn-danger btn-sm" id="delete-account-confirm-btn">Confirmar exclusão definitiva</button>
+                    <button class="btn btn-ghost btn-sm" id="delete-account-cancel-btn">Cancelar</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -4527,7 +4558,10 @@ function renderPlanDetail(){
         if(state.sessionToken){
           const rpcName = e.target.checked ? 'marcar_dia_plano' : 'desmarcar_dia_plano';
           db.rpc(rpcName, { p_token: state.sessionToken, p_plano_chave: key, p_dia_indice: d })
-            .then(({error})=>{ if(error) console.error('Erro ao salvar progresso do plano:', error); });
+            .then(({error})=>{
+              if(error) console.error('Erro ao salvar progresso do plano:', error);
+              else if(typeof carregarSequenciaLeitura === 'function') carregarSequenciaLeitura();
+            });
         }
       });
       rowsWrap.appendChild(row);
@@ -4560,7 +4594,10 @@ function renderPlanDetail(){
     renderPlans();
     if(state.sessionToken){
       db.rpc('marcar_dia_plano', { p_token: state.sessionToken, p_plano_chave: key, p_dia_indice: next })
-        .then(({error})=>{ if(error) console.error('Erro ao salvar progresso do plano:', error); });
+        .then(({error})=>{
+          if(error) console.error('Erro ao salvar progresso do plano:', error);
+          else if(typeof carregarSequenciaLeitura === 'function') carregarSequenciaLeitura();
+        });
     }
   });
 }
@@ -4859,10 +4896,11 @@ document.getElementById('study-detail-back').addEventListener('click', ()=>{
 /* =========================================================
    NOTES (organizadas em blocos)
    ========================================================= */
-function findOrCreateDefaultBlock(){
-  let block = state.noteBlocks.find(b=>b.name==='Geral');
+function findOrCreateBlockByName(name){
+  const nome = name || 'Geral';
+  let block = state.noteBlocks.find(b=>b.name===nome);
   if(!block){
-    block = {id:'blk-'+Date.now()+'-'+Math.random().toString(36).slice(2,7), name:'Geral', createdDate:new Date().toLocaleDateString('pt-BR'), notes:[], dbId:null};
+    block = {id:'blk-'+Date.now()+'-'+Math.random().toString(36).slice(2,7), name:nome, createdDate:new Date().toLocaleDateString('pt-BR'), notes:[], dbId:null};
     state.noteBlocks.push(block);
   }
   return block;
@@ -4873,10 +4911,10 @@ async function garantirBlocoNoBanco(block){
   if(error){ console.error('Erro ao criar bloco de notas:', error); return; }
   block.dbId = data;
 }
-// Compatível com chamadas existentes addNote(tag, text) vindas do leitor bíblico e do devocional —
-// elas caem no bloco "Geral", que é criado automaticamente se ainda não existir.
+// Chamada a partir do botão "Anotar" de um versículo na Bíblia — o bloco criado
+// leva o nome do próprio versículo (ex: "João 3:16"), reaproveitado se anotar de novo.
 async function addNote(tag, text){
-  const block = findOrCreateDefaultBlock();
+  const block = findOrCreateBlockByName(tag);
   const note = {tag: tag || 'Geral', text: text || '', date: new Date().toLocaleDateString('pt-BR'), id: null};
   block.notes.unshift(note);
   state.openBlockId = block.id;
@@ -5983,12 +6021,69 @@ function syncDashSurpriseFavBtn(){
     });
   }
 
+  /* ===== Painel Preferências de leitura ===== */
+  const leituraSaveBtn = document.getElementById('leitura-save-btn');
+  if(leituraSaveBtn){
+    leituraSaveBtn.addEventListener('click', async ()=>{
+      if(!state.sessionToken){ toast('Faça login para salvar suas preferências', '⚠️'); return; }
+      const metaEl = document.getElementById('settings-meta-leitura');
+      const inicioEl = document.getElementById('settings-inicio-semana');
+      const meta = metaEl.value;
+      const inicio = inicioEl.value;
+
+      leituraSaveBtn.disabled = true;
+      leituraSaveBtn.textContent = 'Aguarde…';
+      const { error } = await db.rpc('atualizar_preferencias_leitura', {
+        p_token: state.sessionToken, p_meta_leitura: meta, p_inicio_semana: inicio
+      });
+      leituraSaveBtn.disabled = false;
+      leituraSaveBtn.textContent = 'Salvar preferências';
+
+      if(error){
+        console.error('Erro ao salvar preferências de leitura:', error);
+        toast('Não foi possível salvar suas preferências', '⚠️');
+        return;
+      }
+      if(state.perfil){ state.perfil.meta_leitura = meta; state.perfil.inicio_semana = inicio; }
+      toast('Preferências salvas com sucesso', '✅');
+    });
+  }
+
+  /* ===== Painel Ajuda e suporte: Fale conosco ===== */
+  const suporteSaveBtn = document.getElementById('suporte-save-btn');
+  if(suporteSaveBtn){
+    suporteSaveBtn.addEventListener('click', async ()=>{
+      if(!state.sessionToken){ toast('Faça login para enviar uma mensagem', '⚠️'); return; }
+      const assuntoEl = document.getElementById('settings-suporte-assunto');
+      const mensagemEl = document.getElementById('settings-suporte-mensagem');
+      const assunto = assuntoEl.value;
+      const mensagem = mensagemEl.value.trim();
+
+      if(!mensagem){ toast('Escreva sua mensagem antes de enviar', '⚠️'); return; }
+
+      suporteSaveBtn.disabled = true;
+      suporteSaveBtn.textContent = 'Enviando…';
+      const { error } = await db.rpc('enviar_mensagem_suporte', {
+        p_token: state.sessionToken, p_assunto: assunto, p_mensagem: mensagem
+      });
+      suporteSaveBtn.disabled = false;
+      suporteSaveBtn.textContent = 'Enviar mensagem';
+
+      if(error){
+        console.error('Erro ao enviar mensagem de suporte:', error);
+        toast('Não foi possível enviar sua mensagem', '⚠️');
+        return;
+      }
+      mensagemEl.value = '';
+      toast('Mensagem enviada! A equipe vai te responder em breve.', '✅');
+    });
+  }
   /* Avatares temáticos do mundo bíblico */
   const avatarOptions = document.querySelectorAll('.avatar-option');
   const avatarPreview = document.getElementById('settings-avatar-preview');
   const sidebarAvatar = document.getElementById('sidebar-account-avatar');
   avatarOptions.forEach(opt=>{
-    opt.addEventListener('click', ()=>{
+    opt.addEventListener('click', async ()=>{
       if(opt.classList.contains('selected')) return;
       avatarOptions.forEach(o=>o.classList.remove('selected'));
       opt.classList.add('selected');
@@ -5999,7 +6094,24 @@ function syncDashSurpriseFavBtn(){
         el.textContent = emoji;
         el.style.background = gradient;
       });
-      toast('Avatar atualizado! Isso ficará salvo de vez quando conectarmos o banco de dados.', '✨');
+
+      if(!state.sessionToken){ toast('Avatar atualizado! Faça login para salvar de vez.', '✨'); return; }
+
+      const { error } = await db.rpc('atualizar_perfil', {
+        p_token: state.sessionToken,
+        p_nome_exibicao: (state.perfil && state.perfil.nome_exibicao) || '',
+        p_sobre_mim: (state.perfil && state.perfil.sobre_mim) || '',
+        p_membro_desde: (state.perfil && state.perfil.membro_desde) || null,
+        p_avatar_emoji: emoji,
+        p_avatar_gradient: gradient
+      });
+      if(error){
+        console.error('Erro ao salvar avatar:', error);
+        toast('Não foi possível salvar o avatar', '⚠️');
+        return;
+      }
+      if(state.perfil){ state.perfil.avatar_emoji = emoji; state.perfil.avatar_gradient = gradient; }
+      toast('Avatar salvo! ✨', '✨');
     });
   });
 
@@ -6042,6 +6154,7 @@ function syncDashSurpriseFavBtn(){
           if(typeof atualizarPillMembroDesde === 'function') atualizarPillMembroDesde();
           if(typeof preencherFormularioPerfil === 'function') preencherFormularioPerfil();
           if(typeof renderSessions === 'function') renderSessions([]);
+          if(typeof carregarSequenciaLeitura === 'function') carregarSequenciaLeitura();
           if(typeof renderFavorites === 'function') renderFavorites();
           if(typeof renderDashFavorites === 'function') renderDashFavorites();
           if(typeof renderDevoNoteBlocks === 'function') renderDevoNoteBlocks();
@@ -6053,14 +6166,86 @@ function syncDashSurpriseFavBtn(){
   }
 
   const deleteBtn = document.getElementById('settings-delete-account-btn');
-  if(deleteBtn){
+  const deleteBox = document.getElementById('delete-account-confirm-box');
+  const deletePassEl = document.getElementById('delete-account-password');
+  const deleteErrorEl = document.getElementById('delete-account-error');
+  function mostrarErroExcluir(msg){
+    if(!deleteErrorEl) return;
+    deleteErrorEl.textContent = msg;
+    deleteErrorEl.style.display = msg ? 'block' : 'none';
+  }
+  if(deleteBtn && deleteBox){
     deleteBtn.addEventListener('click', ()=>{
+      deleteBox.style.display = 'block';
+      deleteBtn.style.display = 'none';
+      if(deletePassEl) deletePassEl.focus();
+    });
+  }
+  const deleteCancelBtn = document.getElementById('delete-account-cancel-btn');
+  if(deleteCancelBtn){
+    deleteCancelBtn.addEventListener('click', ()=>{
+      deleteBox.style.display = 'none';
+      deleteBtn.style.display = '';
+      if(deletePassEl) deletePassEl.value = '';
+      mostrarErroExcluir('');
+    });
+  }
+  const deleteConfirmBtn = document.getElementById('delete-account-confirm-btn');
+  if(deleteConfirmBtn){
+    deleteConfirmBtn.addEventListener('click', ()=>{
+      mostrarErroExcluir('');
+      const senha = deletePassEl.value;
+      if(!senha){ mostrarErroExcluir('Digite sua senha para confirmar.'); return; }
+
       openConfirm({
-        title:'Excluir sua conta?',
-        text:'Essa ação é permanente e removerá seu progresso, notas, favoritos e orações. Essa funcionalidade será ligada ao banco de dados futuramente.',
-        confirmLabel:'Excluir conta',
-        cancelLabel:'Manter minha conta',
-        onConfirm:()=> toast('Exclusão de conta ainda não está conectada ao banco de dados.', '⚠️')
+        title:'Excluir sua conta para sempre?',
+        text:'Essa ação é permanente e vai apagar seu perfil, progresso, notas, favoritos e orações. Não é possível desfazer.',
+        confirmLabel:'Sim, excluir para sempre',
+        cancelLabel:'Cancelar',
+        onConfirm: async ()=>{
+          deleteConfirmBtn.disabled = true;
+          deleteConfirmBtn.textContent = 'Excluindo…';
+          const { error } = await db.rpc('excluir_conta', { p_token: state.sessionToken, p_senha: senha });
+          deleteConfirmBtn.disabled = false;
+          deleteConfirmBtn.textContent = 'Confirmar exclusão definitiva';
+
+          if(error){
+            mostrarErroExcluir(error.message && error.message.includes('incorreta') ? 'Senha incorreta.' : 'Não foi possível excluir sua conta.');
+            return;
+          }
+
+          localStorage.removeItem('ipge_token');
+          state.sessionToken = null;
+          state.perfil = null;
+          state.favorites = [];
+          state.devoNoteBlocks = [];
+          state.planProgress = {};
+          state.currentPlanKey = null;
+          Object.keys(PLAN_LIBRARY).filter(k => k.startsWith('personalizado-')).forEach(k => delete PLAN_LIBRARY[k]);
+          state.lastCustomPlanKey = null;
+          state.lastVisitedView = null;
+          state.completedStudies = new Set();
+          state.noteBlocks = [];
+          state.prayers = [];
+          if(typeof renderNoteBlocks === 'function') renderNoteBlocks();
+          if(typeof renderPrayers === 'function') renderPrayers();
+          if(typeof renderDashboardStats === 'function') renderDashboardStats();
+          if(typeof renderStudies === 'function') renderStudies(state.studyFilter || 'Todos');
+          if(typeof atualizarSaudacao === 'function') atualizarSaudacao();
+          if(typeof atualizarNomeConta === 'function') atualizarNomeConta();
+          if(typeof atualizarPillMembroDesde === 'function') atualizarPillMembroDesde();
+          if(typeof preencherFormularioPerfil === 'function') preencherFormularioPerfil();
+          if(typeof renderSessions === 'function') renderSessions([]);
+          if(typeof carregarSequenciaLeitura === 'function') carregarSequenciaLeitura();
+          if(typeof renderFavorites === 'function') renderFavorites();
+          if(typeof renderDashFavorites === 'function') renderDashFavorites();
+          if(typeof renderDevoNoteBlocks === 'function') renderDevoNoteBlocks();
+          deleteBox.style.display = 'none';
+          deleteBtn.style.display = '';
+          if(deletePassEl) deletePassEl.value = '';
+          document.body.classList.add('show-auth');
+          toast('Sua conta foi excluída.', '👋');
+        }
       });
     });
   }
@@ -6126,10 +6311,14 @@ function preencherFormularioPerfil(){
   const nomeUsuarioEl = document.getElementById('settings-nome-usuario');
   const sobreMimEl = document.getElementById('settings-sobre-mim');
   const membroDesdeEl = document.getElementById('settings-membro-desde');
+  const metaLeituraEl = document.getElementById('settings-meta-leitura');
+  const inicioSemanaEl = document.getElementById('settings-inicio-semana');
   if(nomeExibicaoEl) nomeExibicaoEl.value = p.nome_exibicao || '';
   if(nomeUsuarioEl) nomeUsuarioEl.value = p.nome_usuario || '';
   if(sobreMimEl) sobreMimEl.value = p.sobre_mim || '';
   if(membroDesdeEl) membroDesdeEl.value = p.membro_desde ? String(p.membro_desde).slice(0,10) : '';
+  if(metaLeituraEl && p.meta_leitura) metaLeituraEl.value = p.meta_leitura;
+  if(inicioSemanaEl && p.inicio_semana) inicioSemanaEl.value = p.inicio_semana;
 }
 
 /* Identifica de forma simples o navegador/dispositivo, só para exibir em "Sessões ativas" */
@@ -6208,6 +6397,57 @@ async function carregarSessoes(){
   renderSessions(data);
 }
 
+/* Calcula a sequência de leitura a partir de uma lista de datas (YYYY-MM-DD) */
+function calcularSequenciaLeitura(diasArray){
+  const dias = Array.from(new Set(diasArray || [])).sort();
+  if(!dias.length) return { atual: 0, recorde: 0, total: 0 };
+
+  const umDia = 24*60*60*1000;
+  const paraData = s => new Date(s + 'T00:00:00');
+
+  let recorde = 1, sequenciaCorrente = 1;
+  for(let i=1; i<dias.length; i++){
+    const diff = Math.round((paraData(dias[i]) - paraData(dias[i-1])) / umDia);
+    if(diff === 1) sequenciaCorrente++;
+    else if(diff > 1) sequenciaCorrente = 1;
+    if(sequenciaCorrente > recorde) recorde = sequenciaCorrente;
+  }
+
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const ultimoDia = paraData(dias[dias.length-1]);
+  const diffAteHoje = Math.round((hoje - ultimoDia) / umDia);
+  const atual = diffAteHoje <= 1 ? sequenciaCorrente : 0;
+
+  return { atual, recorde, total: dias.length };
+}
+
+async function carregarSequenciaLeitura(){
+  const elAtual = document.getElementById('streak-atual');
+  const elRecorde = document.getElementById('streak-recorde');
+  const elTotal = document.getElementById('streak-total-dias');
+  const elMsg = document.getElementById('streak-mensagem');
+  if(!state.sessionToken){
+    if(elAtual) elAtual.textContent = '0';
+    if(elRecorde) elRecorde.textContent = '0';
+    if(elTotal) elTotal.textContent = '0';
+    if(elMsg) elMsg.textContent = '';
+    return;
+  }
+  const { data, error } = await db.rpc('listar_dias_leitura', { p_token: state.sessionToken });
+  if(error){ console.error('Não foi possível carregar a sequência de leitura:', error); return; }
+  const dias = (data || []).map(r => r.dia);
+  const { atual, recorde, total } = calcularSequenciaLeitura(dias);
+  if(elAtual) elAtual.textContent = atual;
+  if(elRecorde) elRecorde.textContent = recorde;
+  if(elTotal) elTotal.textContent = total;
+  if(elMsg){
+    if(total === 0) elMsg.textContent = 'Marque um dia de leitura em qualquer plano para começar sua sequência!';
+    else if(atual === 0) elMsg.textContent = 'Sua sequência foi interrompida — leia hoje para começar uma nova!';
+    else if(atual === recorde && atual > 1) elMsg.textContent = 'Você está no seu melhor momento — continue assim! 🎉';
+    else elMsg.textContent = 'Continue lendo todos os dias para aumentar sua sequência.';
+  }
+}
+
 
 /* =========================================================
    Carrega os dados do usuário logado do banco.
@@ -6228,6 +6468,7 @@ async function carregarDadosDoUsuario(){
   if(typeof atualizarPillMembroDesde === 'function') atualizarPillMembroDesde();
   if(typeof preencherFormularioPerfil === 'function') preencherFormularioPerfil();
   if(typeof carregarSessoes === 'function') carregarSessoes();
+  if(typeof carregarSequenciaLeitura === 'function') carregarSequenciaLeitura();
   if(perfil.ultima_tela && typeof CONTINUE_MAP !== 'undefined' && CONTINUE_MAP[perfil.ultima_tela]){
     state.lastVisitedView = perfil.ultima_tela;
     if(typeof renderHomeContinue === 'function') renderHomeContinue();
@@ -6440,6 +6681,7 @@ async function carregarDadosDoUsuario(){
   // dados do usuário do banco e libera a tela principal do app.
   async function entrarNoApp(token, manterConectado){
     state.sessionToken = token;
+    state.sessionStart = Date.now();
     if(manterConectado){
       localStorage.setItem('ipge_token', token);
     } else {
@@ -6675,22 +6917,47 @@ function performGlobalSearch(rawQuery){
     }
   }
 
-  // 3) Busca por texto/trecho em todos os versículos
+  // 3) Busca por texto/trecho em todos os versículos — flexível: ignora
+  //    acentos, maiúsculas/minúsculas e palavras curtas (artigos, preposições
+  //    como "o", "a", "e", "é", "de") que causam falsos negativos.
+  //    Exige que a MAIORIA das palavras significativas apareça no versículo.
+  const STOPWORDS = new Set(['o','a','os','as','e','é','de','do','da','dos','das',
+    'em','no','na','nos','nas','um','uma','por','para','com','que','se','ao','à',
+    'aos','às','me','te','lhe','nos','vos','lhes','mas','ou','nem']);
   const nq = normText(query);
+  // Palavras significativas: comprimento > 2 e não são stopwords
+  const allWords = nq.split(' ').filter(Boolean);
+  const sigWords = allWords.filter(w => w.length > 2 && !STOPWORDS.has(w));
+  // Se não sobrou nenhuma palavra significativa, usa todas (busca muito curta)
+  const queryWords = sigWords.length > 0 ? sigWords : allWords.filter(Boolean);
+  // Limiar: exige pelo menos 60% das palavras, mínimo 1
+  const threshold = Math.max(1, Math.ceil(queryWords.length * 0.6));
   let found = null;
+  let bestScore = -1;
+  let bestMatch = null;
   for(const b of bible){
     for(const chapterKey of Object.keys(b.chapters)){
       const verses = b.chapters[chapterKey];
       for(let i = 0; i < verses.length; i++){
-        if(normText(verses[i]).includes(nq)){
+        const normVerse = normText(verses[i]);
+        if(normVerse.includes(nq)){
+          // Correspondência exata tem prioridade máxima
           found = { book: b.book, chapter: parseInt(chapterKey, 10), verse: i + 1 };
           break;
+        }
+        if(!found){
+          const hits = queryWords.filter(w => normVerse.includes(w)).length;
+          if(hits >= threshold && hits > bestScore){
+            bestScore = hits;
+            bestMatch = { book: b.book, chapter: parseInt(chapterKey, 10), verse: i + 1 };
+          }
         }
       }
       if(found) break;
     }
     if(found) break;
   }
+  if(!found && bestMatch) found = bestMatch;
 
   if(found){
     goToFavoriteRef(`${found.book} ${found.chapter}:${found.verse}`);
