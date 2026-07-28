@@ -1288,6 +1288,13 @@ textarea.notes-area:focus{border-color:var(--gold);}
   .theme-switch{padding:2px;gap:2px;}
   .theme-switch button{width:24px;height:24px;font-size:.85rem;}
 }
+@media(max-width:880px){
+  html,body{overflow-x:hidden;}
+  #app-shell{overflow-x:hidden;}
+  #content{overflow-x:hidden;}
+  .card,.devo-text,.page-sub,.grid{max-width:100%;}
+  img,svg{max-width:100%;}
+}
 .sidebar-scrim{display:none;position:fixed;inset:0;background:rgba(20,20,20,.4);z-index:39;}
 .sidebar-scrim.show{display:block;}
 
@@ -1331,6 +1338,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
 .campaign-hero-ref{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;opacity:.7;}
 .campaign-hero-verse{font-family:var(--font-display);font-style:italic;font-size:1.05rem;line-height:1.6;opacity:.95;}
 .campaign-hero-purpose{font-size:.92rem;line-height:1.7;opacity:.85;max-width:62ch;}
+.campaign-hero-schedule{font-size:.88rem;line-height:1.6;opacity:.9;max-width:62ch;}
 .campaign-hero-actions{margin-top:4px;}
 @media(max-width:760px){
   .campaign-hero{grid-template-columns:1fr;}
@@ -3533,6 +3541,7 @@ const CAMPAIGNS = [
     verseRef:"Ezequiel 37:4",
     verseText:"\"Então me disse: Profetiza sobre estes ossos, e dize-lhes: Ossos secos, ouvi a palavra do Senhor.\"",
     purpose:"Fortalecer a fé e lembrar que, através da Palavra de Deus, Ele pode restaurar, renovar e trazer vida ao que estava sem esperança.",
+    schedule:"Terça 19:30h / Domingo 19:00h",
     image:"foto03.jpeg",
     emblem:"🦴"
   },
@@ -5663,6 +5672,7 @@ function renderCampaigns(){
           <span class="campaign-hero-ref">${escapeHtml(featured.period)} · Base bíblica: ${escapeHtml(featured.verseRef)}</span>
           <p class="campaign-hero-verse">${escapeHtml(featured.verseText)}</p>
           <p class="campaign-hero-purpose"><strong>Propósito:</strong> ${escapeHtml(featured.purpose)}</p>
+          ${featured.schedule ? `<p class="campaign-hero-schedule">🗓️ <strong>Dias de culto:</strong> ${escapeHtml(featured.schedule)}</p>` : ''}
           <div class="campaign-hero-actions">
             <button class="chip-btn" id="campaign-share-btn"><span class="em">🔗</span>Compartilhar base bíblica</button>
           </div>
@@ -6440,6 +6450,7 @@ function renderCampaignHero(campaign){
         <span class="campaign-hero-ref">${escapeHtml(campaign.period)} · Base bíblica: ${escapeHtml(campaign.verseRef)}</span>
         <p class="campaign-hero-verse">${escapeHtml(campaign.verseText)}</p>
         <p class="campaign-hero-purpose"><strong>Propósito:</strong> ${escapeHtml(campaign.purpose)}</p>
+        ${campaign.schedule ? `<p class="campaign-hero-schedule">🗓️ <strong>Dias de culto:</strong> ${escapeHtml(campaign.schedule)}</p>` : ''}
       </div>
     </article>`;
 }
