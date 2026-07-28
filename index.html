@@ -378,8 +378,75 @@ h1,h2,h3{font-family:var(--font-display);color:var(--ink);letter-spacing:-.01em;
    de volta ao login.
    ========================================================= */
 body.show-auth #app-shell{display:none;}
+body.show-admin #app-shell{display:none;}
+body.show-admin #auth-shell{display:none;}
 #auth-shell{display:none;position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;}
 body.show-auth #auth-shell{display:block;}
+
+/* =========================================================
+   PAINEL DO ADMINISTRADOR
+   ========================================================= */
+#admin-shell{display:none;min-height:100vh;min-height:100dvh;background:var(--parchment);}
+body.show-admin #admin-shell{display:block;}
+.admin-topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:16px 32px;background:var(--paper);border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:30;
+}
+.admin-brand{font-family:var(--font-display);font-weight:700;font-size:1.1rem;color:var(--ink);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.admin-badge{font-family:var(--font-body);font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);background:var(--gold-soft);padding:4px 11px;border-radius:20px;}
+.admin-layout{display:grid;grid-template-columns:240px 1fr;align-items:start;}
+.admin-nav{
+  padding:24px 16px;display:flex;flex-direction:column;gap:6px;
+  border-right:1px solid var(--line);position:sticky;top:65px;
+}
+.admin-nav-item{
+  display:flex;align-items:center;gap:10px;justify-content:space-between;
+  padding:12px 14px;border-radius:var(--radius-md);border:none;background:transparent;
+  color:var(--text-dim);font-size:.88rem;font-weight:600;cursor:pointer;text-align:left;
+  transition:background .2s ease;font-family:inherit;
+}
+.admin-nav-item:hover{background:var(--parchment-dim);}
+.admin-nav-item.active{background:var(--ink);color:var(--parchment);}
+[data-theme="dark"] .admin-nav-item.active{background:var(--gold);color:var(--ink);}
+.admin-nav-badge{background:var(--rose);color:#fff;font-size:.66rem;font-weight:700;padding:2px 7px;border-radius:20px;min-width:18px;text-align:center;}
+.admin-content{padding:28px 32px;max-width:1100px;}
+.admin-panel{display:none;}
+.admin-panel.active{display:block;animation:riseIn .35s ease both;}
+.admin-page-title{font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.admin-page-sub{font-size:.88rem;color:var(--text-dim);margin-bottom:22px;}
+.admin-stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+.admin-stat-card{text-align:center;padding:22px 14px;}
+.admin-stat-num{font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--ink);line-height:1;}
+.admin-stat-label{font-size:.76rem;color:var(--text-dim);margin-top:8px;line-height:1.4;}
+.admin-filter-row{display:flex;gap:8px;margin:2px 0 18px;flex-wrap:wrap;}
+.admin-filter-btn{padding:8px 16px;border-radius:20px;border:1px solid var(--line);background:var(--paper);color:var(--text-dim);font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit;}
+.admin-filter-btn.active{background:var(--ink);color:var(--parchment);border-color:var(--ink);}
+[data-theme="dark"] .admin-filter-btn.active{background:var(--gold);color:var(--ink);border-color:var(--gold);}
+.admin-msg-item{border:1px solid var(--line);border-radius:var(--radius-md);padding:16px 18px;margin-bottom:12px;background:var(--paper);}
+.admin-msg-item.is-pendente{border-left:3px solid var(--gold);}
+.admin-msg-item.is-respondida{opacity:.72;}
+.admin-msg-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
+.admin-msg-user{font-weight:700;color:var(--ink);font-size:.92rem;}
+.admin-msg-meta{font-size:.75rem;color:var(--text-faint);margin-top:2px;}
+.admin-msg-subject{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--gold);background:var(--gold-soft);padding:3px 10px;border-radius:20px;margin-bottom:10px;}
+.admin-msg-text{font-size:.9rem;line-height:1.65;color:var(--text);white-space:pre-wrap;margin-bottom:12px;}
+.admin-empty-state{text-align:center;padding:40px 20px;color:var(--text-dim);font-size:.9rem;}
+.admin-member-row{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--line);}
+.admin-member-row:last-child{border-bottom:none;}
+.admin-member-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--sage),var(--gold));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:.9rem;}
+.admin-member-name{font-weight:600;color:var(--ink);font-size:.9rem;}
+.admin-member-meta{font-size:.78rem;color:var(--text-dim);}
+.admin-member-tag{margin-left:auto;font-size:.7rem;font-weight:700;color:var(--sage);background:var(--sage-soft);padding:3px 10px;border-radius:20px;}
+
+@media(max-width:900px){
+  .admin-layout{grid-template-columns:1fr;}
+  .admin-nav{flex-direction:row;flex-wrap:wrap;border-right:none;border-bottom:1px solid var(--line);padding:14px 16px;position:relative;top:0;}
+  .admin-nav-item{flex:1 1 auto;justify-content:center;min-width:120px;}
+  .admin-content{padding:20px 16px;}
+  .admin-stats-grid{grid-template-columns:repeat(2,1fr);}
+  .admin-topbar{padding:14px 16px;}
+}
 
 .auth-bg{
   position:absolute;inset:0;z-index:0;
@@ -1534,6 +1601,91 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
 
     <div class="pub-camp-note">
       🔒 Para acessar os devocionais, planos de leitura e demais recursos, faça login ou cadastre-se gratuitamente.
+    </div>
+  </div>
+</div>
+
+<div id="admin-shell">
+  <div class="admin-topbar">
+    <div class="admin-brand">🕊️ IPGE Church <span class="admin-badge">Painel do administrador</span></div>
+    <button class="btn btn-ghost btn-sm" id="admin-logout-btn">Sair</button>
+  </div>
+  <div class="admin-layout">
+    <nav class="admin-nav">
+      <button class="admin-nav-item active" data-admin-tab="visao-geral"><span>📊 Visão geral</span></button>
+      <button class="admin-nav-item" data-admin-tab="mensagens"><span>✉️ Mensagens de suporte</span><span class="admin-nav-badge" id="admin-msg-badge" style="display:none;">0</span></button>
+      <button class="admin-nav-item" data-admin-tab="membros"><span>👥 Membros</span></button>
+    </nav>
+
+    <div class="admin-content">
+
+      <div class="admin-panel active" id="admin-panel-visao-geral">
+        <div class="admin-page-title">Visão geral</div>
+        <div class="admin-page-sub">Um retrato rápido de como a comunidade está usando o app.</div>
+
+        <div class="admin-stats-grid">
+          <div class="card admin-stat-card">
+            <div class="admin-stat-num" id="admin-stat-membros">—</div>
+            <div class="admin-stat-label">membros cadastrados</div>
+          </div>
+          <div class="card admin-stat-card">
+            <div class="admin-stat-num" id="admin-stat-novos">—</div>
+            <div class="admin-stat-label">novos membros nos últimos 7 dias</div>
+          </div>
+          <div class="card admin-stat-card">
+            <div class="admin-stat-num" id="admin-stat-pendentes">—</div>
+            <div class="admin-stat-label">mensagens de suporte pendentes</div>
+          </div>
+          <div class="card admin-stat-card">
+            <div class="admin-stat-num" id="admin-stat-oracoes">—</div>
+            <div class="admin-stat-label">pedidos de oração registrados</div>
+          </div>
+          <div class="card admin-stat-card">
+            <div class="admin-stat-num" id="admin-stat-devocionais">—</div>
+            <div class="admin-stat-label">anotações de devocional feitas</div>
+          </div>
+          <div class="card admin-stat-card">
+            <div class="admin-stat-num" id="admin-stat-favoritos">—</div>
+            <div class="admin-stat-label">versículos favoritados</div>
+          </div>
+          <div class="card admin-stat-card">
+            <div class="admin-stat-num" id="admin-stat-planos">—</div>
+            <div class="admin-stat-label">dias de leitura marcados</div>
+          </div>
+          <div class="card admin-stat-card">
+            <div class="admin-stat-num" id="admin-stat-estudos">—</div>
+            <div class="admin-stat-label">estudos bíblicos concluídos</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="settings-card-title">Membros mais recentes</div>
+          <div id="admin-recentes-list"><div class="admin-empty-state">Carregando…</div></div>
+        </div>
+      </div>
+
+      <div class="admin-panel" id="admin-panel-mensagens">
+        <div class="admin-page-title">Mensagens de suporte</div>
+        <div class="admin-page-sub">Dúvidas, sugestões, problemas relatados e pedidos para falar com a liderança.</div>
+
+        <div class="admin-filter-row">
+          <button class="admin-filter-btn active" data-admin-filter="todas">Todas</button>
+          <button class="admin-filter-btn" data-admin-filter="pendentes">Pendentes</button>
+          <button class="admin-filter-btn" data-admin-filter="respondidas">Já tratadas</button>
+        </div>
+
+        <div id="admin-mensagens-list"><div class="admin-empty-state">Carregando…</div></div>
+      </div>
+
+      <div class="admin-panel" id="admin-panel-membros">
+        <div class="admin-page-title">Membros</div>
+        <div class="admin-page-sub">Todos os usuários cadastrados no app, do mais recente para o mais antigo.</div>
+
+        <div class="card">
+          <div id="admin-membros-list"><div class="admin-empty-state">Carregando…</div></div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -6396,6 +6548,188 @@ function renderSessions(lista){
   });
 }
 
+/* =========================================================
+   PAINEL DO ADMINISTRADOR
+   ========================================================= */
+let adminMensagens = [];
+let adminMembros = [];
+let adminFiltroMensagens = 'todas';
+
+async function carregarPainelAdmin(){
+  if(!state.sessionToken) return;
+
+  await Promise.all([
+    carregarAdminEstatisticas(),
+    carregarAdminMensagens(),
+    carregarAdminMembros()
+  ]);
+}
+
+async function carregarAdminEstatisticas(){
+  const { data, error } = await db.rpc('admin_estatisticas', { p_token: state.sessionToken });
+  if(error){ console.error('Erro ao carregar estatísticas do painel:', error); return; }
+  const s = (data && data[0]) || {};
+  const setNum = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = (val ?? 0); };
+  setNum('admin-stat-membros', s.total_membros);
+  setNum('admin-stat-novos', s.novos_membros_semana);
+  setNum('admin-stat-pendentes', s.mensagens_pendentes);
+  setNum('admin-stat-oracoes', s.total_oracoes);
+  setNum('admin-stat-devocionais', s.total_anotacoes_devocional);
+  setNum('admin-stat-favoritos', s.total_favoritos);
+  setNum('admin-stat-planos', s.total_dias_plano_marcados);
+  setNum('admin-stat-estudos', s.total_estudos_concluidos);
+}
+
+async function carregarAdminMensagens(){
+  const { data, error } = await db.rpc('admin_listar_mensagens_suporte', { p_token: state.sessionToken });
+  if(error){ console.error('Erro ao carregar mensagens de suporte:', error); return; }
+  adminMensagens = data || [];
+  renderAdminMensagens();
+
+  const pendentes = adminMensagens.filter(m => !m.respondida).length;
+  const badge = document.getElementById('admin-msg-badge');
+  if(badge){
+    badge.textContent = pendentes;
+    badge.style.display = pendentes > 0 ? 'inline-block' : 'none';
+  }
+}
+
+function renderAdminMensagens(){
+  const list = document.getElementById('admin-mensagens-list');
+  if(!list) return;
+
+  let itens = adminMensagens;
+  if(adminFiltroMensagens === 'pendentes') itens = itens.filter(m => !m.respondida);
+  if(adminFiltroMensagens === 'respondidas') itens = itens.filter(m => m.respondida);
+
+  if(!itens.length){
+    list.innerHTML = '<div class="admin-empty-state">Nenhuma mensagem por aqui ainda. 🕊️</div>';
+    return;
+  }
+
+  list.innerHTML = itens.map(m => `
+    <div class="admin-msg-item ${m.respondida ? 'is-respondida' : 'is-pendente'}">
+      <div class="admin-msg-head">
+        <div>
+          <div class="admin-msg-user">${escapeHtml(m.nome_exibicao || m.nome_usuario)} <span class="muted" style="font-weight:400;">· @${escapeHtml(m.nome_usuario)}</span></div>
+          <div class="admin-msg-meta">${new Date(m.criado_em).toLocaleString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'})}</div>
+        </div>
+        <span class="pill ${m.respondida ? 'pill-sage' : 'pill-gold'}">${m.respondida ? '✓ Tratada' : 'Pendente'}</span>
+      </div>
+      <div class="admin-msg-subject">${escapeHtml(m.assunto || 'Sem assunto')}</div>
+      <div class="admin-msg-text">${escapeHtml(m.mensagem)}</div>
+      <button class="btn ${m.respondida ? 'btn-ghost' : 'btn-primary'} btn-sm" data-admin-msg-toggle="${m.id}" data-admin-msg-atual="${m.respondida}">
+        ${m.respondida ? '↺ Marcar como pendente' : '✓ Marcar como tratada'}
+      </button>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('[data-admin-msg-toggle]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.dataset.adminMsgToggle;
+      const novoStatus = btn.dataset.adminMsgAtual !== 'true';
+      btn.disabled = true;
+      const { error } = await db.rpc('admin_marcar_mensagem_respondida', {
+        p_token: state.sessionToken, p_mensagem_id: id, p_respondida: novoStatus
+      });
+      btn.disabled = false;
+      if(error){ console.error('Erro ao atualizar mensagem:', error); toast('Não foi possível atualizar a mensagem', '⚠️'); return; }
+      const msg = adminMensagens.find(m => m.id === id);
+      if(msg) msg.respondida = novoStatus;
+      renderAdminMensagens();
+      const badge = document.getElementById('admin-msg-badge');
+      const pendentes = adminMensagens.filter(m => !m.respondida).length;
+      if(badge){ badge.textContent = pendentes; badge.style.display = pendentes > 0 ? 'inline-block' : 'none'; }
+      toast(novoStatus ? 'Marcada como tratada' : 'Marcada como pendente novamente', '✅');
+    });
+  });
+}
+
+async function carregarAdminMembros(){
+  const { data, error } = await db.rpc('admin_listar_membros', { p_token: state.sessionToken });
+  if(error){ console.error('Erro ao carregar membros:', error); return; }
+  adminMembros = data || [];
+  renderAdminMembros();
+  renderAdminRecentes();
+}
+
+function renderAdminMembros(){
+  const list = document.getElementById('admin-membros-list');
+  if(!list) return;
+  if(!adminMembros.length){
+    list.innerHTML = '<div class="admin-empty-state">Nenhum membro cadastrado ainda.</div>';
+    return;
+  }
+  list.innerHTML = adminMembros.map(m => adminMemberRowHtml(m)).join('');
+}
+
+function renderAdminRecentes(){
+  const list = document.getElementById('admin-recentes-list');
+  if(!list) return;
+  const recentes = adminMembros.slice(0, 5);
+  if(!recentes.length){
+    list.innerHTML = '<div class="admin-empty-state">Nenhum membro cadastrado ainda.</div>';
+    return;
+  }
+  list.innerHTML = recentes.map(m => adminMemberRowHtml(m)).join('');
+}
+
+function adminMemberRowHtml(m){
+  const inicial = (m.nome_exibicao || m.nome_usuario || '?').charAt(0).toUpperCase();
+  const desde = new Date(m.criado_em).toLocaleDateString('pt-BR', {day:'2-digit', month:'short', year:'numeric'});
+  return `
+    <div class="admin-member-row">
+      <div class="admin-member-avatar">${escapeHtml(inicial)}</div>
+      <div>
+        <div class="admin-member-name">${escapeHtml(m.nome_exibicao || m.nome_usuario)}</div>
+        <div class="admin-member-meta">@${escapeHtml(m.nome_usuario)} · cadastrado em ${desde}</div>
+      </div>
+      ${m.membro_desde ? `<span class="admin-member-tag">membro desde ${new Date(m.membro_desde+'T00:00:00').toLocaleDateString('pt-BR',{month:'short',year:'numeric'})}</span>` : ''}
+    </div>`;
+}
+
+(function initAdmin(){
+  document.querySelectorAll('[data-admin-tab]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const tab = btn.dataset.adminTab;
+      document.querySelectorAll('[data-admin-tab]').forEach(b=>b.classList.toggle('active', b===btn));
+      document.querySelectorAll('.admin-panel').forEach(p=>p.classList.toggle('active', p.id === 'admin-panel-'+tab));
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+  });
+
+  document.querySelectorAll('[data-admin-filter]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      adminFiltroMensagens = btn.dataset.adminFilter;
+      document.querySelectorAll('[data-admin-filter]').forEach(b=>b.classList.toggle('active', b===btn));
+      renderAdminMensagens();
+    });
+  });
+
+  const adminLogoutBtn = document.getElementById('admin-logout-btn');
+  if(adminLogoutBtn){
+    adminLogoutBtn.addEventListener('click', ()=>{
+      openConfirm({
+        title:'Sair do painel?',
+        text:'Você precisará entrar novamente para acessar o painel de administrador.',
+        confirmLabel:'Sair',
+        cancelLabel:'Cancelar',
+        onConfirm: async ()=>{
+          if(state.sessionToken){
+            await db.rpc('sair', { p_token: state.sessionToken });
+          }
+          localStorage.removeItem('ipge_token');
+          state.sessionToken = null;
+          state.perfil = null;
+          document.body.classList.remove('show-admin');
+          document.body.classList.add('show-auth');
+          toast('Você saiu do painel.', '👋');
+        }
+      });
+    });
+  }
+})();
+
 async function carregarSessoes(){
   if(!state.sessionToken) return;
   const { data, error } = await db.rpc('listar_sessoes', { p_token: state.sessionToken });
@@ -6693,6 +7027,19 @@ async function carregarDadosDoUsuario(){
     } else {
       localStorage.removeItem('ipge_token');
     }
+
+    // Confere primeiro se é uma conta de administrador — se for, mostra
+    // só o painel de admin, sem carregar nada da experiência normal do app.
+    const { data: perfilCheck, error: errPerfilCheck } = await db.rpc('buscar_perfil', { p_token: token });
+    if(!errPerfilCheck && perfilCheck && perfilCheck.admin){
+      state.perfil = perfilCheck;
+      document.body.classList.remove('show-auth');
+      document.body.classList.remove('show-admin');
+      document.body.classList.add('show-admin');
+      if(typeof carregarPainelAdmin === 'function') await carregarPainelAdmin();
+      return;
+    }
+
     if(typeof carregarDadosDoUsuario === 'function'){
       await carregarDadosDoUsuario();
     }
