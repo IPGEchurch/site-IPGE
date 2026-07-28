@@ -78,7 +78,7 @@
 }
 
 *{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;overflow-anchor:none;height:100%;overflow-x:hidden;}
+html{scroll-behavior:smooth;overflow-anchor:none;height:100%;overflow-x:clip;}
 body{
   font-family:var(--font-body);
   background:var(--parchment);
@@ -86,7 +86,7 @@ body{
   min-height:100vh;
   min-height:100dvh;
   transition:background .35s ease, color .35s ease;
-  overflow-x:hidden;
+  overflow-x:clip;
   overflow-anchor:none;
 }
 body.no-scroll{overflow:hidden;}
@@ -2831,6 +2831,12 @@ function applyDevoToPage(devo){
       block.devoContent = dc;
       if(!frozen) saveDevoBlockSnapshot(key, dc);
       if(typeof renderDevoNoteBlocks === 'function') renderDevoNoteBlocks();
+      // Se o bloco já tinha sido criado no banco antes da IA responder, sincroniza agora
+      if(block.dbId && typeof state.sessionToken !== 'undefined' && state.sessionToken && typeof db !== 'undefined'){
+        db.rpc('obter_ou_criar_bloco_devocional', {
+          p_token: state.sessionToken, p_data_chave: block.dateKey, p_data_label: block.dateLabel, p_devo_conteudo: dc
+        }).then(({error})=>{ if(error) console.error('Erro ao sincronizar conteúdo do devocional:', error); });
+      }
     }
   }
 }
@@ -4116,7 +4122,7 @@ document.querySelectorAll('.sugg').forEach(s=>s.addEventListener('click', ()=>se
 /* =========================================================
    DEVOTIONAL — gerado por IA diariamente
    ========================================================= */
-document.getElementById('devo-date').textContent = new Date().toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long'});
+document.getElementById('devo-date').textContent = new Date().toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
 
 // Esconde os blocos enquanto carrega
 document.querySelectorAll('.devo-block').forEach(b => b.style.opacity = '0.3');
@@ -4164,7 +4170,7 @@ function findOrCreateTodayDevoBlock(){
     block = {
       id: 'devo-blk-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),
       dateKey: key,
-      dateLabel: new Date().toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long'}),
+      dateLabel: new Date().toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long', year:'numeric'}),
       devoContent: dc,
       notes: []
     };
@@ -4184,7 +4190,8 @@ async function addDevoNote(text){
     const { data, error } = await db.rpc('obter_ou_criar_bloco_devocional', {
       p_token: state.sessionToken,
       p_data_chave: block.dateKey,
-      p_data_label: block.dateLabel
+      p_data_label: block.dateLabel,
+      p_devo_conteudo: block.devoContent || null
     });
     if(error){ console.error('Erro ao criar bloco do devocional:', error); return; }
     block.dbId = data;
@@ -6490,12 +6497,12 @@ async function carregarDadosDoUsuario(){
     const blocksMap = new Map();
     (devocional || []).forEach(row => {
       if(!blocksMap.has(row.bloco_id)){
-        // Para o bloco de hoje, usa a foto do devocional congelada no localStorage
-        // (salva assim que a 1ª anotação do dia foi feita) — nunca o texto gerado
-        // "agora" pela IA, para o devocional já anotado não mudar.
+        // Prioridade: conteúdo salvo no banco (vale para qualquer dia). Se por acaso
+        // ainda não tiver sido salvo (bloco antigo, de antes dessa função existir) e for
+        // o dia de hoje, cai pro cache local como reforço.
+        let dc = row.devo_conteudo || null;
         const isToday = (typeof todayDevoKey === 'function') && row.data_chave === todayDevoKey();
-        let dc = null;
-        if(isToday){
+        if(!dc && isToday){
           dc = getDevoBlockSnapshot(row.data_chave);
           if(!dc && todayDevo){
             dc = {
