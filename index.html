@@ -1283,6 +1283,15 @@ textarea.notes-area:focus{border-color:var(--gold);}
   #topbar{padding:14px 16px;gap:8px;}
   .topbar-actions{gap:5px;flex-wrap:nowrap;}
   #mobile-search-btn{display:flex;}
+  /* position:sticky + backdrop-filter together are known to glitch/clip on many
+     Android GPUs when the header repaints during scroll. On mobile we drop the
+     blur and use a fully opaque background instead, which avoids the bug. */
+  #topbar,.pub-camp-topbar{
+    position:relative;
+    background:var(--paper) !important;
+    -webkit-backdrop-filter:none !important;
+    backdrop-filter:none !important;
+  }
   .search-box{
     display:none;
     position:absolute;
