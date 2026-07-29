@@ -820,6 +820,8 @@ body.show-public-campaign #app-shell{display:none;}
 .msg.recebida{background:var(--parchment-dim);border-bottom-left-radius:5px;padding:12px 15px;border-radius:16px;font-size:.9rem;line-height:1.6;}
 .msg-verse-share{border-left:3px solid var(--gold);padding-left:10px;margin-bottom:4px;}
 .msg-verse-share .msg-verse-ref{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;opacity:.75;font-weight:700;}
+.msg.enviada .msg-verse-goto{color:var(--parchment);border-color:rgba(251,248,242,.4);background:rgba(255,255,255,.08);}
+.msg.enviada .msg-verse-goto:hover{background:rgba(255,255,255,.16);border-color:rgba(251,248,242,.65);}
 .msg-time{font-size:.66rem;opacity:.6;margin-top:5px;}
 .msg-delete-btn{
   background:none;border:none;cursor:pointer;color:var(--text-faint);font-size:.68rem;
@@ -3967,6 +3969,12 @@ function switchView(view){
   document.body.classList.remove('no-scroll');
   if(view==='dashboard') renderCharts();
   if(view==='studies') renderStudies(state.studyFilter || 'Todos');
+  if(view==='conversas'){
+    if(typeof carregarConversas === 'function') carregarConversas();
+    if(typeof iniciarPollingConversas === 'function') iniciarPollingConversas();
+  } else if(previousView==='conversas' && typeof pararPollingConversas === 'function'){
+    pararPollingConversas();
+  }
   if(previousView==='media' && view!=='media' && typeof closeMediaPlayer === 'function') closeMediaPlayer();
   // Saiu da tela do Quiz bíblico: reinicia XP, acertos, erros e conquistas da sessão
   if(previousView==='quiz' && view!=='quiz'){ if(typeof clearQuizNextTimer === 'function') clearQuizNextTimer(); resetQuizSession(); }
@@ -7040,6 +7048,54 @@ let convMinhasMensagensSuporte = [];
 
 let convSolicitacoes = [];
 
+// Controle do "polling" (atualização automática) das conversas.
+// Como o app usa login por token próprio (não o Auth nativo do Supabase),
+// o Realtime do Supabase não enxerga quem é quem via RLS — por isso a
+// atualização em tempo real é feita checando o banco a cada poucos
+// segundos, só enquanto a aba "Conversas" está aberta.
+let convPollTimer = null;
+let convThreadLastSig = null;
+
+function pararPollingConversas(){
+  if(convPollTimer){ clearInterval(convPollTimer); convPollTimer = null; }
+}
+
+function iniciarPollingConversas(){
+  pararPollingConversas();
+  convPollTimer = setInterval(pollConversasTick, 4000);
+}
+
+async function pollConversasTick(){
+  if(document.hidden) return; // aba em segundo plano: não gasta requisições à toa
+  if(!state.sessionToken || state.view !== 'conversas') return;
+
+  // Atualiza a lista lateral (contatos, pedidos pendentes, badge) em segundo plano
+  await carregarConversas();
+
+  if(!convAtivo) return;
+
+  if(convAtivo === 'admin'){
+    const { data, error } = await db.rpc('listar_minhas_mensagens_suporte', { p_token: state.sessionToken });
+    if(error) return;
+    const novo = data || [];
+    const sig = JSON.stringify(novo.map(m => [m.id, m.respondida]));
+    if(sig !== convThreadLastSig){
+      convThreadLastSig = sig;
+      convMinhasMensagensSuporte = novo;
+      renderThreadAdmin(novo);
+    }
+  } else {
+    const { data, error } = await db.rpc('listar_mensagens_diretas', { p_token: state.sessionToken, p_contato_id: convAtivo });
+    if(error) return;
+    const novo = data || [];
+    const sig = JSON.stringify(novo.map(m => [m.id, m.lida]));
+    if(sig !== convThreadLastSig){
+      convThreadLastSig = sig;
+      renderThreadDireto(novo);
+    }
+  }
+}
+
 async function carregarConversas(){
   if(!state.sessionToken) return;
   const [{ data: contatosData, error: errContatos }, { data: suporteData, error: errSuporte }, { data: solicData, error: errSolic }] = await Promise.all([
@@ -7172,18 +7228,8 @@ async function abrirConversa(contatoId){
     if(error){ console.error('Erro ao carregar mensagens de suporte:', error); body.innerHTML = '<div class="admin-empty-state">Não foi possível carregar.</div>'; return; }
     convMinhasMensagensSuporte = data || [];
     renderConvList();
-    if(!convMinhasMensagensSuporte.length){
-      body.innerHTML = '<div class="admin-empty-state">Você ainda não enviou nenhuma mensagem para a administração.</div>';
-    } else {
-      body.innerHTML = convMinhasMensagensSuporte.map(m => `
-        <div class="msg-row enviada"><div class="msg enviada">
-          <div class="msg-verse-share"><div class="msg-verse-ref">${escapeHtml(m.assunto || 'Mensagem')}</div></div>
-          ${escapeHtml(m.mensagem)}
-          <div class="msg-time">${new Date(m.criado_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})} ${m.respondida ? '· ✓ tratada' : '· pendente'}</div>
-        </div></div>
-      `).join('');
-      body.scrollTop = body.scrollHeight;
-    }
+    renderThreadAdmin(convMinhasMensagensSuporte);
+    convThreadLastSig = JSON.stringify(convMinhasMensagensSuporte.map(m => [m.id, m.respondida]));
     return;
   }
 
@@ -7206,8 +7252,26 @@ async function abrirConversa(contatoId){
   }
 
   renderThreadDireto(data || []);
+  convThreadLastSig = JSON.stringify((data || []).map(m => [m.id, m.lida]));
   atualizarBadgeConversas();
   carregarConversas();
+}
+
+function renderThreadAdmin(mensagens){
+  const body = document.getElementById('conv-thread-body');
+  if(!body) return;
+  if(!mensagens.length){
+    body.innerHTML = '<div class="admin-empty-state">Você ainda não enviou nenhuma mensagem para a administração.</div>';
+    return;
+  }
+  body.innerHTML = mensagens.map(m => `
+    <div class="msg-row enviada"><div class="msg enviada">
+      <div class="msg-verse-share"><div class="msg-verse-ref">${escapeHtml(m.assunto || 'Mensagem')}</div></div>
+      ${escapeHtml(m.mensagem)}
+      <div class="msg-time">${new Date(m.criado_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})} ${m.respondida ? '· ✓ tratada' : '· pendente'}</div>
+    </div></div>
+  `).join('');
+  body.scrollTop = body.scrollHeight;
 }
 
 function renderThreadDireto(mensagens){
@@ -7385,7 +7449,6 @@ document.getElementById('contact-search-input')?.addEventListener('input', (e)=>
         <div class="conv-avatar" style="width:34px;height:34px;font-size:.8rem;${u.avatar_gradient ? 'background:'+u.avatar_gradient+';' : ''}">${escapeHtml(u.avatar_emoji || (u.nome_exibicao||u.nome_usuario).charAt(0).toUpperCase())}</div>
         <div style="flex:1;">
           <div style="font-weight:600;font-size:.88rem;color:var(--ink);">${escapeHtml(u.nome_exibicao || u.nome_usuario)}</div>
-          <div class="muted" style="font-size:.76rem;">@${escapeHtml(u.nome_usuario)}</div>
         </div>
         <span class="btn btn-ghost btn-sm">Enviar pedido</span>
       </div>
