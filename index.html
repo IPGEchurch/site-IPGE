@@ -5365,10 +5365,10 @@ document.getElementById('scrim').addEventListener('click', ()=>{
   document.body.classList.remove('no-scroll');
 });
 
-/* Gesto de arrastar a partir da borda esquerda da tela para abrir a sidebar
-   (celular/tablet) — e arrastar para a esquerda com o menu aberto para fechar. */
+/* Gesto de arrastar para a direita em qualquer ponto da tela (celular/
+   tablet) para abrir a sidebar — e arrastar para a esquerda com o menu
+   aberto para fechar. */
 (function(){
-  const EDGE_WIDTH = 28;       // faixa sensível a partir da borda esquerda, em px
   const OPEN_THRESHOLD = 60;   // quanto precisa arrastar para abrir
   const CLOSE_THRESHOLD = 60;  // quanto precisa arrastar para fechar
   const sidebarEl = document.getElementById('sidebar');
@@ -5390,7 +5390,7 @@ document.getElementById('scrim').addEventListener('click', ()=>{
   }
 
   let touchStartX = 0, touchStartY = 0;
-  let tracking = false, startedAtEdge = false, sidebarWasOpen = false;
+  let tracking = false, sidebarWasOpen = false;
 
   document.addEventListener('touchstart', (e)=>{
     if(!isMobileLayout() || e.touches.length !== 1){ tracking = false; return; }
@@ -5398,10 +5398,9 @@ document.getElementById('scrim').addEventListener('click', ()=>{
     touchStartX = touch.clientX;
     touchStartY = touch.clientY;
     sidebarWasOpen = sidebarEl.classList.contains('open');
-    startedAtEdge = touchStartX <= EDGE_WIDTH;
-    // Só acompanha o gesto se começou na borda esquerda (para abrir) ou se o
-    // menu já está aberto (para permitir fechar arrastando de volta pra esquerda)
-    tracking = startedAtEdge || sidebarWasOpen;
+    // Acompanha o gesto em qualquer ponto da tela (para abrir) ou, se o
+    // menu já está aberto, para permitir fechar arrastando para a esquerda
+    tracking = true;
   }, { passive:true });
 
   document.addEventListener('touchmove', (e)=>{
@@ -5412,7 +5411,7 @@ document.getElementById('scrim').addEventListener('click', ()=>{
     // Gesto mais vertical do que horizontal = é rolagem da página, ignora
     if(Math.abs(deltaY) > Math.abs(deltaX)) return;
 
-    if(startedAtEdge && !sidebarWasOpen && deltaX > OPEN_THRESHOLD){
+    if(!sidebarWasOpen && deltaX > OPEN_THRESHOLD){
       abrirSidebar();
       tracking = false;
     } else if(sidebarWasOpen && deltaX < -CLOSE_THRESHOLD){
