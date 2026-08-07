@@ -1260,7 +1260,21 @@ textarea.notes-area:focus{border-color:var(--gold);}
 
 /* Plan detail page */
 .plan-back-btn{margin-bottom:18px;}
-.page-head-back{display:none;margin-bottom:14px;}
+.page-head-back{
+  display:none;
+  align-items:center;gap:7px;
+  padding:7px 14px 7px 10px;
+  margin-bottom:18px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:var(--paper);
+  color:var(--text-dim);
+  font-family:var(--font-body);
+  font-size:.82rem;font-weight:600;
+  cursor:pointer;
+  transition:all .18s ease;
+}
+.page-head-back:hover{border-color:var(--gold);color:var(--ink);transform:translateX(-2px);}
 @media(max-width:880px){
   .page-head-back{display:inline-flex;}
 }
@@ -2291,7 +2305,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
             <label class="field-label">Nome de usuário</label>
             <div class="auth-field-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z" opacity="0"/><path d="M3 6.5l9 6 9-6"/><rect x="3" y="4.5" width="18" height="15" rx="2.5"/></svg>
-              <input type="text" class="field-input" id="auth-login-user" placeholder="camila.leitura" autocomplete="username">
+              <input type="text" class="field-input" id="auth-login-user" placeholder="Usuario_1234" autocomplete="username">
             </div>
           </div>
           <div class="auth-field">
@@ -2323,20 +2337,18 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
           <div class="auth-2col">
             <div class="auth-field">
               <label class="field-label">Nome de exibição</label>
-              <input type="text" class="field-input" id="auth-signup-nome" placeholder="Camila">
+              <input type="text" class="field-input" id="auth-signup-nome" placeholder="Usuario">
             </div>
             <div class="auth-field">
               <label class="field-label">Nome de usuário</label>
-              <input type="text" class="field-input" id="auth-signup-user" placeholder="camila.leitura" autocomplete="username">
+              <input type="text" class="field-input" id="auth-signup-user" placeholder="Usuario_1234" autocomplete="username">
               <div style="color:var(--text-faint);font-size:.72rem;margin-top:6px;line-height:1.4;">Mín. 6 caracteres, com letra maiúscula, número e caractere especial (ex: _ . -)</div>
             </div>
           </div>
           <div class="auth-field">
             <label class="field-label">Congregação</label>
             <select class="field-input" id="auth-signup-congregacao">
-              <option>IPGE Church — Sede</option>
-              <option>IPGE Church — Zona Norte</option>
-              <option>IPGE Church — Zona Sul</option>
+              <option>IPGE Church — Campo Grande</option>
             </select>
           </div>
           <div class="auth-2col">
@@ -2610,9 +2622,9 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
 
     <div class="sidebar-footer">
       <button class="account-btn" data-goto="settings" title="Configurações da conta" aria-label="Abrir configurações da conta">
-        <span class="account-avatar" id="sidebar-account-avatar">C</span>
+        <span class="account-avatar" id="sidebar-account-avatar"></span>
         <span class="account-info">
-          <span class="account-name" id="sidebar-account-name">Camila</span>
+          <span class="account-name" id="sidebar-account-name"></span>
         </span>
         <span class="account-gear" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -2694,8 +2706,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
       <section class="view" id="view-dashboard">
         <button
     type="button"
-    class="btn btn-ghost btn-sm page-head-back"
-    style="font-size: 18px; padding: 12px 24px;">
+    class="page-head-back">
     ← Voltar ao início
 </button>
         <div class="page-head" style="--ph-tone:var(--gold-soft);">
@@ -2740,8 +2751,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
       <section class="view" id="view-bible">
         <button
     type="button"
-    class="btn btn-ghost btn-sm page-head-back"
-    style="font-size: 18px; padding: 12px 24px;">
+    class="page-head-back">
     ← Voltar ao início
 </button>
         <div class="page-head" style="--ph-tone:var(--gold-soft);">
@@ -2790,8 +2800,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
       <section class="view" id="view-ai">
         <button
     type="button"
-    class="btn btn-ghost btn-sm page-head-back"
-    style="font-size: 18px; padding: 12px 24px;">
+    class="page-head-back">
     ← Voltar ao início
 </button>
         <div class="page-head is-ink" style="--ph-tone:var(--gold-soft);">
@@ -2828,8 +2837,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
       <section class="view" id="view-devotional">
         <button
     type="button"
-    class="btn btn-ghost btn-sm page-head-back"
-    style="font-size: 18px; padding: 12px 24px;">
+    class="page-head-back">
     ← Voltar ao início
 </button>
         <div class="page-head" style="--ph-tone:var(--sage-soft);">
@@ -2885,8 +2893,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
       <section class="view" id="view-plans">
         <button
     type="button"
-    class="btn btn-ghost btn-sm page-head-back"
-    style="font-size: 18px; padding: 12px 24px;">
+    class="page-head-back">
     ← Voltar ao início
 </button>
         <div class="page-head" style="--ph-tone:var(--gold-soft);">
@@ -2965,8 +2972,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
       <section class="view" id="view-studies">
         <button
     type="button"
-    class="btn btn-ghost btn-sm page-head-back"
-    style="font-size: 18px; padding: 12px 24px;">
+    class="page-head-back">
     ← Voltar ao início
 </button>
         <div class="page-head" style="--ph-tone:var(--sage-soft);">
@@ -2991,8 +2997,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
       <section class="view" id="view-notes">
         <button
     type="button"
-    class="btn btn-ghost btn-sm page-head-back"
-    style="font-size: 18px; padding: 12px 24px;">
+    class="page-head-back">
     ← Voltar ao início
 </button>
         <div class="page-head" style="--ph-tone:var(--sage-soft);">
@@ -3019,8 +3024,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
       <section class="view" id="view-favorites">
         <button
     type="button"
-    class="btn btn-ghost btn-sm page-head-back"
-    style="font-size: 18px; padding: 12px 24px;">
+    class="page-head-back">
     ← Voltar ao início
 </button>
         <div class="page-head" style="--ph-tone:color-mix(in srgb, var(--rose) 40%, var(--paper));">
@@ -3038,8 +3042,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
       <section class="view" id="view-prayer">
         <button
     type="button"
-    class="btn btn-ghost btn-sm page-head-back"
-    style="font-size: 18px; padding: 12px 24px;">
+    class="page-head-back">
     ← Voltar ao início
 </button>
         <div class="page-head" style="--ph-tone:var(--gold-soft);">
@@ -3068,8 +3071,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
       <section class="view" id="view-quiz">
         <button
     type="button"
-    class="btn btn-ghost btn-sm page-head-back"
-    style="font-size: 18px; padding: 12px 24px;">
+    class="page-head-back">
     ← Voltar ao início
 </button>
         <div class="page-head" style="--ph-tone:var(--gold-soft);">
@@ -3104,8 +3106,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
       <section class="view" id="view-campaigns">
         <button
     type="button"
-    class="btn btn-ghost btn-sm page-head-back"
-    style="font-size: 18px; padding: 12px 24px;">
+    class="page-head-back">
     ← Voltar ao início
 </button>
         <div class="page-head" style="--ph-tone:color-mix(in srgb, var(--rose) 40%, var(--paper));">
@@ -3132,8 +3133,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
       <section class="view" id="view-conversas">
         <button
     type="button"
-    class="btn btn-ghost btn-sm page-head-back"
-    style="font-size: 18px; padding: 12px 24px;">
+    class="page-head-back">
     ← Voltar ao início
 </button>
         <div class="page-head" style="--ph-tone:var(--sage-soft);">
@@ -3197,8 +3197,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
       <section class="view" id="view-comunidade">
        <button
     type="button"
-    class="btn btn-ghost btn-sm page-head-back"
-    style="font-size: 18px; padding: 12px 24px;">
+    class="page-head-back">
     ← Voltar ao início
 </button>
         <div class="comunidade-hero">
@@ -3306,8 +3305,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
       <section class="view" id="view-media">
         <button
     type="button"
-    class="btn btn-ghost btn-sm page-head-back"
-    style="font-size: 18px; padding: 12px 24px;">
+    class="page-head-back">
     ← Voltar ao início
 </button>
         <div class="page-head" style="--ph-tone:var(--sage-soft);">
@@ -3345,7 +3343,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
             <button class="settings-avatar-edit" id="settings-avatar-edit-btn" title="Alterar foto" aria-label="Alterar foto">✎</button>
           </div>
           <div class="settings-profile-info">
-            <div class="settings-profile-name">Camila</div>
+            <div class="settings-profile-name">Ex:Usuario</div>
             <div class="settings-profile-email">@camila.leitura</div>
             <div class="settings-profile-meta">
               <span class="pill pill-gold" id="settings-profile-membro-desde">Membro desde —</span>
@@ -3435,7 +3433,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
                   </div>
                   <div class="settings-field">
                     <label class="field-label">Nome de usuário</label>
-                    <input type="text" class="field-input" id="settings-nome-usuario" value="camila.leitura">
+                    <input type="text" class="field-input" id="settings-nome-usuario" value="Ex: Usuario_1234">
                   </div>
                 </div>
                 <div class="settings-form-row">
