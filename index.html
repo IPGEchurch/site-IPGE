@@ -9403,10 +9403,10 @@ async function gerarImagemVersiculoBlob(ref, texto, bgId){
   ctx.fillStyle = '#E8C98A';
   desenharTextoEspacado(ctx, ref.toUpperCase(), W/2, ruleY + 54, 3);
 
-  // Assinatura da igreja, discreta, no rodapé
+  // Assinatura da igreja, discreta, no espaço acima do texto do versículo
   ctx.font = '600 26px Inter, sans-serif';
-  ctx.fillStyle = 'rgba(251,248,242,0.55)';
-  desenharTextoEspacado(ctx, 'IPGE CHURCH', W/2, H - 74, 3);
+  ctx.fillStyle = 'rgba(251,248,242,0.62)';
+  desenharTextoEspacado(ctx, 'IPGE CHURCH', W/2, H*0.255, 3);
 
   return new Promise(resolve=>canvas.toBlob(resolve, 'image/png', 0.95));
 }
