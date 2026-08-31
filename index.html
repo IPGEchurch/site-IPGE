@@ -1215,8 +1215,8 @@ body.show-public-campaign #app-shell{display:none;}
   display:flex;align-items:center;gap:12px;padding:10px 6px;border-radius:var(--radius-sm);cursor:pointer;
 }
 .contact-result-row:hover{background:var(--parchment-dim);}
-.contact-search-box{max-width:420px;width:100%;text-align:left;max-height:calc(100vh - 40px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
-.contact-search-box .confirm-actions{position:sticky;bottom:0;background:var(--paper);padding:12px 0 22px;margin-top:16px;border-top:1px solid var(--line);}
+.contact-search-box{max-width:420px;width:100%;text-align:left;}
+.contact-search-box .confirm-actions{margin-top:16px;border-top:1px solid var(--line);padding-top:12px;}
 .contact-search-box .confirm-title, .contact-search-box .confirm-text{text-align:left;}
 
 @media(max-width:900px){
@@ -1696,7 +1696,10 @@ textarea.notes-area:focus{border-color:var(--gold);}
   position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;
   background:rgba(20,16,10,.45);backdrop-filter:blur(2px);
   opacity:0;visibility:hidden;pointer-events:none;transition:opacity .22s ease;
-  padding:20px;
+  padding:20px;overflow-y:auto;
+}
+@media(max-width:640px){
+  .confirm-overlay{align-items:flex-start;padding-top:clamp(16px,8dvh,80px);}
 }
 .confirm-overlay.show{opacity:1;visibility:visible;pointer-events:auto;}
 .confirm-box{
