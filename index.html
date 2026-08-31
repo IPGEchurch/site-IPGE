@@ -1215,7 +1215,8 @@ body.show-public-campaign #app-shell{display:none;}
   display:flex;align-items:center;gap:12px;padding:10px 6px;border-radius:var(--radius-sm);cursor:pointer;
 }
 .contact-result-row:hover{background:var(--parchment-dim);}
-.contact-search-box{max-width:420px;width:100%;text-align:left;}
+.contact-search-box{max-width:420px;width:100%;text-align:left;max-height:calc(100vh - 40px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
+.contact-search-box .confirm-actions{position:sticky;bottom:0;background:var(--paper);padding:12px 0 22px;margin-top:16px;border-top:1px solid var(--line);}
 .contact-search-box .confirm-title, .contact-search-box .confirm-text{text-align:left;}
 
 @media(max-width:900px){
@@ -3786,7 +3787,7 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
       <div class="verse-share-bg-picker" id="verse-share-bg-picker">
         <div class="verse-share-bg-swatch active" data-bg="campo" style="background-image:url('versiculo-compartilhar-fundo.jpg');" title="Campo ao entardecer"></div>
         <div class="verse-share-bg-swatch" data-bg="maos" style="background-image:url('versiculo-fundo-maos.jpg');" title="Mãos em luz"></div>
-        <div class="verse-share-bg-swatch" data-bg="moldura" style="background-image:url('Story de Bom dia com mensagem de fé em tons pasteis.png');" title="Moldura dourada"></div>
+        <div class="verse-share-bg-swatch" data-bg="moldura" style="background-image:url('versiculo-fundo-moldura.jpg');" title="Moldura dourada"></div>
       </div>
       <button class="btn btn-primary btn-sm" id="verse-share-image-btn" style="margin-top:10px;width:100%;" disabled>Compartilhar imagem</button>
     </div>
@@ -9263,7 +9264,7 @@ document.getElementById('verse-share-close-btn')?.addEventListener('click', ()=>
 const VERSE_IMG_BACKGROUNDS = {
   campo:   'versiculo-compartilhar-fundo.jpg',
   maos:    'versiculo-fundo-maos.jpg',
-  moldura: 'Story de Bom dia com mensagem de fé em tons pasteis.png'
+  moldura: 'versiculo-fundo-moldura.jpg'
 };
 let verseImgBgSelecionado = 'campo';
 let verseImgBgCache = {};
