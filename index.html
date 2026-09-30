@@ -1318,6 +1318,74 @@ body.show-public-campaign #app-shell{display:none;}
 @media(max-width:480px){#view-devotional .dv{padding:20px 14px 24px;border-radius:22px;}}
 @media(prefers-reduced-motion:reduce){.fd,.dv-prog i,.dv-chk,.dv-mood button{transition:none;}}
 
+/* BB — Bíblia redesenhada */
+#view-bible .dv{--c1:#ffd9a0;--c2:#bfe3ff;--gl:color-mix(in srgb,var(--paper) 72%,transparent);margin-top:14px;padding:26px 20px 30px;border-radius:28px;background:linear-gradient(155deg,var(--c1) 0%,var(--parchment) 42%,var(--c2) 100%);}
+[data-theme="dark"] #view-bible .dv{--c1:#3d2a0e;--c2:#12304a;}
+#view-bible .bible-layout{grid-template-columns:300px 1fr;gap:18px;align-items:start;}
+@media(max-width:900px){#view-bible .bible-layout{grid-template-columns:1fr;}}
+#view-bible .bible-layout .dv-card{margin-top:0;}
+#view-bible .testament-tabs{background:var(--gl);border-radius:30px;padding:4px;margin-bottom:12px;}
+#view-bible .tab-btn{flex:1;border:0;background:transparent;border-radius:26px;padding:9px 14px;}
+#view-bible .tab-btn.active{background:var(--ink);color:var(--parchment);}
+[data-theme="dark"] #view-bible .tab-btn.active{background:var(--gold);color:var(--ink);}
+#view-bible .book-list{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-height:560px;padding:2px;}
+@media(max-width:900px){#view-bible .book-list{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));max-height:340px;}}
+#view-bible .book-item{flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:3px;padding:12px 12px 10px;border-radius:14px;background:var(--paper);box-shadow:var(--shadow-sm);border:0;border-top:5px solid var(--c,var(--gold));text-align:left;color:var(--text);min-width:0;transition:transform .2s;cursor:pointer;}
+#view-bible .book-item:hover{transform:translateY(-2px);background:var(--paper);}
+#view-bible .book-item .bt-n{font-weight:700;font-size:.85rem;overflow-wrap:anywhere;line-height:1.2;}
+#view-bible .bt-bar{display:block;width:100%;height:4px;border-radius:4px;background:var(--line);margin-top:4px;overflow:hidden;}
+#view-bible .bt-bar i{display:block;height:100%;background:var(--c,var(--gold));}
+#view-bible .book-item.active{background:var(--c,var(--gold));color:#1a1408;}
+#view-bible .book-item.active .bt-bar{background:rgba(0,0,0,.15);}
+#view-bible .book-item.active .bt-bar i{background:#1a1408;}
+.bb-cont{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:0 0 16px;}
+.bb-go{border:0;text-align:left;border-radius:18px;padding:14px 16px;cursor:pointer;background:var(--gl);backdrop-filter:blur(8px);box-shadow:var(--shadow-sm);color:var(--text);display:flex;flex-direction:column;gap:4px;min-width:0;}
+.bb-go small{font-size:.66rem;letter-spacing:.08em;color:var(--text-dim);}
+.bb-go b{font-family:var(--font-display);font-size:1.05rem;color:var(--ink);overflow-wrap:anywhere;}
+.bb-go.pri{background:linear-gradient(135deg,#1A2540,#4a2f6b);}
+.bb-go.pri small{color:#e8c98a;}.bb-go.pri b{color:#fbf8f2;}
+.bb-res{display:block;width:100%;text-align:left;border:0;background:var(--paper);border-radius:14px;padding:10px 12px;margin-top:8px;cursor:pointer;color:var(--text);font-size:.85rem;line-height:1.5;overflow-wrap:anywhere;}
+.bb-res b{color:var(--gold);margin-right:6px;}
+.bb-res mark{background:#fff1a8;color:#1a1408;border-radius:3px;padding:0 2px;}
+#bb-results{margin-top:6px;}#bb-results:empty{display:none;}
+#view-bible .reader-card{padding:18px;}
+.bb-banner{background:linear-gradient(135deg,#1A2540,#4a2f6b);color:#fbf8f2;border-radius:20px;padding:20px 20px 18px;margin-bottom:14px;}
+.bb-banner .reader-head{margin:0;}
+.bb-banner .reader-title{font-family:var(--font-display);font-size:1.9rem;color:#fbf8f2;}
+.bb-banner .muted{color:#e8c98a !important;}
+.bb-banner .btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);color:#fbf8f2;border-radius:20px;}
+.bb-tools{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:6px;}
+.bb-tools .sp{flex:1;}
+#bb-read.on{background:var(--sage);border-color:var(--sage);color:#fff;}
+#view-bible .chapter-nav{max-height:132px;overflow-y:auto;}
+#view-bible .chap-dot{border-radius:50%;background:var(--paper);}
+#view-bible .chap-dot.read{background:var(--sage);border-color:var(--sage);color:#fff;}
+#view-bible .chap-dot.active{background:var(--gold);border-color:var(--gold);color:var(--ink);}
+#view-bible .verse-text{font-size:calc(1rem * var(--bbfs,1) * 1.05);}
+.verse.hl{background:color-mix(in srgb,var(--hl) 60%,transparent);box-shadow:inset 4px 0 0 var(--hl);}
+[data-theme="dark"] .verse.hl{background:color-mix(in srgb,var(--hl) 22%,transparent);}
+.bb-pager{display:flex;gap:10px;margin-top:22px;}
+.bb-pager .btn{flex:1;justify-content:center;}
+@media(max-width:480px){#view-bible .dv{padding:20px 14px 24px;border-radius:22px;}.bb-banner .reader-title{font-size:1.5rem;}}
+
+/* NB — Minhas anotações redesenhado */
+#view-notes .dv{--c1:#b8f0dc;--c2:#c4d6ff;--gl:color-mix(in srgb,var(--paper) 72%,transparent);margin-top:14px;padding:26px 20px 30px;border-radius:28px;background:linear-gradient(155deg,var(--c1) 0%,var(--parchment) 42%,var(--c2) 100%);}
+[data-theme="dark"] #view-notes .dv{--c1:#10382d;--c2:#1c2a55;}
+.nb-oh{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:14px;}
+.nb-oh h3{font-size:1.15rem;overflow-wrap:anywhere;}.nb-oh .sp{flex:1;}
+.nb-ic{border:0;background:var(--paper);border-radius:10px;width:32px;height:32px;cursor:pointer;font-size:.9rem;box-shadow:var(--shadow-sm);}
+.nb-sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--paper);cursor:pointer;}
+.nb-sw.on{outline:3px solid var(--ink);outline-offset:1px;}
+[data-theme="dark"] .nb-sw.on{outline-color:var(--gold);}
+.nb-note{background:var(--paper);border-radius:16px;border-left:5px solid var(--c);padding:14px 16px;margin-top:12px;box-shadow:var(--shadow-sm);min-width:0;}
+.nb-note p{margin-top:8px;line-height:1.7;overflow-wrap:anywhere;}
+.nb-recall{margin-top:22px;background:linear-gradient(135deg,#1A2540,#4a2f6b);color:#fbf8f2;border-radius:20px;padding:20px;position:relative;overflow:hidden;}
+.nb-recall small{color:#e8c98a;font-weight:600;}.nb-recall p{font-family:var(--font-display);font-style:italic;font-size:1.1rem;line-height:1.55;margin:8px 0 12px;overflow-wrap:anywhere;}
+.nb-recall button{border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.1);color:inherit;border-radius:20px;padding:6px 12px;font-size:.78rem;cursor:pointer;}
+#nb-ffav.on{background:var(--gold);color:var(--ink);}
+#nb-mic.on{background:var(--rose);color:#fff;}
+@media(max-width:480px){#view-notes .dv{padding:20px 14px 24px;border-radius:22px;}}
+
 /* Devotional */
 .devo-block{margin-bottom:22px;}
 .devo-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);font-weight:700;margin-bottom:8px;}
@@ -2232,6 +2300,25 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
   .cu-card-aniversariantes{order:8;}
 }
 
+/* Entrada do capítulo ao escolher um livro */
+@keyframes readerPop{from{opacity:0;transform:translateY(28px) scale(.985);}to{opacity:1;transform:none;}}
+.reader-pop{animation:readerPop .8s cubic-bezier(.2,.8,.2,1) both;}
+/* Botão flutuante: voltar ao topo */
+#back-to-top{
+  position:fixed;right:18px;bottom:calc(20px + env(safe-area-inset-bottom,0px));
+  width:46px;height:46px;border-radius:50%;border:0;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#1A2540,#4a2f6b);color:#e8c98a;
+  box-shadow:0 6px 18px rgba(0,0,0,.28);
+  z-index:210;opacity:0;visibility:hidden;transform:translateY(14px);
+  transition:opacity .25s ease,transform .25s ease,visibility .25s;
+  -webkit-tap-highlight-color:transparent;
+}
+#back-to-top.show{opacity:1;visibility:visible;transform:translateY(0);}
+#back-to-top:hover{filter:brightness(1.12);}
+#back-to-top:active{transform:scale(.94);}
+#back-to-top svg{width:20px;height:20px;}
+@media(max-width:600px){#back-to-top{right:12px;width:42px;height:42px;}}
 </style>
 </head>
 <body class="show-auth">
@@ -2845,45 +2932,68 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
     class="page-head-back">
     ← Voltar ao início
 </button>
-        <div class="page-head" style="--ph-tone:var(--gold-soft);">
-          <div class="page-head-icon">📖</div>
-          <div class="page-head-text">
-            <div class="page-head-eyebrow">Escrituras</div>
-            <h1 class="page-head-title">Bíblia Sagrada</h1>
-            <p class="page-head-sub">Navegue por livro e capítulo. Toque em um versículo para favoritar, anotar ou compartilhar.</p>
+        <div class="dv bb" id="bb">
+          <div class="dv-top">
+            <div>
+              <h1 class="dv-title">Bíblia</h1>
+              <div class="dv-sub">A Palavra viva</div>
+              <p class="dv-date" id="bb-date"></p>
+            </div>
+            <div class="dv-streak"><b id="bb-streak">0</b><span>dias lendo</span></div>
           </div>
-        </div>
-
-        <div class="bible-layout" style="margin-top:22px;">
-          <div>
-            <div class="testament-tabs">
-              <button class="tab-btn active" data-testament="AT">Antigo</button>
-              <button class="tab-btn" data-testament="NT">Novo</button>
-            </div>
-            <div class="card" style="padding:12px;">
-              <div class="book-list" id="book-list"></div>
-            </div>
+          <div class="dv-week" id="bb-week"></div>
+          <div class="dv-total"><span>CAPÍTULOS LIDOS</span><b id="bb-total">0</b></div>
+          <div style="margin:0 4px 16px;"><div class="dv-prog" style="margin-top:0;"><i id="bb-prog"></i></div><div class="dv-count" id="bb-prog-t"></div></div>
+          <div id="bb-continue"></div>
+          <div class="dv-card" style="margin-top:0;margin-bottom:18px;">
+            <input type="search" class="dv-search" id="bb-search" style="width:100%;" placeholder="Buscar palavra ou ir direto (ex: João 3:16, amor, fé)">
+            <div id="bb-results"></div>
           </div>
 
-          <div class="card reader-card">
-            <div class="reader-head">
-              <div>
-                <div class="reader-title" id="reader-book-title">Gênesis</div>
-                <div class="muted" id="reader-book-sub">Antigo Testamento · Lei</div>
+          <div class="bible-layout">
+            <div>
+              <div class="testament-tabs">
+                <button class="tab-btn active" data-testament="AT">Antigo</button>
+                <button class="tab-btn" data-testament="NT">Novo</button>
               </div>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <div class="bible-version-picker" id="bible-version-picker">
-                  <button class="btn btn-ghost btn-sm" id="btn-bible-version" aria-haspopup="true" aria-expanded="false" title="Escolher versão da Bíblia">
-                    <span class="em">📖</span><span id="bible-version-badge">ARC</span><span class="bv-caret">▾</span>
-                  </button>
-                  <div class="bible-version-menu" id="bible-version-menu" hidden></div>
+              <div class="dv-card" style="padding:12px;">
+                <div class="book-list" id="book-list"></div>
+              </div>
+            </div>
+
+            <div class="dv-card reader-card">
+              <div class="bb-banner">
+                <div class="reader-head">
+                  <div>
+                    <div class="reader-title" id="reader-book-title">Gênesis</div>
+                    <div class="muted" id="reader-book-sub">Antigo Testamento · Lei</div>
+                  </div>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <div class="bible-version-picker" id="bible-version-picker">
+                      <button class="btn btn-ghost btn-sm" id="btn-bible-version" aria-haspopup="true" aria-expanded="false" title="Escolher versão da Bíblia">
+                        <span class="em">📖</span><span id="bible-version-badge">ARC</span><span class="bv-caret">▾</span>
+                      </button>
+                      <div class="bible-version-menu" id="bible-version-menu" hidden></div>
+                    </div>
+                    <button class="btn btn-ghost btn-sm" id="btn-favorite-chapter">❤️ Favoritar capítulo</button>
+                  </div>
                 </div>
-                <button class="btn btn-ghost btn-sm" id="btn-favorite-chapter">❤️ Favoritar capítulo</button>
+              </div>
+              <div class="bb-tools">
+                <button type="button" class="btn btn-ghost btn-sm" id="bb-read">Marcar como lido</button>
+                <button type="button" class="btn btn-ghost btn-sm" id="bb-listen">🔊 Ouvir</button>
+                <span class="sp"></span>
+                <button type="button" class="btn btn-ghost btn-sm" data-fs="-1" aria-label="Diminuir letra">A−</button>
+                <button type="button" class="btn btn-ghost btn-sm" data-fs="1" aria-label="Aumentar letra">A+</button>
+              </div>
+              <div class="chapter-nav" id="chapter-nav"></div>
+              <div class="chapter-heading" id="chapter-heading"></div>
+              <div id="verse-list" style="display:flex;flex-direction:column;"></div>
+              <div class="bb-pager">
+                <button type="button" class="btn btn-ghost" data-step="-1">← Anterior</button>
+                <button type="button" class="btn btn-primary" data-step="1">Próximo →</button>
               </div>
             </div>
-            <div class="chapter-nav" id="chapter-nav"></div>
-            <div class="chapter-heading" id="chapter-heading"></div>
-            <div id="verse-list" style="display:flex;flex-direction:column;"></div>
           </div>
         </div>
       </section>
@@ -3098,24 +3208,33 @@ hr.soft{border:none;border-top:1px solid var(--line);margin:22px 0;}
     class="page-head-back">
     ← Voltar ao início
 </button>
-        <div class="page-head" style="--ph-tone:var(--sage-soft);">
-          <div class="page-head-icon">📝</div>
-          <div class="page-head-text">
-            <div class="page-head-eyebrow">Minha jornada</div>
-            <h1 class="page-head-title">Minhas anotações</h1>
-            <p class="page-head-sub">Reflexões organizadas por livro, capítulo ou tema.</p>
+        <div class="dv nb" id="nb">
+          <div class="dv-top">
+            <div>
+              <h1 class="dv-title">Anotações</h1>
+              <div class="dv-sub">Guarde o que Deus fala</div>
+              <p class="dv-date" id="nb-date"></p>
+            </div>
+            <div class="dv-streak"><b id="nb-streak">0</b><span>dias seguidos</span></div>
           </div>
-        </div>
-
-        <div class="card" style="margin-top:22px;">
-          <h3 style="font-size:1rem;margin-bottom:10px;">Criar novo bloco de notas</h3>
-          <div class="note-toolbar-row">
-            <input id="new-block-name" class="note-input" placeholder="Nome do bloco (ex: Salmos, Estudo de quarta, Orações 2026)">
-            <button class="btn btn-primary" id="add-block-btn"><span class="em">📓</span>Criar bloco</button>
+          <div class="dv-week" id="nb-week"></div>
+          <div class="dv-total"><span>TOTAL DE ANOTAÇÕES</span><b id="nb-total">0</b></div>
+          <div class="dv-card" style="margin-top:0;margin-bottom:18px;">
+            <div class="note-toolbar-row">
+              <input id="new-block-name" class="note-input" placeholder="Novo bloco (ex: Salmos, Estudo de quarta, Orações 2026)">
+              <button class="btn btn-primary" id="add-block-btn"><span class="em">📓</span>Criar bloco</button>
+            </div>
           </div>
+          <div class="dv-folders" id="nb-folders"></div>
+          <div id="nb-recall"></div>
+          <div class="dv-loghead">
+            <h3 style="font-size:1.05rem;">Meu caderno</h3>
+            <input type="search" class="dv-search" id="nb-search" placeholder="Buscar em todas as anotações">
+            <button type="button" class="btn btn-ghost btn-sm" data-act="ffav" id="nb-ffav">⭐ Favoritas</button>
+            <button type="button" class="btn btn-ghost btn-sm" data-act="rand">🎲 Relembrar</button>
+          </div>
+          <div id="note-blocks-list"></div>
         </div>
-
-        <div id="note-blocks-list" style="margin-top:20px;display:flex;flex-direction:column;gap:16px;"></div>
       </section>
 
       <!-- ============ FAVORITES ============ -->
@@ -5757,6 +5876,72 @@ function atualizarNomeConta(){
 /* =========================================================
    BIBLE READER
    ========================================================= */
+/* Rolagem animada (easing) — substitui o smooth nativo, que ficava travado
+   por brigar com o scroll-behavior do CSS e com chamadas repetidas. */
+let __ipgeScrollAnim = null;
+function ipgeSmoothScroll(scroller, targetY, duration){
+  // scroller: elemento que rola (ex.: #auth-shell) ou null para a janela
+  if(__ipgeScrollAnim) __ipgeScrollAnim.cancel();
+  const root = document.documentElement;
+  const getY = ()=> scroller ? scroller.scrollTop : (window.pageYOffset || root.scrollTop || 0);
+  const setY = y => { if(scroller) scroller.scrollTop = y; else window.scrollTo(0, y); };
+  const startY = getY();
+  const maxY = scroller ? (scroller.scrollHeight - scroller.clientHeight)
+                        : (Math.max(root.scrollHeight, document.body.scrollHeight) - window.innerHeight);
+  const endY = Math.max(0, Math.min(targetY, maxY));
+  const dist = endY - startY;
+  if(Math.abs(dist) < 2) return;
+
+  const dur = duration || Math.min(1500, Math.max(800, Math.abs(dist) * 0.7));
+  const ease = t => t<.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2; // easeInOutCubic
+
+  // desliga o que atrapalha durante a animação
+  const prevBehavior = root.style.scrollBehavior;
+  root.style.scrollBehavior = 'auto';
+  const prevSnap = scroller ? scroller.style.scrollSnapType : '';
+  if(scroller) scroller.style.scrollSnapType = 'none';
+
+  let raf = 0, done = false;
+  const t0 = performance.now();
+  const stopEvents = ['wheel','touchstart','mousedown','keydown'];
+  const finish = ()=>{
+    if(done) return; done = true;
+    cancelAnimationFrame(raf);
+    stopEvents.forEach(e=>window.removeEventListener(e, onUser, true));
+    root.style.scrollBehavior = prevBehavior;
+    if(scroller) scroller.style.scrollSnapType = prevSnap;
+    if(__ipgeScrollAnim && __ipgeScrollAnim.cancel === finish) __ipgeScrollAnim = null;
+  };
+  const onUser = ()=> finish(); // se o usuário mexer, a animação para
+  stopEvents.forEach(e=>window.addEventListener(e, onUser, {capture:true, passive:true}));
+  __ipgeScrollAnim = { cancel: finish };
+
+  (function step(now){
+    if(done) return;
+    const p = Math.min(1, (now - t0) / dur);
+    setY(startY + dist * ease(p));
+    if(p < 1) raf = requestAnimationFrame(step); else finish();
+  })(t0);
+}
+window.ipgeSmoothScroll = ipgeSmoothScroll;
+
+/* Rola (animado) até o título do capítulo, descontando a barra fixa do topo */
+function scrollToReaderTitle(){
+  requestAnimationFrame(()=>{
+    const el = document.getElementById('reader-book-title');
+    if(!el) return;
+    const bar = document.getElementById('topbar');
+    const barH = (bar && getComputedStyle(bar).position==='sticky') ? bar.offsetHeight : 0;
+    const top = el.getBoundingClientRect().top + (window.pageYOffset || 0) - barH - 16;
+    ipgeSmoothScroll(null, top);
+    // entrada suave do cartão do capítulo (também dá movimento quando a distância é curta)
+    const card = el.closest('.reader-card');
+    if(card){
+      card.classList.remove('reader-pop'); void card.offsetWidth; card.classList.add('reader-pop');
+      setTimeout(()=>card.classList.remove('reader-pop'), 900);
+    }
+  });
+}
 function renderBookList(){
   const listEl = document.getElementById('book-list');
   listEl.innerHTML = '';
@@ -5765,24 +5950,18 @@ function renderBookList(){
     const chapNums = Object.keys(b.chapters);
     const div = document.createElement('button');
     div.className = 'book-item' + (idx===state.currentBookIdx ? ' active' : '');
-    div.innerHTML = `<span>${b.book}</span><span class="chip-count">${chapNums.length} cap.</span>`;
+    const rdN = chapNums.filter(c=>bbIsRead(b.book+' '+c)).length;
+    div.style.setProperty('--c', bbCatColor(b));
+    div.innerHTML = `<span class="bt-n">${b.book}</span><span class="chip-count">${rdN}/${chapNums.length} cap.</span><span class="bt-bar"><i style="width:${Math.round(rdN/chapNums.length*100)}%"></i></span>`;
     div.addEventListener('click', ()=>{
       state.currentBookIdx = idx;
       state.currentChapter = parseInt(chapNums[0]);
       renderBookList();
       renderReader();
 
-      // Em smartphones e tablets, após escolher o livro,
-      // leva automaticamente o usuário até os versículos.
-      setTimeout(()=>{
-        const tituloBiblia = document.querySelector('#reader-book-title');
-        if(tituloBiblia && window.innerWidth <= 900){
-          window.scrollTo({
-            top: tituloBiblia.offsetTop - 20,
-            behavior:'smooth'
-          });
-        }
-      }, 120);
+      // Após escolher o livro, leva o usuário até o título do capítulo
+      // (ex.: "Gênesis 1 · A criação do mundo") e não para o topo da página.
+      scrollToReaderTitle();
     });
     listEl.appendChild(div);
   });
@@ -7148,7 +7327,7 @@ function renderReader(){
   navEl.innerHTML = '';
   chapNums.forEach(c=>{
     const dot = document.createElement('button');
-    dot.className = 'chap-dot' + (parseInt(c)===state.currentChapter ? ' active' : '');
+    dot.className = 'chap-dot' + (bbIsRead(book.book+' '+c) ? ' read' : '') + (parseInt(c)===state.currentChapter ? ' active' : '');
     dot.textContent = c;
     dot.addEventListener('click', ()=>{ state.currentChapter = parseInt(c); renderReader(); });
     navEl.appendChild(dot);
@@ -7169,7 +7348,9 @@ function renderReader(){
     const ref = `${book.book} ${state.currentChapter}:${verseNum}`;
     const isFav = state.favorites.some(f=>f.ref===ref);
     const row = document.createElement('div');
-    row.className = 'verse' + (isFav ? ' favorited' : '');
+    const hlI = bbHlGet(ref);
+    row.className = 'verse' + (isFav ? ' favorited' : '') + (hlI!=null ? ' hl' : '');
+    if(hlI!=null) row.style.setProperty('--hl', BB_HL[hlI]);
     row.dataset.verse = verseNum;
     row.innerHTML = `
       <span class="vnum">${i+1}</span>
@@ -7177,6 +7358,8 @@ function renderReader(){
       <span class="verse-actions">
         <button class="vbtn fav-btn" title="Favoritar">${isFav ? '❤️' : '🤍'}</button>
         <button class="vbtn note-btn" title="Anotar">📝</button>
+        <button class="vbtn hl-btn" title="Destacar">🖍️</button>
+        <button class="vbtn copy-btn" title="Copiar">📋</button>
         <button class="vbtn share-btn" title="Compartilhar">🔗</button>
       </span>`;
     row.querySelector('.fav-btn').addEventListener('click', (e)=>{
@@ -7196,9 +7379,16 @@ function renderReader(){
         abrirCompartilharVersiculo(ref, text);
       }
     });
+    row.querySelector('.hl-btn').addEventListener('click', (e)=>{ e.stopPropagation(); bbCycleHl(ref); renderReader(); });
+    row.querySelector('.copy-btn').addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const t = row.querySelector('.verse-text').textContent.trim();
+      if(navigator.clipboard) navigator.clipboard.writeText('“' + t + '” — ' + ref).then(()=>toast('Versículo copiado','📋'));
+    });
     versesEl.appendChild(row);
   });
   updateFavoriteChapterBtn();
+  bbAfter(book);
 }
 
 document.getElementById('btn-favorite-chapter').addEventListener('click', ()=>{
@@ -7297,6 +7487,107 @@ function goToFavoriteRef(ref){
     }
   }, 220);
 }
+
+/* BB — Bíblia redesenhada: leitura acompanhada, destaques, busca, ouvir, tamanho da letra */
+var BB_HL=['#fff1a8','#ffc9de','#c4f0dc','#c8dcff'];
+var BB_CAT={'Lei':'#f0594d','Históricos':'#f2a65a','História':'#f2a65a','Poesia':'#b58af0','Sabedoria':'#b58af0','Profetas':'#7cc5f2','Profetas Maiores':'#7cc5f2','Profetas Menores':'#5fb0e8','Evangelhos':'#d3e24a','Cartas':'#5fd0a5','Profecia':'#f28bb6'};
+var BB_FS=[0.9,1,1.12,1.25,1.4];
+var bbRead={r:{}}, bbHLm={}, bbFS=1, bbLast=null;
+try{ bbRead=Object.assign({r:{}},JSON.parse(localStorage.getItem('ipge_bb_read_v1')||'{}')); }catch(e){}
+try{ bbHLm=JSON.parse(localStorage.getItem('ipge_bb_hl_v1')||'{}')||{}; }catch(e){}
+try{ bbFS=parseFloat(localStorage.getItem('ipge_bb_fs_v1'))||1; }catch(e){}
+try{ bbLast=JSON.parse(localStorage.getItem('ipge_bb_last_v1')||'null'); }catch(e){}
+function bbSv(k,v){ try{ localStorage.setItem(k,typeof v==='string'?v:JSON.stringify(v)); }catch(e){} }
+function bbIsRead(ref){ return !!(bbRead && bbRead.r && bbRead.r[ref]); }
+function bbHlGet(ref){ return (bbHLm && bbHLm[ref]!=null) ? bbHLm[ref] : null; }
+function bbCycleHl(ref){ const cur=bbHlGet(ref), nx=cur==null?0:cur+1; if(nx>=BB_HL.length) delete bbHLm[ref]; else bbHLm[ref]=nx; bbSv('ipge_bb_hl_v1',bbHLm); }
+function bbCatColor(b){ return ((typeof BB_CAT!=='undefined'&&BB_CAT)||{})[b.cat]||'#d3e24a'; }
+function bbNorm(s){ return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); }
+function bbRefNow(){ const bk=getBible()[state.currentBookIdx]; return bk?bk.book+' '+state.currentChapter:''; }
+function bbStats(){
+  const $=id=>document.getElementById(id); if(!$('bb-total')) return;
+  const r=bbRead.r||{}, refs=Object.keys(r), days=new Set(refs.map(k=>r[k]));
+  $('bb-total').textContent=refs.length;
+  $('bb-date').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  let s=0,d=new Date(); if(!days.has(dvKey(d))) d.setDate(d.getDate()-1);
+  while(days.has(dvKey(d))){ s++; d.setDate(d.getDate()-1); }
+  $('bb-streak').textContent=s;
+  let w=''; for(let i=6;i>=0;i--){ const x=new Date(); x.setDate(x.getDate()-i); const on=days.has(dvKey(x)); w+='<div class="dv-day'+(on?' on':'')+(i?'':' today')+'">'+x.toLocaleDateString('pt-BR',{weekday:'narrow'})+'<i>'+(on?'✓':'')+'</i></div>'; }
+  $('bb-week').innerHTML=w;
+  $('bb-prog').style.width=Math.min(100,refs.length/1189*100)+'%';
+  $('bb-prog-t').textContent=refs.length+' de 1189 capítulos da Bíblia ('+(refs.length/1189*100).toFixed(1).replace('.',',')+'%)';
+  $('bb-continue').innerHTML='<div class="bb-cont">'+(bbLast?'<button type="button" class="bb-go pri" data-ref="'+escapeHtml(bbLast.ref)+'"><small>CONTINUAR LENDO</small><b>'+escapeHtml(bbLast.ref)+'</b></button>':'')+'<button type="button" class="bb-go" data-rand="1"><small>SURPREENDA-ME</small><b>🎲 Capítulo aleatório</b></button></div>';
+}
+function bbAfter(book){
+  bbLast={ref:book.book+' '+state.currentChapter}; bbSv('ipge_bb_last_v1',bbLast);
+  const b=document.getElementById('bb-read');
+  if(b){ const on=bbIsRead(bbRefNow()); b.textContent=on?'✓ Lido':'Marcar como lido'; b.classList.toggle('on',on); }
+  const bb=document.getElementById('bb'); if(bb) bb.style.setProperty('--bbfs',bbFS);
+  bbStats();
+}
+function bbStep(d){
+  const bl=getBible(); let bi=state.currentBookIdx, chs=Object.keys(bl[bi].chapters).map(Number), pos=chs.indexOf(state.currentChapter)+d;
+  if(pos>=chs.length){ bi++; if(bi>=bl.length) return toast('Você chegou ao fim da Bíblia 🙌','📖'); chs=Object.keys(bl[bi].chapters).map(Number); pos=0; }
+  else if(pos<0){ bi--; if(bi<0) return; chs=Object.keys(bl[bi].chapters).map(Number); pos=chs.length-1; }
+  if('speechSynthesis' in window) speechSynthesis.cancel();
+  state.currentBookIdx=bi; state.currentChapter=chs[pos]; state.testamentFilter=bl[bi].testament;
+  document.querySelectorAll('.tab-btn[data-testament]').forEach(b=>b.classList.toggle('active',b.dataset.testament===state.testamentFilter));
+  renderBookList(); renderReader();
+  document.getElementById('reader-book-title').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function bbSearch(qraw){
+  const box=document.getElementById('bb-results'), q=qraw.trim();
+  if(q.length<2){ box.innerHTML=''; return; }
+  const nq=bbNorm(q), bl=getBible(); let html='';
+  const m=q.match(/^(.+?)\s+(\d+)(?:\s*[:.,]\s*(\d+))?$/);
+  if(m){
+    const nb=bbNorm(m[1]); let bj=bl.findIndex(b=>bbNorm(b.book)===nb); if(bj<0) bj=bl.findIndex(b=>bbNorm(b.book).startsWith(nb));
+    const ch=parseInt(m[2],10);
+    if(bj>=0&&bl[bj].chapters[ch]){ const ref=bl[bj].book+' '+ch+(m[3]?':'+parseInt(m[3],10):''); html+='<button type="button" class="bb-res" data-ref="'+escapeHtml(ref)+'"><b>➜ Ir para '+escapeHtml(ref)+'</b></button>'; }
+  }
+  if(!/\d/.test(q)){
+    const bs=bl.filter(b=>bbNorm(b.book).includes(nq)).slice(0,6);
+    if(bs.length) html+='<div class="dv-chips" style="margin-top:10px;">'+bs.map(b=>'<button type="button" class="dv-chip" style="--c:'+bbCatColor(b)+'" data-ref="'+escapeHtml(b.book+' '+Object.keys(b.chapters)[0])+'">📖 '+escapeHtml(b.book)+'</button>').join('')+'</div>';
+  }
+  let n=0; const out=[];
+  if(nq.length>=3){
+    outer: for(const b of bl){ for(const c in b.chapters){ const vs=b.chapters[c]; for(let i=0;i<vs.length;i++){
+      const t=String(vs[i]).replace(/<[^>]+>/g,''), at=bbNorm(t).indexOf(nq);
+      if(at>=0){ n++; if(out.length<25) out.push({ref:b.book+' '+c+':'+(i+1),t,at}); if(n>=300) break outer; }
+    } } }
+  }
+  if(out.length){
+    html+='<div class="dv-count" style="margin-top:10px;">'+(n>=300?'300+':n)+' versículo'+(n===1?'':'s')+(n>25?' (mostrando os 25 primeiros)':'')+'</div>';
+    html+=out.map(o=>{ const s=Math.max(0,o.at-50); return '<button type="button" class="bb-res" data-ref="'+escapeHtml(o.ref)+'"><b>'+escapeHtml(o.ref)+'</b>'+(s>0?'…':'')+escapeHtml(o.t.slice(s,o.at))+'<mark>'+escapeHtml(o.t.slice(o.at,o.at+nq.length))+'</mark>'+escapeHtml(o.t.slice(o.at+nq.length,o.at+nq.length+110))+'…</button>'; }).join('');
+  }
+  box.innerHTML=html||'<div class="note-block-empty" style="padding:8px 2px;">Nada encontrado.</div>';
+}
+;(function(){
+  const $=id=>document.getElementById(id), root=$('bb'); let t=null;
+  $('bb-search').addEventListener('input',e=>{ clearTimeout(t); t=setTimeout(()=>bbSearch(e.target.value),250); });
+  $('bb-search').addEventListener('keydown',e=>{ if(e.key==='Enter'){ clearTimeout(t); bbSearch(e.target.value); } });
+  root.addEventListener('click',e=>{
+    const go=e.target.closest('[data-ref]'), rn=e.target.closest('[data-rand]'), st=e.target.closest('[data-step]'), fs=e.target.closest('[data-fs]');
+    if(go){ $('bb-search').value=''; $('bb-results').innerHTML=''; goToFavoriteRef(go.dataset.ref); return; }
+    if(rn){ const bl=getBible(), b=bl[Math.floor(Math.random()*bl.length)], chs=Object.keys(b.chapters); goToFavoriteRef(b.book+' '+chs[Math.floor(Math.random()*chs.length)]); return; }
+    if(st){ bbStep(parseInt(st.dataset.step,10)); return; }
+    if(fs){ let i=BB_FS.indexOf(bbFS); if(i<0) i=1; i=Math.max(0,Math.min(BB_FS.length-1,i+parseInt(fs.dataset.fs,10))); bbFS=BB_FS[i]; bbSv('ipge_bb_fs_v1',String(bbFS)); root.style.setProperty('--bbfs',bbFS); return; }
+    if(e.target.closest('#bb-read')){
+      const ref=bbRefNow(), bk=getBible()[state.currentBookIdx];
+      if(bbIsRead(ref)) delete bbRead.r[ref]; else {
+        bbRead.r[ref]=dvKey(new Date()); toast('Capítulo lido: '+ref,'✅');
+        const chs=Object.keys(bk.chapters); if(chs.every(c=>bbIsRead(bk.book+' '+c))) toast('Você terminou '+bk.book+'! 🎉','🎉');
+      }
+      bbSv('ipge_bb_read_v1',bbRead); renderBookList(); renderReader(); return;
+    }
+    if(e.target.closest('#bb-listen')){
+      if(!('speechSynthesis' in window)) return toast('Seu navegador não lê em voz alta','⚠️');
+      if(speechSynthesis.speaking){ speechSynthesis.cancel(); return; }
+      const txt=[...document.querySelectorAll('#verse-list .verse-text')].map(x=>x.textContent).join(' ');
+      const u=new SpeechSynthesisUtterance(bbRefNow()+'. '+txt); u.lang='pt-BR'; speechSynthesis.speak(u);
+    }
+  });
+})();
 
 /* init bible: show the offline sample instantly, then fetch the full Bible
    (na versão salva do usuário, ou ARC por padrão) em segundo plano */
@@ -8360,6 +8651,7 @@ async function garantirBlocoNoBanco(block){
   const { data, error } = await db.rpc('criar_bloco_notas', { p_token: state.sessionToken, p_nome: block.name });
   if(error){ console.error('Erro ao criar bloco de notas:', error); return; }
   block.dbId = data;
+  if(typeof nbM!=='undefined' && nbM.b[block.id]){ nbM.b['d'+data]=nbM.b[block.id]; nbSave(); }
 }
 // Chamada a partir do botão "Anotar" de um versículo na Bíblia — o bloco criado
 // leva o nome do próprio versículo (ex: "João 3:16"), reaproveitado se anotar de novo.
@@ -8386,10 +8678,10 @@ async function addNoteBlock(name){
   renderNoteBlocks();
   if(state.sessionToken) await garantirBlocoNoBanco(block);
 }
-async function addNoteToBlock(blockId, tag, text){
+async function addNoteToBlock(blockId, tag, text, extra){
   const block = state.noteBlocks.find(b=>b.id===blockId);
   if(!block) return;
-  const note = {tag: tag || 'Geral', text: text || '', date: new Date().toLocaleDateString('pt-BR'), id: null};
+  const note = {tag: tag || 'Geral', text: text || '', date: new Date().toLocaleDateString('pt-BR'), id: null, mood: extra && extra.mood};
   block.notes.unshift(note);
   renderNoteBlocks();
 
@@ -8400,7 +8692,7 @@ async function addNoteToBlock(blockId, tag, text){
     p_token: state.sessionToken, p_bloco_id: block.dbId, p_tag: note.tag, p_texto: note.text
   });
   if(error){ console.error('Erro ao salvar anotação:', error); return; }
-  note.id = data;
+  note.id = data; nbSetN(note, {});
 }
 async function deleteNoteFromBlock(blockId, idx){
   const block = state.noteBlocks.find(b=>b.id===blockId);
@@ -8441,161 +8733,101 @@ async function deleteNoteBlock(blockId){
   }
 }
 
-function renderNoteBlocks(){
-  const list = document.getElementById('note-blocks-list');
-  list.innerHTML = '';
-  if(state.noteBlocks.length===0){
-    list.innerHTML = '<div class="card"><div class="muted">Você ainda não criou nenhum bloco de notas. Crie um acima para começar a registrar suas reflexões.</div></div>';
-    return;
-  }
-  state.noteBlocks.forEach(block=>{
-    const isOpen = state.openBlockId === block.id;
-    const wrap = document.createElement('div');
-    wrap.className = 'note-block' + (isOpen ? ' open' : '');
-
-    const notesHtml = block.notes.length
-      ? block.notes.map((n, idx)=>{
-          const isEditing = state.editingNote && state.editingNote.blockId===block.id && state.editingNote.idx===idx;
-          if(isEditing){
-            return `
-            <div class="note-item note-item-editing">
-              <input class="note-input" id="edit-tag-input" placeholder="Referência ou tema (ex: Salmos 23, Fé)">
-              <textarea class="notes-area" id="edit-text-textarea" style="margin-top:12px;" placeholder="Escreva sua reflexão…"></textarea>
-              <div class="note-toolbar-row">
-                <button class="btn btn-primary" data-save-edit="${block.id}::${idx}">Salvar alterações</button>
-                <button class="btn btn-ghost" data-cancel-edit="1">Cancelar</button>
-              </div>
-            </div>`;
-          }
-          return `
-          <div class="note-item">
-            <div class="note-item-head">
-              <span class="pill pill-sage">${escapeHtml(n.tag)}</span>
-              <span class="note-item-meta">
-                <span class="muted" style="font-size:.75rem;">${n.editedDate ? 'editado em ' + n.editedDate : n.date}</span>
-                <button class="note-item-edit" data-editblock="${block.id}" data-editidx="${idx}" title="Editar anotação">✏️</button>
-                <button class="note-item-del" data-block="${block.id}" data-idx="${idx}" title="Excluir anotação">✕</button>
-              </span>
-            </div>
-            <p style="margin-top:10px;line-height:1.7;">${n.text ? escapeHtml(n.text).replace(/\n/g,'<br>') : '<i class="muted">(sem texto ainda)</i>'}</p>
-          </div>`;
-        }).join('')
-      : '<div class="note-block-empty">Nenhuma anotação neste bloco ainda.</div>';
-
-    wrap.innerHTML = `
-      <div class="note-block-head" data-toggle="${block.id}">
-        <span class="note-block-title">📓 ${escapeHtml(block.name)}</span>
-        <span class="note-block-count">${block.notes.length} anotaç${block.notes.length===1?'ão':'ões'}</span>
-        <span class="note-block-chevron">▾</span>
-        <button class="note-block-del" data-delblock="${block.id}" title="Excluir bloco de notas">🗑️</button>
-      </div>
-      <div class="note-block-body">
-        <textarea class="notes-area" data-textarea="${block.id}" placeholder="Escreva uma nova reflexão neste bloco…"></textarea>
-        <div class="note-toolbar-row">
-          <input data-tag="${block.id}" class="note-input" placeholder="Referência ou tema (ex: Salmos 23, Fé)">
-          <button class="btn btn-primary" data-save="${block.id}">Salvar anotação</button>
-        </div>
-        <div style="margin-top:16px;display:flex;flex-direction:column;">${notesHtml}</div>
-      </div>`;
-    list.appendChild(wrap);
-  });
-
-  // Preenche o formulário de edição (via propriedades JS, evitando problemas de escaping em atributos)
-  if(state.editingNote){
-    const { blockId, idx } = state.editingNote;
-    const block = state.noteBlocks.find(b=>b.id===blockId);
-    const note = block && block.notes[idx];
-    const tagInput = document.getElementById('edit-tag-input');
-    const textArea = document.getElementById('edit-text-textarea');
-    if(note && tagInput && textArea){
-      tagInput.value = note.tag;
-      textArea.value = note.text;
-      textArea.focus();
-      const len = textArea.value.length;
-      textArea.setSelectionRange(len, len);
-    }
-  }
-
-  // Toggle abrir/fechar bloco
-  list.querySelectorAll('[data-toggle]').forEach(el=>{
-    el.addEventListener('click', (e)=>{
-      if(e.target.closest('[data-delblock]')) return;
-      const id = el.dataset.toggle;
-      state.openBlockId = (state.openBlockId === id) ? null : id;
-      renderNoteBlocks();
-    });
-  });
-  // Salvar anotação dentro de um bloco
-  list.querySelectorAll('[data-save]').forEach(el=>{
-    el.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      const id = el.dataset.save;
-      const textarea = list.querySelector(`[data-textarea="${id}"]`);
-      const tagInput = list.querySelector(`[data-tag="${id}"]`);
-      const text = textarea.value;
-      const tag = tagInput.value || 'Geral';
-      if(!text.trim()) return toast('Escreva uma reflexão antes de salvar', '⚠️');
-      addNoteToBlock(id, tag, text);
-      toast('Anotação salva', '📝');
-    });
-  });
-  // Editar anotação individual
-  list.querySelectorAll('.note-item-edit').forEach(el=>{
-    el.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      state.editingNote = { blockId: el.dataset.editblock, idx: parseInt(el.dataset.editidx, 10) };
-      renderNoteBlocks();
-    });
-  });
-  // Salvar alterações da anotação em edição
-  list.querySelectorAll('[data-save-edit]').forEach(el=>{
-    el.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      const [blockId, idxStr] = el.dataset.saveEdit.split('::');
-      const idx = parseInt(idxStr, 10);
-      const tagInput = document.getElementById('edit-tag-input');
-      const textArea = document.getElementById('edit-text-textarea');
-      const text = textArea.value;
-      if(!text.trim()) return toast('A anotação não pode ficar vazia', '⚠️');
-      saveEditNote(blockId, idx, tagInput.value, text);
-      toast('Anotação atualizada', '✏️');
-    });
-  });
-  // Cancelar edição
-  list.querySelectorAll('[data-cancel-edit]').forEach(el=>{
-    el.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      state.editingNote = null;
-      renderNoteBlocks();
-    });
-  });
-  // Excluir anotação individual
-  list.querySelectorAll('.note-item-del').forEach(el=>{
-    el.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      deleteNoteFromBlock(el.dataset.block, parseInt(el.dataset.idx, 10));
-    });
-  });
-  // Excluir bloco inteiro (com confirmação)
-  list.querySelectorAll('[data-delblock]').forEach(el=>{
-    el.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      const id = el.dataset.delblock;
-      const block = state.noteBlocks.find(b=>b.id===id);
-      if(!block) return;
-      openConfirm({
-        title: 'Excluir bloco de notas?',
-        text: `Tem certeza que deseja excluir o bloco "${block.name}"${block.notes.length ? ' e ' + block.notes.length + ' anotaç' + (block.notes.length===1?'ão':'ões') + ' dentro dele' : ''}? Essa ação não pode ser desfeita.`,
-        confirmLabel: 'Excluir bloco',
-        cancelLabel: 'Continuar com o bloco',
-        onConfirm: ()=>{
-          deleteNoteBlock(id);
-          toast('Bloco de notas excluído', '🗑️');
-        }
-      });
-    });
-  });
+function renderNoteBlocks(){ nbRender(); }
+/* NB — pastas coloridas, humor, favoritas, fixadas, sequência, voz, relembrar, exportar */
+var NB_COLORS=['#f0594d','#d3e24a','#7cc5f2','#f2a65a','#b58af0','#5fd0a5','#f28bb6'];
+var NB_EMOJIS=['📓','🙏','💛','📖','🎯','🕊️','🔥','🌿','⭐','✝️'];
+var NB_MOODS=['😊','🥰','🙏','😔','😰'];
+var NB_TAGS=['Fé','Gratidão','Promessa','Pergunta','Oração'];
+var nbM={b:{},n:{}}, nbF={q:'',fav:false}, nbDraft={text:'',tag:'',mood:null}, nbCust=false, nbRecall=null;
+try{ nbM=Object.assign(nbM,JSON.parse(localStorage.getItem('ipge_nb_meta_v1')||'{}')); }catch(e){}
+function nbSave(){ try{localStorage.setItem('ipge_nb_meta_v1',JSON.stringify(nbM));}catch(e){} }
+function nbBK(b){ return b.dbId?'d'+b.dbId:b.id; }
+function nbB(b){ const m=nbM.b[nbBK(b)]||nbM.b[b.id]||{}; const h=Math.abs([...b.name].reduce((a,c)=>(a*31+c.charCodeAt(0))|0,7)); return {c:m.c||NB_COLORS[h%NB_COLORS.length], e:m.e||'📓', p:!!m.p}; }
+function nbSetB(b,o){ const k=nbBK(b); nbM.b[k]=Object.assign({},nbB(b),o); nbSave(); }
+function nbN(n){ const m=(n.id&&nbM.n[n.id])||{}; return {m:n.mood||m.m, f:n.fav!=null?n.fav:!!m.f, p:n.pin!=null?n.pin:!!m.p}; }
+function nbSetN(n,o){ Object.assign(n,o); if(n.id){ const c=nbN(n); nbM.n[n.id]={m:c.m,f:c.f,p:c.p}; nbSave(); } }
+function nbAll(){ return state.noteBlocks.flatMap(b=>b.notes.map((n,i)=>({b,n,i}))); }
+function nbDayKey(s){ const p=(s||'').split('/'); return p.length===3?p[2]+'-'+p[1]+'-'+p[0]:''; }
+function nbStats(){
+  const $=id=>document.getElementById(id), all=nbAll(), days=new Set(all.map(x=>nbDayKey(x.n.date)));
+  $('nb-total').textContent=all.length; $('nb-date').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  let s=0,d=new Date(); if(!days.has(dvKey(d))) d.setDate(d.getDate()-1);
+  while(days.has(dvKey(d))){ s++; d.setDate(d.getDate()-1); }
+  $('nb-streak').textContent=s;
+  let w=''; for(let i=6;i>=0;i--){ const x=new Date(); x.setDate(x.getDate()-i); const on=days.has(dvKey(x)); w+='<div class="dv-day'+(on?' on':'')+(i?'':' today')+'">'+x.toLocaleDateString('pt-BR',{weekday:'narrow'})+'<i>'+(on?'✓':'')+'</i></div>'; }
+  $('nb-week').innerHTML=w;
 }
+function nbNoteHtml(x,showBlock){
+  const {b,n,i}=x, m=nbN(n), c=nbB(b).c, ed=state.editingNote&&state.editingNote.blockId===b.id&&state.editingNote.idx===i, at=`data-b="${b.id}" data-i="${i}"`;
+  if(ed) return `<div class="nb-note" style="--c:${c}"><input class="note-input" id="edit-tag-input" placeholder="Referência ou tema"><textarea class="notes-area" id="edit-text-textarea" style="margin-top:12px;"></textarea><div class="note-toolbar-row"><button class="btn btn-primary btn-sm" data-act="nsave" ${at}>Salvar alterações</button><button class="btn btn-ghost btn-sm" data-act="ncancel">Cancelar</button></div></div>`;
+  return `<div class="nb-note" style="--c:${c}"><div class="note-item-head"><span><span class="dv-tag" style="--c:${c};margin:0 6px 0 0">${escapeHtml(n.tag||'Geral')}</span>${m.m||''}${showBlock?'<small class="muted"> · '+escapeHtml(b.name)+'</small>':''}</span><span class="note-item-meta"><small class="muted">${n.editedDate?'editado em '+n.editedDate:n.date}</small><button class="nb-ic" data-act="nfav" ${at} title="Favoritar">${m.f?'⭐':'☆'}</button><button class="nb-ic" data-act="npin" ${at} title="Fixar no topo">${m.p?'📌':'📍'}</button><button class="nb-ic" data-act="nedit" ${at} title="Editar">✏️</button><button class="nb-ic" data-act="ncopy" ${at} title="Copiar">📋</button><button class="nb-ic" data-act="ndel" ${at} title="Excluir">✕</button></span></div><p>${n.text?escapeHtml(n.text).replace(/\n/g,'<br>'):'<i class="muted">(sem texto ainda)</i>'}</p></div>`;
+}
+function nbDetail(b){
+  const bm=nbB(b), en=b.notes.map((n,i)=>({b,n,i})).sort((x,y)=>nbN(y.n).p-nbN(x.n).p), chip=(a,v,on,l)=>`<button type="button" class="dv-chip${on?' on':''}" style="--c:${bm.c}" data-act="${a}" data-v="${v}">${l}</button>`;
+  return `<div class="dv-card" style="margin-top:0;--c:${bm.c}">
+    <div class="nb-oh"><h3>${bm.e} ${escapeHtml(b.name)}</h3><span class="dv-count">${b.notes.length} · criado em ${b.createdDate}</span><span class="sp"></span><button class="nb-ic" data-act="bpin" title="Fixar pasta">${bm.p?'📌':'📍'}</button><button class="nb-ic" data-act="bcust" title="Personalizar">🎨</button><button class="nb-ic" data-act="bexp" title="Exportar">⬇️</button><button class="nb-ic" data-act="bdel" title="Excluir bloco">🗑️</button></div>
+    ${nbCust?`<div class="dv-chips">${NB_EMOJIS.map(e=>chip('bemo',e,e===bm.e,e)).join('')}</div><div class="dv-chips">${NB_COLORS.map(c=>`<button type="button" class="nb-sw${c===bm.c?' on':''}" style="background:${c}" data-act="bcol" data-v="${c}" aria-label="Cor da pasta"></button>`).join('')}</div>`:''}
+    <div class="dv-mood">${NB_MOODS.map(h=>`<button type="button" data-act="mood" data-v="${h}" class="${nbDraft.mood===h?'on':''}">${h}</button>`).join('')}</div>
+    <div class="dv-chips">${NB_TAGS.map(t=>chip('tagc',t,nbDraft.tag===t,t)).join('')}</div>
+    <input id="nb-tag" class="note-input" style="width:100%;margin-bottom:10px;" placeholder="Referência ou tema (ex: Salmos 23)">
+    <textarea class="notes-area" id="nb-text" placeholder="O que Deus falou com você?"></textarea>
+    <div class="dv-bar"><button type="button" class="btn btn-ghost btn-sm" id="nb-mic" data-act="mic" title="Ditar por voz">🎤</button><span class="sp"></span><span class="dv-count" id="nb-cnt"></span><button type="button" class="btn btn-primary btn-sm" data-act="save">Salvar anotação</button></div>
+    <div>${en.length?en.map(x=>nbNoteHtml(x,false)).join(''):'<div class="note-block-empty" style="margin-top:14px;">Nenhuma anotação neste bloco ainda.</div>'}</div></div>`;
+}
+function nbRender(){
+  const $=id=>document.getElementById(id); if(!$('nb')) return;
+  nbStats();
+  const bl=[...state.noteBlocks].sort((a,b)=>nbB(b).p-nbB(a).p), q=nbF.q.trim().toLowerCase(), searching=q||nbF.fav;
+  $('nb-folders').innerHTML=bl.length?bl.map(b=>{ const m=nbB(b), on=state.openBlockId===b.id; return `<button type="button" class="fd${on?' on':''}" data-act="open" data-b="${b.id}" style="--c:${m.c}" aria-pressed="${on}"><span class="bk"></span><span class="sh"></span><span class="fr"><b>${m.p?'📌 ':''}${m.e} ${escapeHtml(b.name)}</b><em>${b.notes.length}</em></span></button>`; }).join(''):'<div class="dv-card" style="grid-column:1/-1;margin:0;">Você ainda não criou nenhum bloco. Crie um acima para começar a registrar suas reflexões.</div>';
+  $('nb-ffav').classList.toggle('on',nbF.fav);
+  const rc=nbRecall&&state.noteBlocks.find(b=>b.id===nbRecall.b), rn=rc&&rc.notes[nbRecall.i];
+  $('nb-recall').innerHTML=rn?`<div class="nb-recall"><small>✨ Lá de trás · ${escapeHtml(rc.name)} · ${rn.date}</small><p>${escapeHtml(rn.text).replace(/\n/g,'<br>')}</p><button data-act="open" data-b="${rc.id}">Abrir bloco</button> <button data-act="rand">🎲 Outra</button></div>`:'';
+  const list=$('note-blocks-list');
+  if(searching){
+    const r=nbAll().filter(x=>(!q||((x.n.text||'')+' '+(x.n.tag||'')).toLowerCase().includes(q))&&(!nbF.fav||nbN(x.n).f));
+    list.innerHTML=`<div class="dv-card" style="margin-top:0"><div class="dv-count">${r.length} resultado${r.length===1?'':'s'}</div>${r.map(x=>nbNoteHtml(x,true)).join('')||'<div class="note-block-empty" style="margin-top:10px;">Nada encontrado.</div>'}</div>`;
+  } else {
+    const ob=state.noteBlocks.find(b=>b.id===state.openBlockId);
+    list.innerHTML=ob?nbDetail(ob):(bl.length?'<div class="muted" style="text-align:center;padding:10px;">Toque em uma pasta para abrir e anotar ☝️</div>':'');
+  }
+  if(state.editingNote){ const b=state.noteBlocks.find(x=>x.id===state.editingNote.blockId), n=b&&b.notes[state.editingNote.idx], t=$('edit-tag-input'), a=$('edit-text-textarea'); if(n&&t&&a){ t.value=n.tag; a.value=n.text; a.focus(); a.setSelectionRange(a.value.length,a.value.length); } }
+  if($('nb-text')){ $('nb-text').value=nbDraft.text; $('nb-tag').value=nbDraft.tag; $('nb-cnt').textContent=nbDraft.text.length+' caracteres'; }
+}
+;(function(){
+  const $=id=>document.getElementById(id), root=$('nb');
+  const blk=id=>state.noteBlocks.find(b=>b.id===id);
+  root.addEventListener('input',e=>{
+    if(e.target.id==='nb-search'){ nbF.q=e.target.value; nbRender(); }
+    else if(e.target.id==='nb-text'){ nbDraft.text=e.target.value; $('nb-cnt').textContent=nbDraft.text.length+' caracteres'; }
+    else if(e.target.id==='nb-tag'){ nbDraft.tag=e.target.value; }
+  });
+  let rec=null;
+  root.addEventListener('click',e=>{
+    const el=e.target.closest('[data-act]'); if(!el) return;
+    const a=el.dataset.act, v=el.dataset.v, b=blk(el.dataset.b||state.openBlockId), i=parseInt(el.dataset.i,10), n=b&&b.notes[i];
+    if(a==='open'){ state.openBlockId=state.openBlockId===el.dataset.b?null:el.dataset.b; nbCust=false; nbF={q:'',fav:false}; $('nb-search').value=''; nbRender(); if(state.openBlockId) $('note-blocks-list').scrollIntoView({behavior:'smooth',block:'start'}); }
+    else if(a==='ffav'){ nbF.fav=!nbF.fav; nbRender(); }
+    else if(a==='rand'){ const p=nbAll().filter(x=>(x.n.text||'').trim().length>15); if(!p.length) return toast('Escreva mais algumas anotações para relembrar','📝'); const x=p[Math.floor(Math.random()*p.length)]; nbRecall={b:x.b.id,i:x.i}; nbRender(); }
+    else if(a==='mood'){ nbDraft.mood=nbDraft.mood===v?null:v; nbRender(); }
+    else if(a==='tagc'){ nbDraft.tag=nbDraft.tag===v?'':v; nbRender(); }
+    else if(a==='save'){ if(!nbDraft.text.trim()) return toast('Escreva uma reflexão antes de salvar','⚠️'); addNoteToBlock(b.id,nbDraft.tag||'Geral',nbDraft.text,{mood:nbDraft.mood}); nbDraft={text:'',tag:'',mood:null}; nbRender(); toast('Anotação salva','📝'); }
+    else if(a==='nfav'&&n){ nbSetN(n,{fav:!nbN(n).f}); nbRender(); }
+    else if(a==='npin'&&n){ nbSetN(n,{pin:!nbN(n).p}); nbRender(); }
+    else if(a==='nedit'&&n){ state.editingNote={blockId:b.id,idx:i}; nbRender(); }
+    else if(a==='ncancel'){ state.editingNote=null; nbRender(); }
+    else if(a==='nsave'&&n){ const t=$('edit-text-textarea').value; if(!t.trim()) return toast('A anotação não pode ficar vazia','⚠️'); saveEditNote(b.id,i,$('edit-tag-input').value,t); toast('Anotação atualizada','✏️'); }
+    else if(a==='ncopy'&&n){ navigator.clipboard&&navigator.clipboard.writeText(n.text+'\n— '+n.tag+' ('+b.name+')').then(()=>toast('Anotação copiada','📋')); }
+    else if(a==='ndel'&&n){ deleteNoteFromBlock(b.id,i); }
+    else if(a==='bpin'&&b){ nbSetB(b,{p:!nbB(b).p}); nbRender(); }
+    else if(a==='bcust'){ nbCust=!nbCust; nbRender(); }
+    else if(a==='bemo'&&b){ nbSetB(b,{e:v}); nbRender(); }
+    else if(a==='bcol'&&b){ nbSetB(b,{c:v}); nbRender(); }
+    else if(a==='bexp'&&b){ if(!b.notes.length) return toast('Nada para exportar ainda','⚠️'); const t=b.name+'\n\n'+b.notes.map(x=>(nbN(x).m||'')+' '+x.tag+' — '+x.date+'\n'+x.text).join('\n\n----\n\n'), l=document.createElement('a'); l.href=URL.createObjectURL(new Blob([t],{type:'text/plain;charset=utf-8'})); l.download=b.name.replace(/[^\w\-]+/g,'_')+'.txt'; l.click(); }
+    else if(a==='bdel'&&b){ openConfirm({title:'Excluir bloco de notas?',text:`Tem certeza que deseja excluir o bloco "${b.name}"${b.notes.length?' e '+b.notes.length+' anotaç'+(b.notes.length===1?'ão':'ões')+' dentro dele':''}? Essa ação não pode ser desfeita.`,confirmLabel:'Excluir bloco',cancelLabel:'Continuar com o bloco',onConfirm:()=>{ deleteNoteBlock(b.id); toast('Bloco de notas excluído','🗑️'); }}); }
+    else if(a==='mic'){ const SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR) return toast('Seu navegador não suporta ditado por voz','⚠️'); if(rec){ rec.stop(); return; } rec=new SR(); rec.lang='pt-BR'; rec.continuous=true; el.classList.add('on'); rec.onresult=ev=>{ for(let k=ev.resultIndex;k<ev.results.length;k++) if(ev.results[k].isFinal){ const ta=$('nb-text'); ta.value+=(ta.value&&!/\s$/.test(ta.value)?' ':'')+ev.results[k][0].transcript; nbDraft.text=ta.value; $('nb-cnt').textContent=ta.value.length+' caracteres'; } }; rec.onend=()=>{ rec=null; el.classList.remove('on'); }; rec.start(); }
+  });
+})();
 
 document.getElementById('add-block-btn').addEventListener('click', ()=>{
   const input = document.getElementById('new-block-name');
@@ -12492,6 +12724,37 @@ if(mobileSearchBtn && globalSearchBox){
 renderHomeStats();
 renderHomeContinue();
 
+})();
+</script>
+<button type="button" id="back-to-top" aria-label="Voltar ao topo" title="Voltar ao topo">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 15 12 9 18 15"></polyline></svg>
+</button>
+<script>
+(function initBackToTop(){
+  const btn = document.getElementById('back-to-top');
+  if(!btn) return;
+  const shells = ['auth-shell','public-campaign-shell'];
+  const shellEl = id => document.getElementById(id);
+  function currentScroller(){
+    if(document.body.classList.contains('show-public-campaign')) return shellEl('public-campaign-shell');
+    if(document.body.classList.contains('show-auth')) return shellEl('auth-shell');
+    return null; // app normal: rola a janela
+  }
+  function pos(){
+    const sc = currentScroller();
+    return sc ? sc.scrollTop : (window.pageYOffset || document.documentElement.scrollTop || 0);
+  }
+  function update(){ btn.classList.toggle('show', pos() > 320); }
+  window.addEventListener('scroll', update, {passive:true});
+  shells.forEach(id=>{ const el=shellEl(id); if(el) el.addEventListener('scroll', update, {passive:true}); });
+  btn.addEventListener('click', ()=>{
+    const sc = currentScroller();
+    if(window.ipgeSmoothScroll) window.ipgeSmoothScroll(sc, 0);
+    else if(sc) sc.scrollTo({top:0, behavior:'smooth'});
+    else window.scrollTo({top:0, behavior:'smooth'});
+  });
+  new MutationObserver(update).observe(document.body,{attributes:true,attributeFilter:['class']});
+  update();
 })();
 </script>
 </body>
