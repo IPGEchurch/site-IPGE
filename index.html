@@ -11613,6 +11613,61 @@ function renderizarOpcoesImagemVersiculo(){
 }
 renderizarOpcoesImagemVersiculo();
 
+
+/* ---- Fallback para o APK (Android WebView) ---------------------------- */
+function ehWebViewAndroid(){
+  const ua = navigator.userAgent || '';
+  return /Android/i.test(ua) && (/;\s*wv\)/i.test(ua) || (/Version\/[\d.]+/i.test(ua) && /Chrome\//i.test(ua)));
+}
+
+function abrirTelaImagemVersiculo(blob, ref, texto){
+  const antigo = document.getElementById('verse-img-fallback');
+  if(antigo) antigo.remove();
+
+  const url = URL.createObjectURL(blob);
+  const ov = document.createElement('div');
+  ov.id = 'verse-img-fallback';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(10,12,18,.96);display:flex;flex-direction:column;align-items:center;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));overflow:auto;-webkit-overflow-scrolling:touch;';
+
+  const btnCss = 'flex:1;min-width:140px;padding:13px 14px;border-radius:12px;border:1px solid rgba(232,201,138,.55);background:rgba(232,201,138,.12);color:#E8C98A;font:600 15px Inter,sans-serif;';
+  ov.innerHTML =
+    '<div style="width:100%;max-width:420px;display:flex;flex-direction:column;gap:12px;align-items:center;">'+
+      '<div style="color:#FBF8F2;font:600 16px Inter,sans-serif;text-align:center;">Sua imagem está pronta</div>'+
+      '<img id="verse-img-fallback-img" alt="Imagem do versículo" style="width:100%;max-height:58vh;object-fit:contain;border-radius:14px;-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto;">'+
+      '<div id="verse-img-fallback-hint" style="color:rgba(251,248,242,.7);font:400 13px/1.45 Inter,sans-serif;text-align:center;">Toque em <b>Copiar imagem</b> e cole na conversa do WhatsApp. Se preferir, segure o dedo sobre a imagem para ver as opções de salvar.</div>'+
+      '<div style="display:flex;gap:10px;width:100%;flex-wrap:wrap;">'+
+        '<button type="button" id="verse-img-fallback-copy" style="'+btnCss+'">Copiar imagem</button>'+
+        '<button type="button" id="verse-img-fallback-text" style="'+btnCss+'">Copiar texto</button>'+
+      '</div>'+
+      '<button type="button" id="verse-img-fallback-close" style="width:100%;padding:13px;border-radius:12px;border:0;background:#E8C98A;color:#1a1a1a;font:700 15px Inter,sans-serif;">Fechar</button>'+
+    '</div>';
+  document.body.appendChild(ov);
+  document.getElementById('verse-img-fallback-img').src = url;
+
+  const fechar = ()=>{ ov.remove(); setTimeout(()=>URL.revokeObjectURL(url), 1000); };
+  document.getElementById('verse-img-fallback-close').addEventListener('click', fechar);
+
+  document.getElementById('verse-img-fallback-copy').addEventListener('click', async ()=>{
+    try{
+      if(!(navigator.clipboard && window.ClipboardItem)) throw new Error('sem suporte');
+      await navigator.clipboard.write([ new ClipboardItem({ 'image/png': blob }) ]);
+      toast('Imagem copiada! Cole no WhatsApp 📋', '✅');
+    }catch(e){
+      toast('Não consegui copiar. Segure o dedo sobre a imagem para salvar.', '⚠️');
+    }
+  });
+
+  document.getElementById('verse-img-fallback-text').addEventListener('click', async ()=>{
+    const t = '"' + texto + '" — ' + ref;
+    try{
+      await navigator.clipboard.writeText(t);
+      toast('Texto copiado! Cole no WhatsApp 📋', '✅');
+    }catch(e){
+      toast('Não foi possível copiar o texto', '⚠️');
+    }
+  });
+}
+
 async function compartilharVersiculoComoImagem(){
   const { ref, texto } = versiculoAtualParaImagem;
   if(!ref){ return; }
@@ -11635,6 +11690,11 @@ async function compartilharVersiculoComoImagem(){
           toast('Não foi possível compartilhar a imagem', '⚠️');
         }
       }
+    } else if(ehWebViewAndroid()){
+      /* Dentro do APK (WebView) o download por <a download> e o navigator.share
+         com arquivo não funcionam. Mostramos a imagem numa tela própria, com
+         opções que funcionam sem depender do app. */
+      abrirTelaImagemVersiculo(blob, ref, texto);
     } else {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
